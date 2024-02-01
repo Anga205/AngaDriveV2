@@ -1,4 +1,5 @@
 import sqlite3, os, time
+from AngaDriveV2.library import *
 
 database_directory = "rx.db"
 
@@ -41,3 +42,12 @@ def add_timestamp_to_activity():
     cur.execute(f"INSERT INTO activity (timestamps) VALUES ({round(time.time())});")
     con.commit()
     con.close()
+
+
+def fetch_activity_from_last_week():
+    con = sqlite3.connect(database_directory)
+    cur = con.cursor()
+    cur.execute(f"SELECT timestamps FROM activity")
+    output = [x[0] for x in list(cur)]
+    con.close()
+    return calls_per_day(output)

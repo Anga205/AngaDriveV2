@@ -1,6 +1,8 @@
 import reflex as rx
 import random, time
 from AngaDriveV2.library import *
+from AngaDriveV2.DBMS import *
+
 
 start_time = time.time()
 
@@ -24,3 +26,7 @@ class State(rx.State):
 
     def increment_time(self, date):
         self.uptime = format_time(round(time.time() - self.local_start_time))
+    
+
+    def load_index_page(self):
+        add_timestamp_to_activity()
