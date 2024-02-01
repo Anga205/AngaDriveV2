@@ -14,6 +14,30 @@ def index():
             rx.hstack(
                 rx.image(src="/logo.png", height="5vh", width="auto"),
                 rx.heading("AngaDriveV2", font_size="2.5vh"),
+                rx.spacer(),
+                rx.popover(
+                    rx.popover_trigger(
+                        rx.icon(
+                            tag="bell", 
+                            color="WHITE", 
+                            font_size="2.5vh"
+                            )
+                        ),
+                    rx.popover_content(
+                        rx.vstack(
+                            rx.heading(
+                                "Notifications", 
+                                color="BLUE"
+                                ),
+                            rx.divider(border_color="GRAY"),
+                            color="WHITE",
+                            bg="BLACK",
+                            border_width="1vh",
+                            border_radius="0.5vh",
+                            border_color="BLACK",
+                        ),
+                    ),
+                ),
                 color="white",
                 height="5vh",
                 bg = "black",
@@ -64,7 +88,7 @@ def index():
                     )
                 ),
                 spacing="5vh",
-                bg="#00001a", 
+                bg="#0f0f0f", 
                 width="100%", 
                 height="95vh"
             ),

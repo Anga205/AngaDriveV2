@@ -15,13 +15,19 @@ def create_database():
 
             # Create homepage_notifications table
             cur.execute('''
-                CREATE TABLE homepage_notifications (
+                CREATE TABLE announcements (
                     NOTIFICATION_ID TEXT PRIMARY KEY,
                     TIMESTAMP INTEGER,
                     NOTIFICATION_TYPE TEXT,
                     NOTIFICATION_DATA TEXT
                 )
             ''')
+
+            cur.execute('''
+                CREATE TABLE accounts (
+                    token TEXT PRIMARY KEY,
+                )
+                        ''')
 
             cur.execute('''
                 CREATE TABLE activity(

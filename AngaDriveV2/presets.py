@@ -7,7 +7,6 @@ def card(heading, content, **kwargs):
         border_color="black",
         border_width="1.5vh",
         border_radius="0.5vh",
-        padding="1vh",
         align="center",
         color="WHITE",
         bg="BLACK",

@@ -14,15 +14,9 @@ class State(rx.State):
     local_start_time = float(start_time)
     uptime = format_time(round(time.time() - local_start_time))
 
-    site_activity = [
-        {"date": "21 Jan", "times_opened": random.randint(1,20)},
-        {"date": "22 Jan", "times_opened": random.randint(1,20)},
-        {"date": "23 Jan", "times_opened": random.randint(1,20)},
-        {"date": "24 Jan", "times_opened": random.randint(1,20)},
-        {"date": "25 Jan", "times_opened": random.randint(1,20)},
-        {"date": "26 Jan", "times_opened": random.randint(1,20)},
-        {"date": "27 Jan", "times_opened": random.randint(1,20)},
-    ]
+    @rx.var
+    def site_activity(self) -> list[dict]:
+        return [{"date":x, "times_opened": fetch_activity_from_last_week()[x]} for x in fetch_activity_from_last_week()]
 
     def increment_time(self, date):
         self.uptime = format_time(round(time.time() - self.local_start_time))
