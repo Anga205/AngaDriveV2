@@ -1,3 +1,5 @@
+import datetime
+
 def format_time(number: int) -> str:
     # Check if the input number is negative
     if number < 0:
@@ -47,3 +49,23 @@ def format_time(number: int) -> str:
 
     # Join the time components and return as a formatted string
     return ' '.join(time_components)
+
+def calls_per_day(timestamps: list[int]) -> dict: #dict of length 7
+    days_counts = {}
+    today = datetime.datetime.now().date()
+    
+    for ts in timestamps:
+        dt = datetime.datetime.fromtimestamp(ts)
+        day = dt.date()
+        
+        if (today - day).days <= 6:
+            formatted_day = dt.strftime('%b %d')
+            if formatted_day in days_counts:
+                days_counts[formatted_day] += 1
+            else:
+                days_counts[formatted_day] = 1
+    
+    last_week_dates = [(today - datetime.timedelta(days=i)).strftime('%b %d') for i in range(6, -1, -1)]
+    result = {date: days_counts.get(date, 0) for date in last_week_dates}
+    
+    return result
