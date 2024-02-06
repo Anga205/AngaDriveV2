@@ -1,4 +1,31 @@
-import datetime
+import datetime, time
+
+def time_ago(timestamp):
+    current_time = datetime.datetime.now()
+    input_time = datetime.datetime.fromtimestamp(timestamp)
+    time_difference = current_time - input_time
+
+    seconds = time_difference.seconds
+    days = time_difference.days
+    years = days // 365
+    months = days // 30
+    weeks = days // 7
+
+    if years > 0:
+        return f"{years} {'year' if years == 1 else 'years'} ago"
+    elif months > 0:
+        return f"{months} {'month' if months == 1 else 'months'} ago"
+    elif weeks > 0:
+        return f"{weeks} {'week' if weeks == 1 else 'weeks'} ago"
+    elif days > 0:
+        return f"{days} {'day' if days == 1 else 'days'} ago"
+    elif hours := time_difference.seconds // 3600:
+        return f"{hours} {'hour' if hours == 1 else 'hours'} ago"
+    elif minutes := seconds // 60:
+        return f"{minutes} {'minute' if minutes == 1 else 'minutes'} ago"
+    else:
+        return f"{seconds} {'second' if seconds == 1 else 'seconds'} ago"
+
 
 def format_time(number: int) -> str:
     # Check if the input number is negative
