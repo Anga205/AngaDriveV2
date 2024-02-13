@@ -10,7 +10,6 @@ class State(rx.State):
     files_hosted = 10000
     registered_accounts = 10000
     total_accounts = 10000
-    space_used = "10000 GB"
     local_start_time = float(start_time)
     uptime = format_time(round(time.time() - local_start_time))
 
@@ -24,3 +23,11 @@ class State(rx.State):
 
     def load_index_page(self):
         add_timestamp_to_activity()
+
+    @rx.var
+    def space_used(self) -> str:
+        return get_formatted_directory_size()
+    
+    @rx.var
+    def files_hosted(self) -> int:
+        return count_files()

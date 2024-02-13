@@ -1,4 +1,6 @@
-import datetime, time
+import datetime, time, os
+
+file_directory = os.path.join(os.getcwd(), "file_handler")
 
 def time_ago(timestamp):
     current_time = datetime.datetime.now()
@@ -96,3 +98,29 @@ def calls_per_day(timestamps: list[int]) -> dict: #dict of length 7
     result = {date: days_counts.get(date, 0) for date in last_week_dates}
     
     return result
+
+
+def get_directory_size(directory):
+    total_size = 0
+    for dirpath, _, filenames in os.walk(directory):
+        for filename in filenames:
+            file_path = os.path.join(dirpath, filename)
+            if os.path.isfile(file_path):
+                total_size += os.path.getsize(file_path)
+    return total_size
+
+def format_bytes(bytes):
+    for unit in ['B', 'KB', 'MB', 'GB', 'TB']:
+        if bytes < 1024:
+            return f"{bytes:.2f} {unit}"
+        bytes /= 1024
+
+def get_formatted_directory_size(directory = file_directory):
+    size_in_bytes = get_directory_size(directory)
+    return format_bytes(size_in_bytes)
+
+def count_files(directory = file_directory):
+    file_count = 0
+    for dirpath, _, filenames in os.walk(directory):
+        file_count += len(filenames)
+    return file_count
