@@ -16,18 +16,31 @@ def create_database():
             # Create homepage_notifications table
             cur.execute('''
                 CREATE TABLE announcements (
-                    NOTIFICATION_ID TEXT PRIMARY KEY,
+                    ANNOUNCEMENT_ID TEXT PRIMARY KEY,
                     TIMESTAMP INTEGER,
-                    NOTIFICATION_TYPE TEXT,
-                    NOTIFICATION_DATA TEXT
+                    ANNOUNCEMENT_DATA TEXT
                 )
             ''')
 
             cur.execute('''
                 CREATE TABLE accounts (
                     token TEXT PRIMARY KEY,
+                    display_name TEXT,
+                    email TEXT,
+                    password TEXT
                 )
                         ''')
+            
+            cur.execute(
+                '''
+                CREATE TABLE notifications (
+                    NOTIFICATION_ID TEXT PRIMARY KEY,
+                    TIMESTAMP INTEGER,
+                    NOTIFICATION_CONDITION TEXT,
+                    NOTIFICATION_DATA TEXT
+                )
+                '''
+            )
 
             cur.execute('''
                 CREATE TABLE activity(

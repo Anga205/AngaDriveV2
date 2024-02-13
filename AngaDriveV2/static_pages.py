@@ -2,6 +2,42 @@ import reflex as rx
 from AngaDriveV2.presets import *
 from AngaDriveV2.State import State
 
+def static_navbar() -> rx.component:
+    return rx.hstack(
+        rx.image(src="/logo.png", height="5vh", width="auto"),
+        rx.heading("AngaDriveV2", font_size="2.5vh"),
+        rx.spacer(),
+        rx.popover(
+            rx.popover_trigger(
+                rx.icon(
+                    tag="bell", 
+                    color="WHITE", 
+                    font_size="2.5vh"
+                    )
+                ),
+            rx.popover_content(
+                rx.vstack(
+                    rx.heading(
+                        "Notifications", 
+                        color="BLUE"
+                        ),
+                    rx.divider(border_color="GRAY"),
+                    notification(),
+                    color="WHITE",
+                    bg="BLACK",
+                    border_width="1vh",
+                    border_radius="0.5vh",
+                    border_color="BLACK",
+                ),
+            ),
+        ),
+        color="white",
+        height="5vh",
+        bg = "black",
+        spacing = "0vh",
+        width="100%",
+    )
+
 
 def static_data_box() -> rx.Component:
     return rx.vstack(
@@ -61,40 +97,7 @@ def index():
             width="12%",
         ),
         rx.vstack(
-            rx.hstack(
-                rx.image(src="/logo.png", height="5vh", width="auto"),
-                rx.heading("AngaDriveV2", font_size="2.5vh"),
-                rx.spacer(),
-                rx.popover(
-                    rx.popover_trigger(
-                        rx.icon(
-                            tag="bell", 
-                            color="WHITE", 
-                            font_size="2.5vh"
-                            )
-                        ),
-                    rx.popover_content(
-                        rx.vstack(
-                            rx.heading(
-                                "Notifications", 
-                                color="BLUE"
-                                ),
-                            rx.divider(border_color="GRAY"),
-                            notification(),
-                            color="WHITE",
-                            bg="BLACK",
-                            border_width="1vh",
-                            border_radius="0.5vh",
-                            border_color="BLACK",
-                        ),
-                    ),
-                ),
-                color="white",
-                height="5vh",
-                bg = "black",
-                spacing = "0vh",
-                width="100%",
-            ),
+            static_navbar(),
             rx.hstack(
                 rx.vstack(),
                 static_data_box(),
