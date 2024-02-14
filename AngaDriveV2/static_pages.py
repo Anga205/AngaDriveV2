@@ -41,6 +41,14 @@ def static_navbar() -> rx.component:
 
 def static_data_box() -> rx.Component:
     return rx.vstack(
+        rx.heading(
+            "DriveV2 - Site Data",
+            color="#f0f0ff",
+            font_size="3.5vh"
+            ),
+        rx.divider(
+            border_color="GRAY"
+            ),
         rx.flex(
             data_card("Files hosted", State.files_hosted),
             rx.box(width="1vh"),
@@ -88,6 +96,21 @@ def static_data_box() -> rx.Component:
 
 
 
+def account_manager():
+    return rx.vstack(
+        rx.cond(
+            State.is_logged_in,
+            rx.heading("Welcome back!"),
+            rx.heading("Welcome to AngaDriveV2")
+        ),
+        bg="#0f1f0f",
+        border_radius="1vh",
+        border_width="1vh",
+        border_color="#0f1f0f",
+        width="100%",
+    )
+
+
 def index():
     return rx.hstack(
         rx.vstack(
@@ -100,7 +123,10 @@ def index():
             static_navbar(),
             rx.hstack(
                 rx.vstack(),
-                static_data_box(),
+                rx.vstack(
+                    account_manager(),
+                    static_data_box(),
+                    ),
                 spacing="5vh",
                 bg="#0f0f0f", 
                 width="100%", 

@@ -27,7 +27,18 @@ def create_database():
                     token TEXT PRIMARY KEY,
                     display_name TEXT,
                     email TEXT,
-                    password TEXT
+                    hashed_password TEXT,
+                    avatar TEXT,
+                )
+                        ''')
+            
+            cur.execute('''
+                CREATE TABLE file_data(
+                        original_file_name TEXT,
+                        file_directory TEXT PRIMARY KEY,
+                        account_token TEXT,
+                        file_size INTEGER,
+                        timestamp INTEGER
                 )
                         ''')
             
@@ -54,6 +65,18 @@ def create_database():
     else:
         print("Database Found")
 create_database()
+
+
+def account_info(token):
+    con = sqlite3.connect(database_directory)
+    cur=con.cursor()
+    cur.execute(f"SELECT * FROM accounts WHERE token={dbify(token)}")
+    data = cur.fetchone()
+    con.close()
+    return data
+
+
+
 
 def add_timestamp_to_activity():
     con = sqlite3.connect(database_directory)

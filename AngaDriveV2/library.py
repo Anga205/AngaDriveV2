@@ -1,6 +1,20 @@
-import datetime, time, os
+import datetime, time, os, random
 
 file_directory = os.path.join(os.getcwd(), "file_handler")
+
+def dbify(var):
+    if var==None:
+        return "NULL"
+    if type(var)==type(0):
+        return str(var)
+    if type(var)==type(""):
+        if "'" not in var:
+            return "'"+var+"'"
+        elif '"' not in var:
+            return '"'+var+'"'
+        else:
+            return "'"+("".join([("''" if x=="'" else x) for x in var]))+"'"
+
 
 def time_ago(timestamp):
     current_time = datetime.datetime.now()
@@ -124,3 +138,9 @@ def count_files(directory = file_directory):
     for dirpath, _, filenames in os.walk(directory):
         file_count += len(filenames)
     return file_count
+
+def gen_token():
+    a="qwertyuiopasdfghjklzxcvbnm"
+    a=a+a.upper()
+    a=a+"1234567890"
+    return "".join(random.choices(a, k=10))+"."+"".join(random.choices(a, k=20))+"."+str(round(time.time()))
