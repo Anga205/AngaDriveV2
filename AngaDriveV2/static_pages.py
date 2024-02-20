@@ -2,26 +2,26 @@ import reflex as rx
 from AngaDriveV2.presets import *
 from AngaDriveV2.State import State
 
-def static_navbar() -> rx.component:
-    return rx.hstack(
-        rx.image(src="/logo.png", height="5vh", width="auto"),
-        rx.heading("AngaDriveV2", font_size="2.5vh"),
-        rx.spacer(),
-        rx.popover(
-            rx.popover_trigger(
-                rx.icon(
+def static_navbar() -> rx.Component:
+    return rx.chakra.hstack(
+        rx.chakra.image(src="/logo.png", height="5vh", width="auto"),
+        rx.chakra.heading("DriveV2", font_size="2.5vh"),
+        rx.chakra.spacer(),
+        rx.chakra.popover(
+            rx.chakra.popover_trigger(
+                rx.chakra.icon(
                     tag="bell", 
                     color="WHITE", 
                     font_size="2.5vh"
                     )
                 ),
-            rx.popover_content(
-                rx.vstack(
-                    rx.heading(
+            rx.chakra.popover_content(
+                rx.chakra.vstack(
+                    rx.chakra.heading(
                         "Notifications", 
                         color="BLUE"
                         ),
-                    rx.divider(border_color="GRAY"),
+                    rx.chakra.divider(border_color="GRAY"),
                     notification(),
                     color="WHITE",
                     bg="BLACK",
@@ -34,26 +34,26 @@ def static_navbar() -> rx.component:
         color="white",
         height="5vh",
         bg = "black",
-        spacing = "0vh",
+        spacing = "1vh",
         width="100%",
     )
 
 
 def static_data_box() -> rx.Component:
-    return rx.vstack(
-        rx.heading(
+    return rx.chakra.vstack(
+        rx.chakra.heading(
             "DriveV2 - Site Data",
             color="#f0f0ff",
             font_size="3.5vh"
             ),
-        rx.divider(
+        rx.chakra.divider(
             border_color="GRAY"
             ),
-        rx.flex(
+        rx.chakra.flex(
             data_card("Files hosted", State.files_hosted),
-            rx.box(width="1vh"),
+            rx.chakra.box(width="1vh"),
             data_card("Registered Accounts", State.registered_accounts),
-            rx.box(width="1vh"),
+            rx.chakra.box(width="1vh"),
             data_card("Total Accounts", State.total_accounts),
             width="100%"
         ),
@@ -75,16 +75,16 @@ def static_data_box() -> rx.Component:
             width = "100%",
             height="30vh"
         ),
-        rx.box(
+        rx.chakra.box(
             rx.moment(
                 interval=1000, 
                 on_change=State.increment_time
                 ), 
             display="none"
             ),
-        rx.flex(
+        rx.chakra.flex(
             data_card("Space Used", State.space_used, width="50%"),
-            rx.box(width="1vh"),
+            rx.chakra.box(width="1vh"),
             data_card("Uptime",State.uptime, width = "50%"),
             width="100%"
         ),
@@ -97,33 +97,57 @@ def static_data_box() -> rx.Component:
 
 
 def account_manager():
-    return rx.vstack(
+    return rx.chakra.vstack(
         rx.cond(
             State.is_logged_in,
-            rx.heading("Welcome back!"),
-            rx.heading("Welcome to AngaDriveV2")
+            rx.chakra.heading("Welcome back!"),
+            rx.chakra.vstack(
+                rx.chakra.heading(
+                    "Welcome to DriveV2",
+                    color="#f0fff0",
+                    font_size="3.5vh"
+                    ),
+                rx.chakra.divider(
+                    border_color="#f0fff0"
+                    ),
+                rx.chakra.vstack(
+                    rx.chakra.text(
+                        "Cant find your data? Try logging into your account: ",
+                        color="WHITE",
+                        font_size="1.65vh"
+                        ),
+                    rx.chakra.button_group(
+                        login_button(),
+                        signup_button(),
+                        tpu_signup_button(),
+                        is_attached=True,
+                        height="4vh"
+                    ),
+                    rx.chakra.badge(
+                        "Any files you upload anonymously will be transferred to your account after you log in",
+                        variant="subtle",
+                        color_scheme="red"
+                    )
+                ),
+                width="100%"
+            )
         ),
         bg="#0f1f0f",
         border_radius="1vh",
         border_width="1vh",
         border_color="#0f1f0f",
+        height="30vh",
         width="100%",
     )
 
 
 def index():
-    return rx.hstack(
-        rx.vstack(
-            "hello world",
-            height="100vh",
-            bg="black",
-            width="12%",
-        ),
-        rx.vstack(
+    return rx.chakra.hstack(
+        rx.chakra.vstack(
             static_navbar(),
-            rx.hstack(
-                rx.vstack(),
-                rx.vstack(
+            rx.chakra.hstack(
+                rx.chakra.vstack(),
+                rx.chakra.vstack(
                     account_manager(),
                     static_data_box(),
                     ),
@@ -132,7 +156,7 @@ def index():
                 width="100%", 
                 height="95vh"
             ),
-            width="88%",
+            width="100%",
             spacing="0vh",
             height="100vh",
         ),

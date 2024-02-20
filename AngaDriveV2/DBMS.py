@@ -13,15 +13,6 @@ def create_database():
         with sqlite3.connect(db_file_path) as con:
             cur = con.cursor()
 
-            # Create homepage_notifications table
-            cur.execute('''
-                CREATE TABLE announcements (
-                    ANNOUNCEMENT_ID TEXT PRIMARY KEY,
-                    TIMESTAMP INTEGER,
-                    ANNOUNCEMENT_DATA TEXT
-                )
-            ''')
-
             cur.execute('''
                 CREATE TABLE accounts (
                     token TEXT PRIMARY KEY,
@@ -70,13 +61,11 @@ create_database()
 def account_info(token):
     con = sqlite3.connect(database_directory)
     cur=con.cursor()
-    cur.execute(f"SELECT * FROM accounts WHERE token={dbify(token)}")
+    cur.execute(f"SELECT (token, display_name, email) FROM accounts WHERE token={dbify(token)}")
     data = cur.fetchone()
+    data = dict(zip(["token", "display_name","email"],data))
     con.close()
     return data
-
-
-
 
 def add_timestamp_to_activity():
     con = sqlite3.connect(database_directory)
