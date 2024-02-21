@@ -1,5 +1,5 @@
 import reflex as rx
-from AngaDriveV2.static_pages import index
+from AngaDriveV2.dashboard import index
 from AngaDriveV2.State import State
 
 

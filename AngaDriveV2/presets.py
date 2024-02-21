@@ -12,6 +12,7 @@ def card(heading, content, **kwargs):
         border_radius="0.5vh",
         align="center",
         color="WHITE",
+        spacing="0.75vh",
         bg="BLACK",
         **kwargs
     )
@@ -30,6 +31,7 @@ def user_data_card(heading = "Sample heading", content="Sample content", **kwarg
         border_color="black",
         border_width="1.5vh",
         border_radius="0.5vh",
+        spacing="0.75vh",
         align="center",
         color="WHITE",
         bg="BLACK",

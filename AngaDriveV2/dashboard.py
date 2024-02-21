@@ -65,7 +65,8 @@ def static_data_box() -> rx.Component:
             site_data_card("Registered Accounts", State.registered_accounts),
             rx.chakra.box(width="1vh"),
             site_data_card("Total Accounts", State.total_accounts),
-            width="100%"
+            width="100%",
+            spacing="0.75vh",
         ),
         card(
             "Site activity over past week",
@@ -101,54 +102,24 @@ def static_data_box() -> rx.Component:
         bg="#0f0f1f",
         border_width="1vh",
         border_radius = "1vh",
-        border_color="#0f0f1f"
+        border_color="#0f0f1f",
+        spacing="0.75vh",
+        height="100%"
     )
 
 
 
-def account_manager():
-    return rx.chakra.vstack(
-        rx.cond(
-            State.is_logged_in,
-            rx.chakra.heading("Welcome back!"),
-            rx.chakra.vstack(
-                rx.chakra.heading(
-                    "Welcome to DriveV2",
-                    color="#f0fff0",
-                    font_size="3.5vh"
-                    ),
-                rx.chakra.divider(
-                    border_color="#f0fff0"
-                    ),
-                rx.chakra.vstack(
-                    rx.chakra.text(
-                        "Cant find your data? Try logging into your account: ",
-                        color="WHITE",
-                        font_size="1.65vh"
-                        ),
-                    rx.chakra.button_group(
-                        login_button(),
-                        signup_button(),
-                        tpu_signup_button(),
-                        is_attached=True,
-                        height="4vh"
-                    ),
-                    rx.chakra.badge(
-                        "Any files you upload anonymously will be transferred to your account after you log in",
-                        variant="subtle",
-                        color_scheme="red"
-                    )
-                ),
-                width="100%"
-            )
-        ),
-        bg="#0f1f0f",
-        border_radius="1vh",
-        border_width="1vh",
-        border_color="#0f1f0f",
-        height="30vh",
-        width="100%",
-    )
+def account_manager(logged_in : bool = False):
+    if not logged_in:
+        return rx.chakra.vstack(
+            rx.chakra.heading(
+                "Hello world"
+            ),
+            bg = "BLACK",
+            spacing="0.75vh",
+            height="100%",
+            width="100%"
+        )
 
 
 def static_account_info():
@@ -164,28 +135,31 @@ def static_account_info():
             ),
         rx.chakra.hstack(
             rx.chakra.vstack(
-                rx.chakra.vstack(
-                    user_data_card(
-                        "Your files",
-                        State.user_file_count,
-                        width="100%",
-                        height="100%"
-                    ),
-                    user_data_card(
-                        "Your Storage",
-                        State.user_storage_amount,
-                        width="100%",
-                        height="100%"
-                    )
+                user_data_card(
+                    "Your files",
+                    State.user_file_count,
+                    width="100%",
+                    height="100%"
                 ),
-                height="100%"
+                user_data_card(
+                    "Your Storage",
+                    State.user_storage_amount,
+                    width="21.5vh",
+                    height="100%"
+                ),
+                height="100%",
+                spacing="0.75vh"
             ),
-            height="100%"
+            account_manager(),
+            width="100%",
+            height="100%",
+            spacing="0.75vh"
         ),
         bg=background_color,
         border_color=background_color,
         height="100%",
         width="100%",
+        spacing="0.75vh",
         border_radius="1vh",
         border_width="1vh"
     )
@@ -198,11 +172,13 @@ def index():
                 rx.chakra.vstack(
                     static_account_info(),
                     static_data_box(),
-                    height="98%"
+                    height="98%",
+                    spacing="0.75vh",
                     ),
                 spacing="5vh", 
                 width="99%", 
-                height="95vh"
+                height="95vh",
+                bg="#0f0f0f"
             ),
             width="100%",
             spacing="0vh",
