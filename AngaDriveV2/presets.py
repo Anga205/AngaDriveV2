@@ -16,10 +16,23 @@ def card(heading, content, **kwargs):
         **kwargs
     )
 
-def data_card(heading = "Sample heading", content="Sample content", **kwargs):
+def site_data_card(heading = "Sample heading", content="Sample content", **kwargs):
     return card(
         heading, 
         rx.chakra.text(content, font_size="2.5vh", _as="b"),
+        **kwargs
+    )
+
+def user_data_card(heading = "Sample heading", content="Sample content", **kwargs):
+    return rx.chakra.vstack(
+        rx.chakra.heading(heading, color="GREEN", font_size="3vh"),
+        rx.chakra.text(content, font_size="2.5vh", _as="b"),
+        border_color="black",
+        border_width="1.5vh",
+        border_radius="0.5vh",
+        align="center",
+        color="WHITE",
+        bg="BLACK",
         **kwargs
     )
 

@@ -4,8 +4,18 @@ from AngaDriveV2.State import State
 
 def static_navbar() -> rx.Component:
     return rx.chakra.hstack(
-        rx.chakra.image(src="/logo.png", height="5vh", width="auto"),
-        rx.chakra.heading("DriveV2", font_size="2.5vh"),
+        rx.chakra.box(
+            width="0.5vh"
+            ),
+        rx.chakra.image(
+            src="/logo.png", 
+            height="5vh", 
+            width="auto"
+            ),
+        rx.chakra.heading(
+            "DriveV2", 
+            font_size="2.5vh"
+            ),
         rx.chakra.spacer(),
         rx.chakra.popover(
             rx.chakra.popover_trigger(
@@ -50,11 +60,11 @@ def static_data_box() -> rx.Component:
             border_color="GRAY"
             ),
         rx.chakra.flex(
-            data_card("Files hosted", State.files_hosted),
+            site_data_card("Files hosted", State.files_hosted),
             rx.chakra.box(width="1vh"),
-            data_card("Registered Accounts", State.registered_accounts),
+            site_data_card("Registered Accounts", State.registered_accounts),
             rx.chakra.box(width="1vh"),
-            data_card("Total Accounts", State.total_accounts),
+            site_data_card("Total Accounts", State.total_accounts),
             width="100%"
         ),
         card(
@@ -83,9 +93,9 @@ def static_data_box() -> rx.Component:
             display="none"
             ),
         rx.chakra.flex(
-            data_card("Space Used", State.space_used, width="50%"),
+            site_data_card("Space Used", State.space_used, width="50%"),
             rx.chakra.box(width="1vh"),
-            data_card("Uptime",State.uptime, width = "50%"),
+            site_data_card("Uptime",State.uptime, width = "50%"),
             width="100%"
         ),
         bg="#0f0f1f",
@@ -141,23 +151,62 @@ def account_manager():
     )
 
 
+def static_account_info():
+    background_color = "#0f1f0f"
+    return rx.chakra.vstack(
+        rx.chakra.heading(
+            "My Account",
+            color="WHITE",
+            font_size="3.5vh"
+            ),
+        rx.chakra.divider(
+            border_color="#f0fff0"
+            ),
+        rx.chakra.hstack(
+            rx.chakra.vstack(
+                rx.chakra.vstack(
+                    user_data_card(
+                        "Your files",
+                        State.user_file_count,
+                        width="100%",
+                        height="100%"
+                    ),
+                    user_data_card(
+                        "Your Storage",
+                        State.user_storage_amount,
+                        width="100%",
+                        height="100%"
+                    )
+                ),
+                height="100%"
+            ),
+            height="100%"
+        ),
+        bg=background_color,
+        border_color=background_color,
+        height="100%",
+        width="100%",
+        border_radius="1vh",
+        border_width="1vh"
+    )
+
 def index():
     return rx.chakra.hstack(
         rx.chakra.vstack(
             static_navbar(),
             rx.chakra.hstack(
-                rx.chakra.vstack(),
                 rx.chakra.vstack(
-                    account_manager(),
+                    static_account_info(),
                     static_data_box(),
+                    height="98%"
                     ),
-                spacing="5vh",
-                bg="#0f0f0f", 
-                width="100%", 
+                spacing="5vh", 
+                width="99%", 
                 height="95vh"
             ),
             width="100%",
             spacing="0vh",
+            bg="#0f0f0f",
             height="100vh",
         ),
         spacing="0vh"

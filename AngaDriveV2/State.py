@@ -14,6 +14,8 @@ class State(rx.State):
     local_start_time = float(start_time)
     uptime = format_time(round(time.time() - local_start_time))
 
+    user_file_count=0
+    user_storage_amount="0 KB"
 
     username= "Anonymous"
     email = "anony@mous.com"
