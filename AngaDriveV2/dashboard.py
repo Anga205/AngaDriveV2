@@ -112,13 +112,37 @@ def static_data_box() -> rx.Component:
 def account_manager(logged_in : bool = False):
     if not logged_in:
         return rx.chakra.vstack(
-            rx.chakra.heading(
-                "Hello world"
+            rx.chakra.hstack(
+                rx.chakra.heading(
+                    "You are anonymous!",
+                    color="WHITE",
+                    font_size="4vh"
+                ),
+                rx.chakra.image(
+                    src = "/anonymous.png",
+                    height="10vh",
+                    border_radius="5vh",
+                    border="0.2vh solid WHITE",
+                    width="auto",
+                ),
+                spacing="0.75vh"
+            ),
+            rx.chakra.divider(
+                border_color="GRAY"
+            ),
+            rx.chakra.hstack(
+                rx.chakra.card(
+                    rx.chakra.text("but dont worry!, all the core features should still work the same, just remember that without an account, you wont be able to modify or delete uploaded files from other devices and/or browsers"),
+                    header="No account was found",
+                )
             ),
             bg = "BLACK",
             spacing="0.75vh",
             height="100%",
-            width="100%"
+            width="100%",
+            border_color="BLACK",
+            border_radius="1vh",
+            border_width="0.75vh"
         )
 
 
