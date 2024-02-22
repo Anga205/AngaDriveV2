@@ -1,6 +1,4 @@
 *.db
-*.py[cod]
-.web
 .web/
 __pycache__/
 venv/

@@ -1,52 +1,7 @@
 import reflex as rx
 from AngaDriveV2.presets import *
 from AngaDriveV2.State import State
-
-def static_navbar() -> rx.Component:
-    return rx.chakra.hstack(
-        rx.chakra.box(
-            width="0.5vh"
-            ),
-        rx.chakra.image(
-            src="/logo.png", 
-            height="5vh", 
-            width="auto"
-            ),
-        rx.chakra.heading(
-            "DriveV2", 
-            font_size="2.5vh"
-            ),
-        rx.chakra.spacer(),
-        rx.chakra.popover(
-            rx.chakra.popover_trigger(
-                rx.chakra.icon(
-                    tag="bell", 
-                    color="WHITE", 
-                    font_size="2.5vh"
-                    )
-                ),
-            rx.chakra.popover_content(
-                rx.chakra.vstack(
-                    rx.chakra.heading(
-                        "Notifications", 
-                        color="BLUE"
-                        ),
-                    rx.chakra.divider(border_color="GRAY"),
-                    notification(),
-                    color="WHITE",
-                    bg="BLACK",
-                    border_width="1vh",
-                    border_radius="0.5vh",
-                    border_color="BLACK",
-                ),
-            ),
-        ),
-        color="white",
-        height="5vh",
-        bg = "black",
-        spacing = "1vh",
-        width="100%",
-    )
+from AngaDriveV2.shared_components import *
 
 
 def static_data_box() -> rx.Component:
@@ -63,16 +18,20 @@ def static_data_box() -> rx.Component:
             site_data_card(
                 "Files hosted", 
                 State.files_hosted,
+                height="100%"
                 ),
             site_data_card(
                 "Registered Accounts", 
                 State.registered_accounts,
+                height="100%"
                 ),
             site_data_card(
                 "Total Accounts", 
                 State.total_accounts,
+                height="100%"
                 ),
             width="100%",
+            height="100%",
             spacing="0.75vh",
         ),
         card(
@@ -91,7 +50,7 @@ def static_data_box() -> rx.Component:
                 color="BLACK",
             ),
             width = "100%",
-            height="30vh"
+            height="250%"
         ),
         rx.chakra.box(
             rx.moment(
@@ -101,17 +60,18 @@ def static_data_box() -> rx.Component:
             display="none"
             ),
         rx.chakra.flex(
-            site_data_card("Space Used", State.space_used, width="50%"),
+            site_data_card("Space Used", State.space_used, width="50%", height="100%"),
             rx.chakra.box(width="1vh"),
-            site_data_card("Uptime",State.uptime, width = "50%"),
-            width="100%"
+            site_data_card("Uptime",State.uptime, width = "50%", height="100%"),
+            width="100%",
+            height="100%"
         ),
         bg="#0f0f1f",
         border_width="1vh",
         border_radius = "1vh",
         border_color="#0f0f1f",
         spacing="0.75vh",
-        height="100%",
+        height="250%",
     )
 
 def login_button_group() -> rx.Component:
@@ -260,8 +220,9 @@ def static_account_info():
 def index():
     return rx.chakra.hstack(
         rx.chakra.vstack(
-            static_navbar(),
+            shared_navbar(),
             rx.chakra.hstack(
+                shared_sidebar(),
                 rx.chakra.vstack(
                     static_account_info(),
                     static_data_box(),
