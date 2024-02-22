@@ -59,12 +59,19 @@ def static_data_box() -> rx.Component:
         rx.chakra.divider(
             border_color="GRAY"
             ),
-        rx.chakra.flex(
-            site_data_card("Files hosted", State.files_hosted),
-            rx.chakra.box(width="1vh"),
-            site_data_card("Registered Accounts", State.registered_accounts),
-            rx.chakra.box(width="1vh"),
-            site_data_card("Total Accounts", State.total_accounts),
+        rx.chakra.hstack(
+            site_data_card(
+                "Files hosted", 
+                State.files_hosted,
+                ),
+            site_data_card(
+                "Registered Accounts", 
+                State.registered_accounts,
+                ),
+            site_data_card(
+                "Total Accounts", 
+                State.total_accounts,
+                ),
             width="100%",
             spacing="0.75vh",
         ),
@@ -104,10 +111,46 @@ def static_data_box() -> rx.Component:
         border_radius = "1vh",
         border_color="#0f0f1f",
         spacing="0.75vh",
-        height="100%"
+        height="100%",
     )
 
-
+def login_button_group() -> rx.Component:
+    return rx.chakra.vstack(
+        rx.chakra.hstack(
+            rx.chakra.button(
+                "Sign Up",
+                height="100%",
+                width="55%",
+                font_size="1.4vh",
+                bg="#0f1f0f",
+                color="white",
+                border_radius="1vh 0vh 0vh 0vh",
+                _hover={"bg":"#0f1f0f","color":"#11cc11"}
+            ),
+            rx.chakra.button(
+                "Login",
+                height="100%",
+                width="45%",
+                bg="#1f0f0f",
+                color="WHITE",
+                font_size="1.4vh",
+                border_radius="0vh 1vh 0vh 0vh",
+                _hover={"bg":"#1f0f0f","color":"#cc1111"}
+            ),
+            height="50%",
+            spacing="0vh",
+            width="100%"
+        ),
+        tpu_signup_button(
+            height="50%",
+            width="100%",
+            font_size="1.4vh",
+            border_radius="0vh 0vh 1vh 1vh"
+        ),
+        height="100%",
+        spacing="0vh",
+        width="40%",
+    )
 
 def account_manager(logged_in : bool = False):
     if not logged_in:
@@ -131,10 +174,36 @@ def account_manager(logged_in : bool = False):
                 border_color="GRAY"
             ),
             rx.chakra.hstack(
-                rx.chakra.card(
-                    rx.chakra.text("but dont worry!, all the core features should still work the same, just remember that without an account, you wont be able to modify or delete uploaded files from other devices and/or browsers"),
-                    header="No account was found",
-                )
+                login_button_group(),
+                rx.chakra.vstack(
+                    rx.chakra.heading(
+                        "No account was found",
+                        font_size="1.65vh"
+                        ),
+                    rx.chakra.vstack(
+                        rx.chakra.text(
+                            "But don't worry!, all the core features should still work the same,",
+                            ),
+                        rx.chakra.text(
+                            "just remember that without an account, you wont be able to",
+                            ),
+                        rx.chakra.text(
+                            "modify or delete uploaded files from other devices and/or browsers",
+                        ),
+                        spacing="0vh",
+                        font_size="1.2vh",
+                    ),
+                    color="WHITE",
+                    border_color="#111111",
+                    border_radius="1vh",
+                    border_width="1vh",
+                    width="100%",
+                    bg="#111111",
+                    height="100%",
+                    spacing="0.75vh"
+                ),
+                width="100%",
+                height="100%"
             ),
             bg = "BLACK",
             spacing="0.75vh",

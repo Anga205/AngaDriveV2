@@ -59,53 +59,19 @@ def notification(heading = "New notification", description = "An error occured d
         ),
     )
 
-def signup_button():
-    return rx.cond(
-        State.token,
-        rx.chakra.button(
-            "Sign Up and merge",
-            color_scheme = "purple",
-            height="100%"
-            ),
-        rx.chakra.button(
-            "Sign Up",
-            color_scheme = "purple",
-            height="100%"
-            )
-    )
-
-def login_button():
-    return rx.cond(
-        State.token,
-        rx.chakra.button(
-            "Log in and merge",
-            color_scheme="facebook",
-            height="100%"
-            ),
-        rx.chakra.button(
-            "Log In",
-            color_scheme="facebook",
-            height="100%"
-            )
-    )
-
-def tpu_signup_button():
+def tpu_signup_button(**kwargs):
     return rx.chakra.button(
         rx.chakra.hstack(
             rx.chakra.image(
                 src="/TPU-logo.png",
-                height="60%",
+                height="2vh",
                 width="auto"
                 ),
-            rx.cond(
-                State.token,
-                rx.chakra.text("Merge with TPU"),
-                rx.chakra.text("Sign up with TPU")
-            ),
+            rx.chakra.text("Sign up with TPU"),
             height="100%"
         ),
-        bg="BLACK",
+        bg="#0f0f1f",
         color="WHITE",
-        height="100%",
-        _hover={"bg":"#0f0f1f","color":"#1111cc"}
+        _hover={"bg":"#0f0f1f","color":"#1111cc"},
+        **kwargs
     )
