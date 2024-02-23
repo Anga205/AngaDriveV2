@@ -50,11 +50,63 @@ def shared_navbar() -> rx.Component:
         width="100%",
     )
 
-def shared_sidebar():
+def shared_sidebar(opened_page):
+    buttons = ["Home", "Files", "Settings", "Collections"]
+    button_bg = "BLACK"
+    selected_button_bg = "#1f1f1f"
+
+    button_colors = {name:button_bg for name in buttons}
+    button_colors[opened_page] = selected_button_bg
+
+    def sidebar_button(image, text):
+        button_on_hover = {"bg": "#101010"}
+
+        return rx.chakra.button(
+                rx.chakra.image(
+                    src=image,
+                    height="75%",
+                    width="auto"
+                ),
+                rx.chakra.box(
+                    width="1vh"
+                ),
+                rx.chakra.text(
+                    text
+                ),
+                rx.chakra.spacer(),
+                width="100%",
+                height="5vh",
+                font_size="1.65vh",
+                border_radius="0vh",
+                bg=button_colors[text],
+                color="WHITE",
+                _hover=button_on_hover
+                )
+    
+
     return rx.chakra.vstack(
         rx.chakra.box(
-            height="1vh",
+            width="0vh",
+            height="2vh"
         ),
-        height="100vh",
+        sidebar_button(
+            "/home.png",
+            "Home"
+        ),
+        sidebar_button(
+            "/folders.png",
+            "Files"
+        ),
+        sidebar_button(
+            "/collection.png",
+            "Collections"
+        ),
+        sidebar_button(
+            "/gears.png",
+            "Settings"
+        ),
+        height="100%",
+        width="25vh",
+        spacing="0vh",
         bg="BLACK"
     )

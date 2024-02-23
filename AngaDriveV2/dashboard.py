@@ -64,13 +64,14 @@ def static_data_box() -> rx.Component:
             rx.chakra.box(width="1vh"),
             site_data_card("Uptime",State.uptime, width = "50%", height="100%"),
             width="100%",
-            height="100%"
+            height="100%",
         ),
         bg="#0f0f1f",
         border_width="1vh",
         border_radius = "1vh",
         border_color="#0f0f1f",
         spacing="0.75vh",
+        width="100%",
         height="250%",
     )
 
@@ -174,7 +175,6 @@ def account_manager(logged_in : bool = False):
             border_width="0.75vh"
         )
 
-
 def static_account_info():
     background_color = "#0f1f0f"
     return rx.chakra.vstack(
@@ -219,19 +219,34 @@ def static_account_info():
 
 def index():
     return rx.chakra.hstack(
-        rx.chakra.vstack(
-            shared_navbar(),
-            rx.chakra.hstack(
-                shared_sidebar(),
-                rx.chakra.vstack(
-                    static_account_info(),
-                    static_data_box(),
-                    height="98%",
-                    spacing="0.75vh",
+        rx.chakra.hstack(
+            shared_sidebar(
+                "Home"
+                ),
+            rx.chakra.vstack(
+                shared_navbar(),
+                rx.chakra.hstack(
+                    rx.chakra.box(
+                        width="0vh",
+                        height="0vh"
                     ),
-                spacing="5vh", 
-                width="99%", 
-                height="95vh",
+                    rx.chakra.vstack(
+                        static_account_info(),
+                        static_data_box(),
+                        height="100%",
+                        spacing="0.75vh",
+                        ),
+                    spacing="0.75vh",
+                    width="100%",
+                    height="100%"
+                    ),
+                rx.chakra.box(
+                    height="0vh",
+                    width="0vh"
+                ),
+                spacing="0.75vh", 
+                width="100%", 
+                height="100vh",
                 bg="#0f0f0f"
             ),
             width="100%",
