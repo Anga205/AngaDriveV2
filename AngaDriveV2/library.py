@@ -15,6 +15,11 @@ def dbify(var):
         else:
             return "'"+("".join([("''" if x=="'" else x) for x in var]))+"'"
 
+def gen_token():
+    a="qwertyuiopasdfghjklzxcvbnm"
+    a=a+a.upper()
+    a=a+"1234567890"
+    return "".join(random.choices(a, k=10))+"."+"".join(random.choices(a, k=20))+"."+str(round(time.time()))
 
 def time_ago(timestamp):
     current_time = datetime.datetime.now()

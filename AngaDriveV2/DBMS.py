@@ -61,7 +61,7 @@ create_database()
 def account_info(token):
     con = sqlite3.connect(database_directory)
     cur=con.cursor()
-    cur.execute(f"SELECT (token, display_name, email) FROM accounts WHERE token={dbify(token)}")
+    cur.execute(f"SELECT token, display_name, email FROM accounts WHERE token={dbify(token)}")
     data = cur.fetchone()
     data = dict(zip(["token", "display_name","email"],data))
     con.close()
@@ -82,3 +82,10 @@ def fetch_activity_from_last_week():
     output = [x[0] for x in list(cur)]
     con.close()
     return calls_per_day(output)
+
+def create_new_account_without_info(token):
+    con = sqlite3.connect(database_directory)
+    cur = con.cursor()
+    cur.execute(f"INSERT INTO accounts (token) VALUES ({dbify(token)});")
+    con.commit()
+    con.close()
