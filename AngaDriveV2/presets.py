@@ -63,11 +63,11 @@ def tpu_signup_button(**kwargs):
     return rx.chakra.button(
         rx.chakra.hstack(
             rx.chakra.image(
-                src="/TPU-logo.png",
+                src="/flowinity.svg",
                 height="2vh",
                 width="auto"
                 ),
-            rx.chakra.text("Sign up with TPU"),
+            rx.chakra.text("Flowinity Oauth"),
             height="100%"
         ),
         bg="#0f0f1f",

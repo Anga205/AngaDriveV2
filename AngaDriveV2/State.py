@@ -7,8 +7,8 @@ from AngaDriveV2.DBMS import *
 start_time = time.time()
 
 class State(rx.State):
-    registered_accounts = 10000
-    total_accounts = 10000
+    user_count = 10000
+    collection_count = 10000
     local_start_time = float(start_time)
     uptime = format_time(round(time.time() - local_start_time))
 
@@ -31,8 +31,8 @@ class State(rx.State):
 #        return True
 
     token:str = rx.Cookie(name="token")
-    username:str = ""
-    email:str = ""
+    username:str = "Sample Username"
+    email:str = "anonymous@email.com"
     def add_token_if_not_present(self): # check if there is a token, if not, create one and then add it to database
         if self.token == "":
             generated_token = gen_token()
@@ -51,3 +51,6 @@ class State(rx.State):
         add_timestamp_to_activity()
         self.update_site_data_components()
         self.add_token_if_not_present()
+
+    def temp_edit_aspect(self):
+        print("editing aspect")

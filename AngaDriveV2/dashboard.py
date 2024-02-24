@@ -18,17 +18,20 @@ def static_data_box() -> rx.Component:
             site_data_card(
                 "Files hosted", 
                 State.files_hosted,
-                height="100%"
+                height="100%",
+                width="140%"
                 ),
             site_data_card(
-                "Registered Accounts", 
-                State.registered_accounts,
-                height="100%"
+                "Users", 
+                State.user_count,
+                height="100%",
+                width="100%"
                 ),
             site_data_card(
-                "Total Accounts", 
-                State.total_accounts,
-                height="100%"
+                "Collections", 
+                State.collection_count,
+                height="100%",
+                width="130%"
                 ),
             width="100%",
             height="100%",
@@ -48,6 +51,7 @@ def static_data_box() -> rx.Component:
                 rx.recharts.graphing_tooltip(),
                 data=State.site_activity,
                 color="BLACK",
+                height="100%"
             ),
             width = "100%",
             height="250%"
@@ -173,6 +177,128 @@ def account_manager(logged_in : bool = False):
             border_color="BLACK",
             border_radius="1vh",
             border_width="0.75vh"
+        )
+    else:
+        edit_button = lambda: rx.chakra.button(
+            rx.chakra.icon(
+                tag="edit", 
+                height="100%", 
+                width="auto"
+                ), 
+            height="1.65vh", 
+            bg="BLACK", 
+            width="33%", 
+            _hover = {"bg":"#111111"}
+            )
+        def account_aspect_line(aspect, data, action):
+            return rx.chakra.hstack(
+                rx.chakra.text(
+                    aspect,
+                    font_weight="bold",
+                    width="100%",
+                    text_align="center"
+                ),
+                rx.chakra.text(
+                    data,
+                    width = "100%",
+                    text_align = "center"
+                ),
+                rx.chakra.button(
+                    rx.chakra.icon(
+                        tag="edit",
+                        height="100%",
+                        width="auto"
+                    ),
+                    height="1.65vh",
+                    bg="BLACK",
+                    _hover = {"bg":"#111111"},
+                    on_click=action,
+                    width="33%"
+                ),
+                font_size="1.65vh",
+                spacing="0vh",
+                width="100%"
+            )
+        
+        return rx.chakra.vstack(
+            rx.chakra.divider(
+                border_color="GRAY"
+                ),
+            account_aspect_line(
+                "Name", 
+                State.username, 
+                State.temp_edit_aspect
+                ),
+            rx.chakra.divider(
+                border_color="GRAY"
+                ),
+            account_aspect_line(
+                "E - mail",
+                State.email,
+                State.temp_edit_aspect
+                ),
+            rx.chakra.divider(
+                border_color="GRAY"
+                ),
+            account_aspect_line(
+                "Password",
+                "*********",
+                State.temp_edit_aspect
+                ),
+            rx.chakra.divider(
+                border_color="GRAY"
+                ),
+            rx.chakra.hstack(
+                rx.chakra.button(
+                    rx.chakra.hstack(
+                        rx.chakra.image(
+                            src="/logout.png",
+                            height="3.5vh",
+                            width="auto"
+                        ),
+                        rx.chakra.text(
+                            "Log out",
+                            font_size="1.65vh"
+                        ),
+                        spacing="1vh"
+                    ),
+                    bg="#2f0000",
+                    _hover={"bg":"#330202"},
+                    height="5vh",
+                    border_radius="1vh",
+                ),
+                rx.chakra.spacer(),
+                rx.chakra.button(
+                    rx.chakra.hstack(
+                        rx.chakra.icon(
+                            tag="delete",
+                            height="3.5vh",
+                            width="auto",
+                            color="WHITE"
+                        ),
+                        rx.chakra.text(
+                            "Log out",
+                            font_size="1.65vh"
+                        ),
+                        spacing="0.75vh"
+                    ),
+                    bg="#2f0000",
+                    _hover={"bg":"#330202"},
+                    height="5vh",
+                    border_radius="0.75vh"
+                ),
+                width="100%",
+                spacing="0vh",
+            ),
+            bg = "BLACK",
+            spacing = "1.2vh",
+            height = "100%",
+            width = "100%",
+            color="WHITE",
+            border_color = "BLACK",
+            font_size="1.65vh",
+            border_radius = "1vh",
+            border_width = "0.75vh"
         )
 
 def static_account_info():
