@@ -7,7 +7,6 @@ from AngaDriveV2.DBMS import *
 start_time = time.time()
 
 class State(rx.State):
-    user_count = 10000
     collection_count = 10000
     local_start_time = float(start_time)
     uptime = format_time(round(time.time() - local_start_time))
@@ -42,9 +41,11 @@ class State(rx.State):
     files_hosted : int = 0
     space_used : str = "0 KB"
     site_activity : list[dict] = [{"date":x, "times_opened": fetch_activity_from_last_week()[x]} for x in fetch_activity_from_last_week()]
+    user_count = 0
     def update_site_data_components(self):
         self.files_hosted : int = count_files()
         self.space_used : str = get_formatted_directory_size()
+        self.user_count = get_user_count()
         self.site_activity : list[dict] = [{"date":x, "times_opened": fetch_activity_from_last_week()[x]} for x in fetch_activity_from_last_week()]
 
     def load_index_page(self):

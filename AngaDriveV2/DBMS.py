@@ -74,6 +74,13 @@ def add_timestamp_to_activity():
     con.commit()
     con.close()
 
+def get_user_count():
+    con = sqlite3.connect(database_directory)
+    cur = con.cursor()
+    cur.execute(f"SELECT COUNT(*) FROM accounts")
+    count = int(cur.fetchone()[0])
+    con.close()
+    return count
 
 def fetch_activity_from_last_week():
     con = sqlite3.connect(database_directory)
