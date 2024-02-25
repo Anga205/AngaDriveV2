@@ -70,7 +70,7 @@ def tpu_signup_button(**kwargs):
             rx.chakra.text("Flowinity Oauth"),
             height="100%"
         ),
-        bg="#0f0f1f",
+        bg="rgb(20, 10, 30)",
         color="WHITE",
         _hover={"bg":"#0f0f1f","color":"#1111cc"},
         **kwargs

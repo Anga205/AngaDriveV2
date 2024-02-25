@@ -8,7 +8,7 @@ def static_data_box() -> rx.Component:
     return rx.chakra.vstack(
         rx.chakra.heading(
             "DriveV2 - Site Data",
-            color="#f0f0ff",
+            color="WHITE",
             font_size="3.5vh"
             ),
         rx.chakra.divider(
@@ -343,6 +343,46 @@ def static_account_info():
         border_width="1vh"
     )
 
+def feature_card():
+    return rx.chakra.vstack(
+        rx.chakra.image(
+            src="/incognito.png",
+            height="50%",
+            width="auto",
+        ),
+        rx.chakra.heading("hello!"),
+        color="WHITE",
+        bg="BLACK",
+        border_radius="0.75vh",
+        width="33%",
+        height="100%"
+    )
+
+
+def whats_new_widget():
+    return rx.chakra.vstack(
+        rx.chakra.heading(
+            "What's New with V2?",
+            color="WHITE",
+            font_size="3.5vh"
+            ),
+        rx.chakra.divider(
+            border_color="GRAY"
+            ),
+        rx.chakra.hstack(
+            feature_card(),
+            spacing="0.75vh",
+            width="100%",
+            height="45%"
+        ),
+        border_color = "#1c0c1c",
+        border_width="1vh",
+        bg = "#1c0c1c",
+        border_radius = "1vh",
+        width="100%",
+        height="60%"
+    )
+
 def index():
     return rx.chakra.hstack(
         rx.chakra.hstack(
@@ -361,7 +401,17 @@ def index():
                         static_data_box(),
                         height="100%",
                         spacing="0.75vh",
+                        width="50%"
                         ),
+                    rx.chakra.vstack(
+                        whats_new_widget(),
+                        height="100%",
+                        width="50%"
+                        ),
+                    rx.chakra.box(
+                        height="0vh",
+                        width="0vh"
+                    ),
                     spacing="0.75vh",
                     width="100%",
                     height="100%"
