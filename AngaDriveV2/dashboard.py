@@ -363,6 +363,7 @@ def feature_card(image_path, heading, description):
         ),
         color="WHITE",
         bg="BLACK",
+        spacing="0.75vh",
         border_radius="0.75vh",
         border_width="1vh",
         border_color="BLACK",
@@ -422,6 +423,7 @@ def whats_new_widget():
             height="45%"
         ),
         border_color = "#1c0c1c",
+        spacing="0.75vh",
         border_width="1vh",
         bg = "#1c0c1c",
         border_radius = "1vh",
@@ -429,12 +431,31 @@ def whats_new_widget():
         height="80%"
     )
 
-def support_widget():
+def github_widget():
     return rx.chakra.button(
-        rx.chakra.image(),
+        rx.chakra.vstack(
+            rx.chakra.image(
+                src="github.png",
+                height="60%",
+                width="auto"
+                ),
+            rx.chakra.heading(
+                "Star this project on github",
+                font_size="1.65vh"
+            ),
+            height="100%",
+            width="100%",
+            spacing="1vh"
+            ),
         color="WHITE",
-        height="20%",
-        border_color="rgb(10,20,30)",
+        height="17.25vh",
+        border_color="rgb(30,10,20)",
+        _hover = {
+            "bg":"rgb(15,5,10)", 
+            "border-color":"rgb(15,5,10)",
+            "color":"GRAY"
+            },
+        on_click=rx.redirect("https://github.com/Anga205/AngaDriveV2", external=True),
         width="100%",
         border_radius = "1vh",
         bg = "rgb(30,10,20)",
@@ -463,9 +484,10 @@ def index():
                         ),
                     rx.chakra.vstack(
                         whats_new_widget(),
-                        support_widget(),
+                        github_widget(),
                         height="100%",
-                        width="50%"
+                        width="50%",
+                        spacing="0.75vh"
                         ),
                     rx.chakra.box(
                         height="0vh",
@@ -473,7 +495,7 @@ def index():
                     ),
                     spacing="0.75vh",
                     width="100%",
-                    height="94vh"
+                    height="93.25vh"
                     ),
                 rx.chakra.box(
                     height="0vh",
@@ -483,6 +505,10 @@ def index():
                 width="100%", 
                 height="100vh",
                 bg="#0f0f0f"
+            ),
+            rx.chakra.box(
+                height="0vh",
+                width="0vh"
             ),
             width="100%",
             spacing="0vh",
