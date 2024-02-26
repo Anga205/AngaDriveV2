@@ -1,5 +1,5 @@
 import reflex as rx
-import random, time
+import random, time, asyncio
 from AngaDriveV2.library import *
 from AngaDriveV2.DBMS import *
 
@@ -48,10 +48,18 @@ class State(rx.State):
         self.user_count = get_user_count()
         self.site_activity : list[dict] = [{"date":x, "times_opened": fetch_activity_from_last_week()[x]} for x in fetch_activity_from_last_week()]
 
-    def load_index_page(self):
+
+    def load_any_page(self):
         add_timestamp_to_activity()
-        self.update_site_data_components()
         self.add_token_if_not_present()
+
+    def load_index_page(self):
+        self.load_any_page()
+        self.update_site_data_components()
 
     def temp_edit_aspect(self):
         print("editing aspect")
+
+    async def page_not_found_redirect_back_to_home_page(self):
+        await asyncio.sleep(5)
+        return rx.redirect("/")
