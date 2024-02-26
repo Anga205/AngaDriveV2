@@ -343,17 +343,29 @@ def static_account_info():
         border_width="1vh"
     )
 
-def feature_card():
+def feature_card(image_path, heading, description):
     return rx.chakra.vstack(
         rx.chakra.image(
-            src="/incognito.png",
+            src=image_path,
             height="50%",
             width="auto",
         ),
-        rx.chakra.heading("hello!"),
+        rx.chakra.heading(
+            heading,
+            font_size="2.2vh"
+            ),
+        rx.chakra.divider(
+            border_color="GRAY"
+        ),
+        rx.chakra.text(
+            description,
+            font_size="1.5vh"
+        ),
         color="WHITE",
         bg="BLACK",
         border_radius="0.75vh",
+        border_width="1vh",
+        border_color="BLACK",
         width="33%",
         height="100%"
     )
@@ -370,7 +382,41 @@ def whats_new_widget():
             border_color="GRAY"
             ),
         rx.chakra.hstack(
-            feature_card(),
+            feature_card(
+                "/incognito.png",
+                "Anonymous Uploads",
+                "You no longer need an account to make full use of the core features provided by AngaDrive, you can just open the website and start uploading!"
+            ),
+            feature_card(
+                "/rush.png",
+                "Improved Speed",
+                "Thanks to V2  making use of FastAPI as opposed to the reflex framework, along with countless minor optimizations, V2 should be upto 200% faster"
+            ),
+            feature_card(
+                "/add-to-database.png",
+                "Improved Capacity",
+                "This website now runs on the raspberry pi 5, using a 1 terabyte disk, this should address a few more performance issues and file-size related bugs"
+            ),
+            spacing="0.75vh",
+            width="100%",
+            height="45%"
+        ),
+        rx.chakra.hstack(
+            feature_card(
+                "file_collection.png",
+                "Galleries",
+                "Now you can bundle a set of uploaded files into a single previewable gallery to share with friends!"
+            ),
+            feature_card(
+                "/drag-and-drop.png",
+                "Drop Anywhere",
+                "You can now drag and drop your files anywhee on the webapp to upload it to AngaDrive cloud"
+            ),
+            feature_card(
+                "/preview.png",
+                "File Previews",
+                "For select file types (like mp4, png, jpg etc.) you can preview the file from within the dashboard/gallery itself"
+            ),
             spacing="0.75vh",
             width="100%",
             height="45%"
@@ -380,7 +426,19 @@ def whats_new_widget():
         bg = "#1c0c1c",
         border_radius = "1vh",
         width="100%",
-        height="60%"
+        height="80%"
+    )
+
+def support_widget():
+    return rx.chakra.button(
+        rx.chakra.image(),
+        color="WHITE",
+        height="20%",
+        border_color="rgb(10,20,30)",
+        width="100%",
+        border_radius = "1vh",
+        bg = "rgb(30,10,20)",
+        border_width="1vh"
     )
 
 def index():
@@ -405,6 +463,7 @@ def index():
                         ),
                     rx.chakra.vstack(
                         whats_new_widget(),
+                        support_widget(),
                         height="100%",
                         width="50%"
                         ),
@@ -414,7 +473,7 @@ def index():
                     ),
                     spacing="0.75vh",
                     width="100%",
-                    height="100%"
+                    height="94vh"
                     ),
                 rx.chakra.box(
                     height="0vh",
