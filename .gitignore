@@ -4,3 +4,4 @@
 .web/
 __pycache__/
 venv/
+uploaded_files/

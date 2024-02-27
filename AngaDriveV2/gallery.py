@@ -1,0 +1,6 @@
+import reflex as rx
+from AngaDriveV2.State import State
+from AngaDriveV2.shared_components import *
+
+def index():
+    return rx.chakra.heading("Hello, world!")

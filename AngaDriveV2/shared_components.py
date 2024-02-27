@@ -2,52 +2,63 @@ import reflex as rx
 from AngaDriveV2.presets import *
 
 def shared_navbar() -> rx.Component:
-    return rx.chakra.hstack(
-        rx.chakra.box(
-            width="0.5vh"
-            ),
-        rx.chakra.image(
-            src="/logo.png", 
-            height="5vh", 
-            width="auto"
-            ),
-        rx.chakra.heading(
-            "DriveV2", 
-            font_size="2.5vh"
-            ),
-        rx.chakra.spacer(),
-        rx.chakra.popover(
-            rx.chakra.popover_trigger(
-                rx.chakra.icon(
-                    tag="bell", 
-                    color="WHITE", 
-                    font_size="2.5vh"
-                    )
+    return rx.chakra.vstack(
+        rx.chakra.hstack(
+            rx.chakra.box(
+                width="0.5vh"
                 ),
-            rx.chakra.popover_content(
-                rx.chakra.vstack(
-                    rx.chakra.heading(
-                        "Notifications", 
-                        color="BLUE"
-                        ),
-                    rx.chakra.divider(border_color="GRAY"),
-                    notification(),
-                    color="WHITE",
-                    bg="BLACK",
-                    border_width="1vh",
-                    border_radius="0.5vh",
-                    border_color="BLACK",
+            rx.chakra.image(
+                src="/logo.png", 
+                height="5vh", 
+                width="auto"
+                ),
+            rx.chakra.heading(
+                "DriveV2", 
+                font_size="2.5vh"
+                ),
+            rx.chakra.spacer(),
+            rx.chakra.popover(
+                rx.chakra.popover_trigger(
+                    rx.chakra.icon(
+                        tag="bell", 
+                        color="WHITE", 
+                        font_size="2.5vh"
+                        )
+                    ),
+                rx.chakra.popover_content(
+                    rx.chakra.vstack(
+                        rx.chakra.heading(
+                            "Notifications", 
+                            color="BLUE"
+                            ),
+                        rx.chakra.divider(border_color="GRAY"),
+                        notification(),
+                        color="WHITE",
+                        bg="BLACK",
+                        border_width="1vh",
+                        border_radius="0.5vh",
+                        border_color="BLACK",
+                    ),
                 ),
             ),
+            rx.chakra.box(
+                width="0.5vh"
+            ),
+            color="white",
+            height="4.9vh",
+            bg = "black",
+            spacing = "1vh",
+            width="100%",
         ),
-        rx.chakra.box(
-            width="0.5vh"
+        rx.chakra.progress(
+            value = State.upload_progress,
+            width = "100%",
+            bg="BLACK"
         ),
-        color="white",
+        bg="BLACK",
         height="5vh",
-        bg = "black",
-        spacing = "1vh",
         width="100%",
+        spacing="0vh"
     )
 
 def shared_sidebar(opened_page):
@@ -117,10 +128,26 @@ def shared_sidebar(opened_page):
     )
 
 def upload_container(component):
+    upload_handler_spec = State.handle_upload(
+        rx.upload_files(
+            upload_id="upload1",
+            on_upload_progress=State.upload_progressbar
+        ),
+    )
     return rx.upload(
         component,
+        rx.moment(
+            interval=rx.cond(
+                rx.selected_files("upload1") & ~State.is_uploading,
+                500,
+                0,
+            ),
+            on_change=lambda _: upload_handler_spec,
+            display="none",
+        ),
         width="100%",
         spacing="0vh",
+        id="upload1",
         no_click=True,
         no_keyboard=True
     )

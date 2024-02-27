@@ -63,3 +63,23 @@ class State(rx.State):
     async def page_not_found_redirect_back_to_home_page(self):
         await asyncio.sleep(5)
         return rx.redirect("/")
+    
+
+    is_uploading:bool = False
+    upload_progress:int=0
+    async def handle_upload(self, files: list[rx.UploadFile]):
+        UPLOAD_ID = "upload1"
+        print("detected")
+        yield rx.clear_selected_files(UPLOAD_ID)
+        for file in files:
+            upload_data = await file.read()
+            filename = gen_filename(file.filename)
+            outfile = os.path.join("file_handler","assets",filename)
+            with open(outfile, "wb") as f:
+                f.write(upload_data)
+            self.image_relative_path = filename
+    
+    def upload_progressbar(self, prog):
+        self.upload_progress = prog["progress"]*100
+#        if prog["progress"] == 1:
+#            self.upload_progress=0

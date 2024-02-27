@@ -120,7 +120,7 @@ def gen_filename(filename):
     generated_name = "".join(random.choices(allowed_values, k=12))
 
     if len(filename.split("."))>1:
-        generated_name = generated_name + filename.split(".")[-1]
+        generated_name = generated_name + "." + filename.split(".")[-1]
     
     if does_filename_already_exist(generated_name):
         return gen_filename(filename)   #if generated filename already exists in database, then go generate a new one
