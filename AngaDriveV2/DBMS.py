@@ -96,3 +96,61 @@ def create_new_account_without_info(token):
     cur.execute(f"INSERT INTO accounts (token) VALUES ({dbify(token)});")
     con.commit()
     con.close()
+
+def does_filename_already_exist(filename_to_check: str) -> bool:
+    
+    con = sqlite3.connect(database_directory)
+    c = con.cursor()
+
+    # Execute a SELECT query to check if the string is present in any row of the table
+    c.execute(f"SELECT * FROM file_data WHERE file_directory = {dbify(filename_to_check)}")
+    
+    row = c.fetchone()
+
+    con.close()
+
+    # If row is not None, the string is present in the table, so true means the file name is infact there in the database
+    return row is not None
+
+
+
+def gen_filename(filename):
+    generated_name = ""
+    allowed_values = "qwertyuiopasdfghjklzxcvbnm1234567890"
+    generated_name = "".join(random.choices(allowed_values, k=12))
+
+    if len(filename.split("."))>1:
+        generated_name = generated_name + filename.split(".")[-1]
+    
+    if does_filename_already_exist(generated_name):
+        return gen_filename(filename)   #if generated filename already exists in database, then go generate a new one
+    
+    return generated_name #if generated filename doesnt already exist, then return the generated one
+
+def add_file_to_database(original_file_name, file_directory, account_token, file_size):
+    
+    original_file_name= dbify(original_file_name)
+    file_directory = dbify(file_directory)
+    account_token = dbify(account_token)
+    file_size = dbify(file_size)
+
+    con = sqlite3.connect(database_directory)
+    cur = con.cursor()
+
+    cur.execute(f"INSERT INTO file_data (original_file_name, file_directory, account_token, file_size, timestamp) VALUES ({original_file_name}, {file_directory}, {account_token}, {file_size}, {dbify(round(time.time()))})")
+    con.commit()
+    con.close()
+
+def get_all_user_files(account_token):
+    
+    account_token = dbify(account_token)
+
+    con = sqlite3.connect(database_directory)
+    cur = con.cursor()
+
+    cur.execute(f"SELECT * FROM file_data WHERE account_token={account_token}")
+    rows = list(cur)
+
+    con.close()
+
+    return rows

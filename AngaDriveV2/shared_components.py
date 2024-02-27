@@ -115,3 +115,12 @@ def shared_sidebar(opened_page):
         spacing="0vh",
         bg="BLACK"
     )
+
+def upload_container(component):
+    return rx.upload(
+        component,
+        width="100%",
+        spacing="0vh",
+        no_click=True,
+        no_keyboard=True
+    )
