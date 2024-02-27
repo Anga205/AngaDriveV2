@@ -72,6 +72,7 @@ def tpu_signup_button(**kwargs):
         ),
         bg="rgb(20, 10, 30)",
         color="WHITE",
+        on_click=rx.redirect("/tpulogin"),
         _hover={"bg":"#0f0f1f","color":"#1111cc"},
         **kwargs
     )

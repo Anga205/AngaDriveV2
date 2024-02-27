@@ -58,7 +58,7 @@ def shared_sidebar(opened_page):
     button_colors = {name:button_bg for name in buttons}
     button_colors[opened_page] = selected_button_bg
 
-    def sidebar_button(image, text):
+    def sidebar_button(image, text, redirect_to = "/404"):
         button_on_hover = {"bg": "#101010"}
 
         return rx.chakra.button(
@@ -78,6 +78,7 @@ def shared_sidebar(opened_page):
                 height="5vh",
                 font_size="1.65vh",
                 border_radius="0vh",
+                on_click=rx.redirect(redirect_to),
                 bg=button_colors[text],
                 color="WHITE",
                 _hover=button_on_hover
@@ -91,19 +92,23 @@ def shared_sidebar(opened_page):
         ),
         sidebar_button(
             "/home.png",
-            "Home"
+            "Home",
+            "/"
         ),
         sidebar_button(
             "/folders.png",
-            "Files"
+            "Files",
+            "/my_drive"
         ),
         sidebar_button(
             "/collection.png",
-            "Collections"
+            "Collections",
+            "/my_collections"
         ),
         sidebar_button(
             "/gears.png",
-            "Settings"
+            "Settings",
+            "/my_settings"
         ),
         height="100%",
         width="25vh",

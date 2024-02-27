@@ -86,6 +86,7 @@ def login_button_group() -> rx.Component:
                 "Sign Up",
                 height="100%",
                 width="55%",
+                on_click=rx.redirect("/signup"),
                 font_size="1.4vh",
                 bg="#0f1f0f",
                 color="white",
@@ -98,6 +99,7 @@ def login_button_group() -> rx.Component:
                 width="45%",
                 bg="#1f0f0f",
                 color="WHITE",
+                on_click=rx.redirect("/login"),
                 font_size="1.4vh",
                 border_radius="0vh 1vh 0vh 0vh",
                 _hover={"bg":"#1f0f0f","color":"#cc1111"}
