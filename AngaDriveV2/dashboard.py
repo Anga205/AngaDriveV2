@@ -44,6 +44,7 @@ def static_data_box() -> rx.Component:
                     data_key="times_opened",
                     stroke = "#0000ff",
                     fill = "#0000ff",
+                    type_ = "linear"
                 ),
                 rx.recharts.x_axis(data_key="date"),
                 rx.recharts.y_axis(),

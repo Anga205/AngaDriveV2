@@ -75,7 +75,7 @@ def shared_sidebar(opened_page):
         return rx.chakra.button(
                 rx.chakra.image(
                     src=image,
-                    height="75%",
+                    height="60%",
                     width="auto"
                 ),
                 rx.chakra.box(
@@ -87,6 +87,7 @@ def shared_sidebar(opened_page):
                 rx.chakra.spacer(),
                 width="100%",
                 height="5vh",
+                spacing="0vh",
                 font_size="1.65vh",
                 border_radius="0vh",
                 on_click=rx.redirect(redirect_to),
