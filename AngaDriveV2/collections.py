@@ -4,5 +4,5 @@ from AngaDriveV2.shared_components import *
 
 def index():
     return site_template(
-        "Files",
+        "Collections",
     )

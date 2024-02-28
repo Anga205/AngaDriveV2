@@ -152,3 +152,21 @@ def upload_container(component):
         no_click=True,
         no_keyboard=True
     )
+
+def site_template(page_opened, components=rx.spacer()):
+    return upload_container(
+        rx.chakra.hstack(
+            shared_sidebar(opened_page=page_opened),
+            rx.chakra.vstack(
+                shared_navbar(),
+                components,
+                spacing="0.75vh",
+                height="100vh",
+                width="100%",
+                bg="#0f0f0f"
+            ),  
+            spacing="0vh",
+            height="100vh",
+            width="100%"
+        )
+    )
