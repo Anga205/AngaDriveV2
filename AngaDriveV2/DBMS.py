@@ -77,8 +77,12 @@ def add_timestamp_to_activity():
 def get_user_count():
     con = sqlite3.connect(database_directory)
     cur = con.cursor()
-    cur.execute(f"SELECT COUNT(*) FROM accounts")
-    count = int(cur.fetchone()[0])
+    cur.execute(f"SELECT COUNT(DISTINCT account_token) FROM file_data")
+    try:
+       count = int(cur.fetchone()[0])
+    except Exception as e:
+        print(f'Error occured when calculating get_user_count: {e}')
+        count = 0
     con.close()
     return count
 
@@ -148,9 +152,19 @@ def get_all_user_files(account_token):
     con = sqlite3.connect(database_directory)
     cur = con.cursor()
 
-    cur.execute(f"SELECT * FROM file_data WHERE account_token={account_token}")
+    cur.execute(f"SELECT original_file_name, file_directory, account_token, file_size, timestamp FROM file_data WHERE account_token={account_token}")
     rows = list(cur)
 
     con.close()
 
     return rows
+
+def remove_file_from_database(file_directory):
+    
+    con = sqlite3.connect(database_directory)
+    cur = con.cursor()
+
+    cur.execute(f"DELETE FROM file_data WHERE file_directory = {dbify(file_directory)}")
+    con.commit()
+
+    con.close()

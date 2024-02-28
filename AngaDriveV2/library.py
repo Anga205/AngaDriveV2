@@ -1,6 +1,6 @@
 import datetime, time, os, random
 
-file_directory = os.path.join(os.getcwd(), "file_handler")
+file_directory = os.path.join(os.getcwd(), "file_handler", "assets")
 
 def dbify(var):
     if var==None:
@@ -143,3 +143,13 @@ def count_files(directory = file_directory):
     for dirpath, _, filenames in os.walk(directory):
         file_count += len(filenames)
     return file_count
+
+def get_file_size(file_path: str) -> int:
+    # Convert to an absolute path if it's a relative path
+    file_path = os.path.abspath(file_path)
+    # Get the size of the file in bytes
+    file_size = os.path.getsize(file_path)
+    return file_size
+
+def delete_file(file_to_be_deleted):
+    os.remove(file_directory, file_to_be_deleted)

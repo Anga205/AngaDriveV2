@@ -11,9 +11,6 @@ class State(rx.State):
     local_start_time = float(start_time)
     uptime = format_time(round(time.time() - local_start_time))
 
-    user_file_count=0
-    user_storage_amount="0 KB"
-
     def increment_time(self, date):
         self.uptime = format_time(round(time.time() - self.local_start_time))
 
@@ -48,6 +45,15 @@ class State(rx.State):
         self.user_count = get_user_count()
         self.site_activity : list[dict] = [{"date":x, "times_opened": fetch_activity_from_last_week()[x]} for x in fetch_activity_from_last_week()]
 
+    user_file_count=0
+    user_storage_amount="0 KB"
+    def update_account_data_components(self):
+        data = get_all_user_files(self.token)
+        self.user_file_count = len(data)
+        list_of_file_sizes = [x[3] for x in data] # because as of writing this, file_size is the third column in the database
+        sum_of_file_sizes = sum(list_of_file_sizes)
+        self.user_storage_amount = format_bytes(sum_of_file_sizes)
+
 
     def load_any_page(self):
         add_timestamp_to_activity()
@@ -56,6 +62,7 @@ class State(rx.State):
     def load_index_page(self):
         self.load_any_page()
         self.update_site_data_components()
+        self.update_account_data_components()
 
     def temp_edit_aspect(self):
         print("editing aspect")
@@ -78,6 +85,12 @@ class State(rx.State):
             with open(outfile, "wb") as f:
                 f.write(upload_data)
             self.image_relative_path = filename
+            add_file_to_database(
+                account_token=self.token,
+                file_directory=filename,
+                file_size=get_file_size(outfile),
+                original_file_name=file.filename
+            )
     
     def upload_progressbar(self, prog):
         self.upload_progress = prog["progress"]*100
