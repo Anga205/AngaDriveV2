@@ -59,9 +59,84 @@ def upload_button():
 def file_card():
     rx = reflex.chakra
     return rx.vstack(
-        rx.heading(
-            "TODO: CODE A CARD TO DISPLAY FILES"
-            )
+        rx.hstack(
+            rx.spacer(),
+            rx.text(
+                "Filename",
+                font_size="2.5vh",
+                color="WHITE"
+                ),
+            rx.spacer(),
+            bg="#1c1c1c",
+            border_radius = "1vh 1vh 0vh 0vh",
+            border_color="#1c1c1c",
+            border_width="1vh",
+            width="100%"
+        ),
+        rx.vstack(
+            rx.box(
+                rx.text("preview goes here"),
+                height="30vh",
+                justify_content="center",
+                align_items="center",
+                width="100%",
+                color="WHITE"
+            ),
+            rx.hstack(
+                rx.spacer(),
+                rx.vstack(
+                    rx.text(
+                        "Uploaded Name:"
+                    ),
+                    rx.text(
+                        "Timestamp:"
+                    ),
+                    rx.text(
+                        "File Size:"
+                    ),
+                    spacing="0vh",
+                    justify="start",
+                    align_items="start",
+                ),
+                rx.vstack(
+                    rx.text(
+                        "bgtr783nc8n5i.png"
+                    ),
+                    rx.text(
+                        f"{time.ctime(time.time())}"
+                    ),
+                    rx.text(
+                        "48.42 GB"
+                    ),
+                    spacing="0vh",
+                    justify="start",
+                    align_items="start",
+                ),
+                rx.spacer(),
+                font_size="1.5vh",
+                width="100%",
+                color="GRAY",
+                spacing="0.75vh"
+            ),
+            rx.box(
+                height="1vh"
+            ),
+            spacing="0.75vh",
+            border_color="#1c1c1c",
+            border_width="0.2vh",
+            width="100%"
+        ),
+        rx.hstack(
+            justify_content="center",
+            align_items="center",
+            height="6.5vh",
+            width="100%",
+            border_color="#1c1c1c",
+            border_width="0vh 0.2vh 0.2vh 0.2vh",
+            border_radius="0vh 0vh 1vh 1vh"
+        ),
+        width="18%",
+        spacing="0vh"
     )
 
 
