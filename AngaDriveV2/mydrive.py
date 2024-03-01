@@ -65,7 +65,7 @@ def file_card():
             rx.spacer(),
             rx.text(
                 "Filename",
-                font_size="2.5vh",
+                font_size="23px",
                 color="WHITE"
                 ),
             rx.spacer(),
@@ -83,7 +83,7 @@ def file_card():
                     height="65%",
                     width="auto"
                 ),
-                height="30vh",
+                height="225px",
                 display="flex",
                 justify_content="center",
                 align_items="center",
@@ -121,10 +121,9 @@ def file_card():
                     align_items="start",
                 ),
                 rx.spacer(),
-                font_size="1.5vh",
+                font_size="11px",
                 width="100%",
                 color="GRAY",
-                spacing="0.75vh"
             ),
             rx.box(
                 height="1vh"
@@ -143,9 +142,8 @@ def file_card():
                 bg = "#260000",
                 _hover = {"bg":"#420000","color":"#ff0000"},
                 border_radius="2vh",
-                height="4.5vh",
+                height="30px",
                 width="15%",
-                font_size="1.65vh"
                 ),
             rx.button(
                 rx.icon(
@@ -155,9 +153,8 @@ def file_card():
                 bg = "#002321",
                 _hover = {"bg":"#003432","color":"#11b8aa"},
                 border_radius="2vh",
-                height="4.5vh",
+                height="30px",
                 width="15%",
-                font_size="1.65vh"
             ),
             rx.button(
                 rx.icon(
@@ -167,9 +164,8 @@ def file_card():
                 bg = "#11222f",
                 _hover = {"bg":"#223340","color":"#22c9bb"},
                 border_radius="2vh",
-                height="4.5vh",
-                width="5vh",
-                font_size="1.65vh"
+                height="30px",
+                width="15%",
             ),
             rx.button(
                 rx.icon(
@@ -180,21 +176,20 @@ def file_card():
                 bg = "#302400",
                 _hover = {"bg":"#413511","color":"#ffc200"},
                 border_radius="2vh",
-                height="4.5vh",
-                width="5vh",
-                font_size="1.65vh"
+                height="30px",
+                width="15%",
             ),
             justify_content="center",
             align_items="center",
-            height="6vh",
-            spacing="5%",
+            height="42px",
+            spacing="15px",
             width="100%",
             border_color="#1c1c1c",
             border_width="0vh 0.2vh 0.2vh 0.2vh",
             border_radius="0vh 0vh 1vh 1vh"
         ),
-        width="18%",
-        spacing="0vh"
+        width="225px",
+        spacing="0px"
     )
 
 
@@ -225,6 +220,7 @@ def index():
                 height="8vh"
             ),
             file_card(),
+            bg="#0f0f0f",
             height="100%",
             width="100%"
         )
