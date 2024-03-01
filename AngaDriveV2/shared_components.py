@@ -61,7 +61,7 @@ def shared_navbar() -> rx.Component:
         spacing="0vh"
     )
 
-def shared_sidebar(opened_page):
+def shared_sidebar(opened_page, **kwargs):
     buttons = ["Home", "Files", "Settings", "Collections"]
     button_bg = "BLACK"
     selected_button_bg = "#1f1f1f"
@@ -125,7 +125,9 @@ def shared_sidebar(opened_page):
         height="100%",
         width="25vh",
         spacing="0vh",
-        bg="BLACK"
+#        position="fixed",
+        bg="BLACK",
+        **kwargs
     )
 
 def upload_container(component):
@@ -165,6 +167,7 @@ def site_template(page_opened, components=rx.spacer()):
                 width="100%",
                 bg="#0f0f0f"
             ),  
+            bg="#0f0f0f",
             spacing="0vh",
             height="100vh",
             width="100%"

@@ -64,6 +64,12 @@ class State(rx.State):
         self.update_site_data_components()
         self.update_account_data_components()
 
+    user_files = []
+    def load_files_page(self):
+        self.load_any_page()
+        print(get_all_user_files(self.token))
+        self.user_files = get_all_user_files(self.token)
+
     def temp_edit_aspect(self):
         print("editing aspect")
 

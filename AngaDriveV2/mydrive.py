@@ -219,9 +219,12 @@ def index():
                 width="98%",
                 height="8vh"
             ),
-            file_card(),
+            rx.cond(
+                State.user_files,
+                rx.heading("no files found"),
+                rx.heading("files found")
+            ),
             bg="#0f0f0f",
-            height="100%",
             width="100%"
         )
     )
