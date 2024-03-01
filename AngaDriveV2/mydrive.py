@@ -15,6 +15,8 @@ def upload_button():
                 ),
             "Upload",
             color="WHITE",
+            font_size="1.65vh",
+            height="4vh",
             bg="#000055",
             _hover={"bg":"#0000aa"}
             ),
@@ -141,6 +143,8 @@ def file_card():
                 bg = "#260000",
                 _hover = {"bg":"#420000","color":"#ff0000"},
                 border_radius="2vh",
+                height="4.5vh",
+                width="15%",
                 font_size="1.65vh"
                 ),
             rx.button(
@@ -151,6 +155,8 @@ def file_card():
                 bg = "#002321",
                 _hover = {"bg":"#003432","color":"#11b8aa"},
                 border_radius="2vh",
+                height="4.5vh",
+                width="15%",
                 font_size="1.65vh"
             ),
             rx.button(
@@ -161,22 +167,27 @@ def file_card():
                 bg = "#11222f",
                 _hover = {"bg":"#223340","color":"#22c9bb"},
                 border_radius="2vh",
+                height="4.5vh",
+                width="5vh",
                 font_size="1.65vh"
             ),
             rx.button(
                 rx.icon(
-                    tag="plus_square"
+                    tag="plus_square",
+                    width="5vh"
                 ),
                 color="#ffb100",
                 bg = "#302400",
                 _hover = {"bg":"#413511","color":"#ffc200"},
                 border_radius="2vh",
+                height="4.5vh",
+                width="5vh",
                 font_size="1.65vh"
             ),
             justify_content="center",
             align_items="center",
             height="6vh",
-            spacing="2vh",
+            spacing="5%",
             width="100%",
             border_color="#1c1c1c",
             border_width="0vh 0.2vh 0.2vh 0.2vh",
