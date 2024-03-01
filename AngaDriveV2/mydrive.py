@@ -75,8 +75,14 @@ def file_card():
         ),
         rx.vstack(
             rx.box(
-                rx.text("preview goes here"),
+                rx.image(
+                    src="/document.png",
+                    opacity="0.4",
+                    height="65%",
+                    width="auto"
+                ),
                 height="30vh",
+                display="flex",
                 justify_content="center",
                 align_items="center",
                 width="100%",
@@ -127,9 +133,50 @@ def file_card():
             width="100%"
         ),
         rx.hstack(
+            rx.button(
+                rx.icon(
+                    tag="delete"
+                ),
+                color="#ee0000",
+                bg = "#260000",
+                _hover = {"bg":"#420000","color":"#ff0000"},
+                border_radius="2vh",
+                font_size="1.65vh"
+                ),
+            rx.button(
+                rx.icon(
+                    tag="copy"
+                ),
+                color="#00a799",
+                bg = "#002321",
+                _hover = {"bg":"#003432","color":"#11b8aa"},
+                border_radius="2vh",
+                font_size="1.65vh"
+            ),
+            rx.button(
+                rx.icon(
+                    tag="download"
+                ),
+                color="#12a1fb",
+                bg = "#11222f",
+                _hover = {"bg":"#223340","color":"#22c9bb"},
+                border_radius="2vh",
+                font_size="1.65vh"
+            ),
+            rx.button(
+                rx.icon(
+                    tag="plus_square"
+                ),
+                color="#ffb100",
+                bg = "#302400",
+                _hover = {"bg":"#413511","color":"#ffc200"},
+                border_radius="2vh",
+                font_size="1.65vh"
+            ),
             justify_content="center",
             align_items="center",
-            height="6.5vh",
+            height="6vh",
+            spacing="2vh",
             width="100%",
             border_color="#1c1c1c",
             border_width="0vh 0.2vh 0.2vh 0.2vh",

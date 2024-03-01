@@ -19,7 +19,7 @@ def create_database():
                     display_name TEXT,
                     email TEXT,
                     hashed_password TEXT,
-                    avatar TEXT,
+                    avatar TEXT
                 )
                         ''')
             
