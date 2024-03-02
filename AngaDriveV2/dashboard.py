@@ -466,59 +466,33 @@ def github_widget():
     )
 
 def index():
-    return upload_container(
+    return site_template(
+        "Home",
         rx.chakra.hstack(
-            rx.chakra.hstack(
-                shared_sidebar(
-                    "Home"
-                    ),
-                rx.chakra.vstack(
-                    shared_navbar(),
-                    rx.chakra.hstack(
-                        rx.chakra.box(
-                            width="0vh",
-                            height="0vh"
-                        ),
-                        rx.chakra.vstack(
-                            static_account_info(),
-                            static_data_box(),
-                            height="100%",
-                            spacing="0.75vh",
-                            width="50%"
-                            ),
-                        rx.chakra.vstack(
-                            whats_new_widget(),
-                            github_widget(),
-                            height="100%",
-                            width="50%",
-                            spacing="0.75vh"
-                            ),
-                        rx.chakra.box(
-                            height="0vh",
-                            width="0vh"
-                        ),
-                        spacing="0.75vh",
-                        width="100%",
-                        height="93.25vh"
-                        ),
-                    rx.chakra.box(
-                        height="0vh",
-                        width="0vh"
-                    ),
-                    spacing="0.75vh", 
-                    width="100%", 
-                    height="100vh",
-                    bg="#0f0f0f"
-                ),
-                rx.chakra.box(
-                    height="0vh",
-                    width="0vh"
-                ),
-                width="100%",
-                spacing="0vh",
-                bg="#0f0f0f",
-                height="100vh",
+            rx.chakra.box(
+                width="0vh",
+                height="0vh"
             ),
-            spacing="0vh"
+            rx.chakra.vstack(
+                static_account_info(),
+                static_data_box(),
+                height="100%",
+                spacing="0.75vh",
+                width="50%"
+                ),
+            rx.chakra.vstack(
+                whats_new_widget(),
+                github_widget(),
+                height="100%",
+                width="50%",
+                spacing="0.75vh"
+                ),
+            rx.chakra.box(
+                height="0vh",
+                width="0vh"
+                ),
+            spacing="0.75vh",
+            width="100%",
+            height="93.25vh"
+            ),
         )
-    )

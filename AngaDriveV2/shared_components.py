@@ -123,9 +123,9 @@ def shared_sidebar(opened_page, **kwargs):
             "/my_settings"
         ),
         height="100%",
-        width="25vh",
+        width="12%",
         spacing="0vh",
-#        position="fixed",
+        position="fixed",
         bg="BLACK",
         **kwargs
     )
@@ -159,12 +159,13 @@ def site_template(page_opened, components=rx.spacer()):
     return upload_container(
         rx.chakra.hstack(
             shared_sidebar(opened_page=page_opened),
+            rx.chakra.box(width="12%"),
             rx.chakra.vstack(
                 shared_navbar(),
                 components,
                 spacing="0.75vh",
                 height="100vh",
-                width="100%",
+                width="88%",
                 bg="#0f0f0f"
             ),  
             bg="#0f0f0f",

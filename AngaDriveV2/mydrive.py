@@ -18,6 +18,8 @@ def upload_button():
             font_size="1.65vh",
             height="4vh",
             bg="#000055",
+            width="10vh",
+            border_radius="1vh",
             _hover={"bg":"#0000aa"}
             ),
         ),
@@ -134,50 +136,62 @@ def file_card():
             width="100%"
         ),
         rx.hstack(
-            rx.button(
-                rx.icon(
-                    tag="delete"
+            rx.tooltip(
+                rx.button(
+                    rx.icon(
+                        tag="delete"
+                    ),
+                    color="#ee0000",
+                    bg = "#260000",
+                    _hover = {"bg":"#420000","color":"#ff0000"},
+                    border_radius="2vh",
+                    height="30px",
+                    width="15%",
                 ),
-                color="#ee0000",
-                bg = "#260000",
-                _hover = {"bg":"#420000","color":"#ff0000"},
-                border_radius="2vh",
-                height="30px",
-                width="15%",
-                ),
-            rx.button(
-                rx.icon(
-                    tag="copy"
-                ),
-                color="#00a799",
-                bg = "#002321",
-                _hover = {"bg":"#003432","color":"#11b8aa"},
-                border_radius="2vh",
-                height="30px",
-                width="15%",
+                label = "Delete"
             ),
-            rx.button(
-                rx.icon(
-                    tag="download"
+            rx.tooltip(
+                rx.button(
+                    rx.icon(
+                        tag="copy"
+                    ),
+                    color="#00a799",
+                    bg = "#002321",
+                    _hover = {"bg":"#003432","color":"#11b8aa"},
+                    border_radius="2vh",
+                    height="30px",
+                    width="15%",
                 ),
-                color="#12a1fb",
-                bg = "#11222f",
-                _hover = {"bg":"#223340","color":"#22c9bb"},
-                border_radius="2vh",
-                height="30px",
-                width="15%",
+                label="Copy Link"
             ),
-            rx.button(
-                rx.icon(
-                    tag="plus_square",
-                    width="5vh"
+            rx.tooltip(
+                rx.button(
+                    rx.icon(
+                        tag="download"
+                    ),
+                    color="#12a1fb",
+                    bg = "#11222f",
+                    _hover = {"bg":"#223340","color":"#22c9bb"},
+                    border_radius="2vh",
+                    height="30px",
+                    width="15%",
                 ),
-                color="#ffb100",
-                bg = "#302400",
-                _hover = {"bg":"#413511","color":"#ffc200"},
-                border_radius="2vh",
-                height="30px",
-                width="15%",
+                label="Download File"
+            ),
+            rx.tooltip(
+                rx.button(
+                    rx.icon(
+                        tag="plus_square",
+                        width="5vh"
+                    ),
+                    color="#ffb100",
+                    bg = "#302400",
+                    _hover = {"bg":"#413511","color":"#ffc200"},
+                    border_radius="2vh",
+                    height="30px",
+                    width="15%",
+                ),
+                label="Add to collection"
             ),
             justify_content="center",
             align_items="center",
@@ -221,8 +235,24 @@ def index():
             ),
             rx.cond(
                 State.user_files,
-                rx.heading("no files found"),
-                rx.heading("files found")
+                file_card(),
+                rx.chakra.vstack(
+                    rx.chakra.spacer(),
+                    rx.chakra.alert(
+                        rx.chakra.alert_icon(),
+                        rx.chakra.alert(
+                            "Drag and drop files here, of click the 'Upload' button on the top right", 
+                            bg="#000033", 
+                            color="WHITE"
+                        ),
+                        border_radius="2vh",
+                        bg="#000033",
+                        border_color="#0000aa",
+                        border_width="0.2vh"
+                    ),
+                    rx.chakra.spacer(),
+                    height="50vh",
+                )
             ),
             bg="#0f0f0f",
             width="100%"
