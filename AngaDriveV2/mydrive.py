@@ -196,6 +196,7 @@ def file_card(file_obj):
                     border_radius="2vh",
                     height="30px",
                     width="15%",
+                    on_click = lambda: State.copy_file_link(file_obj),
                 ),
                 label="Copy Link"
             ),
@@ -210,6 +211,7 @@ def file_card(file_obj):
                     border_radius="2vh",
                     height="30px",
                     width="15%",
+                    on_click = State.download_file(file_obj),
                 ),
                 label="Download File"
             ),

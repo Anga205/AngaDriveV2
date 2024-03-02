@@ -4,7 +4,7 @@ import os, AngaDriveV2.DBMS
 from starlette.responses import RedirectResponse
 
 app = FastAPI()
-ASSETS_DIR = "./assets"
+ASSETS_DIR = "./file_handler/assets"
 
 @app.get("/")
 async def redirect():

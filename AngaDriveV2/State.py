@@ -114,3 +114,9 @@ class State(rx.State):
             )
         self.user_files = get_all_user_files_for_display(self.token)
         return rx.clear_selected_files("file_page_upload")
+    
+    def copy_file_link(self, file_obj):
+        return rx.set_clipboard(file_link+file_obj[1])
+    
+    def download_file(self, file_obj):
+        return rx.download("/"+os.path.join("..","file_handler","assets",file_obj[1]))
