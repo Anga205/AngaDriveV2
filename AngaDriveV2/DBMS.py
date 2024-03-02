@@ -1,7 +1,7 @@
-import sqlite3, os, time
+import sqlite3, os, time, sys
 from AngaDriveV2.library import *
 
-database_directory = "rx.db"
+database_directory = 'rx.db'
 
 def create_database():
     # Check if rx.db file exists in the current directory
@@ -145,15 +145,16 @@ def add_file_to_database(original_file_name, file_directory, account_token, file
     con.commit()
     con.close()
 
-def get_all_user_files(account_token):
+def get_all_user_files_for_display(account_token):
     
     account_token = dbify(account_token)
 
     con = sqlite3.connect(database_directory)
     cur = con.cursor()
 
-    cur.execute(f"SELECT original_file_name, file_directory, account_token, file_size, timestamp FROM file_data WHERE account_token={account_token}")
-    rows = list(cur)
+    cur.execute(f"SELECT original_file_name, file_directory, file_size, timestamp FROM file_data WHERE account_token={account_token}")
+
+    rows = [[x[0], x[1], format_bytes(x[2]), time.ctime(x[3])] for x in cur]
 
     con.close()
 
@@ -168,3 +169,17 @@ def remove_file_from_database(file_directory):
     con.commit()
 
     con.close()
+
+def get_sum_of_user_file_sizes(token):
+
+    con = sqlite3.connect(database_directory)
+    cur = con.cursor()
+
+    cur.execute(f"SELECT SUM(file_size) FROM file_data WHERE account_token={dbify(token)}")
+    sum_of_file_sizes = cur.fetchone()[0]
+
+    con.close()
+    if sum_of_file_sizes!=0:
+        return format_bytes(sum_of_file_sizes)
+    else:
+        return format_bytes(0)

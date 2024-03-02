@@ -1,5 +1,5 @@
 import reflex as rx
-import random, time, asyncio
+import time, asyncio
 from AngaDriveV2.library import *
 from AngaDriveV2.DBMS import *
 
@@ -14,18 +14,6 @@ class State(rx.State):
     def increment_time(self, date):
         self.uptime = format_time(round(time.time() - self.local_start_time))
 
-#    @rx.var
-#    def is_logged_in(self) -> bool: # returns true only if the browser has a token AND the token has an email and username attached to it
-#        if self.token=="":
-#            return False
-#        else:
-#            data = account_info(self.token)
-#            if None in data:
-#                return False
-#        self.username = data["display_name"]
-#        self.email = data["email"]
-#        return True
-
     token:str = rx.Cookie(name="token")
     username:str = "Sample Username"
     email:str = "anonymous@email.com"
@@ -33,7 +21,6 @@ class State(rx.State):
         if self.token == "":
             generated_token = gen_token()
             self.token:str = generated_token
-            create_new_account_without_info(generated_token)
 
     files_hosted : int = 0
     space_used : str = "0 KB"
@@ -48,11 +35,9 @@ class State(rx.State):
     user_file_count=0
     user_storage_amount="0 KB"
     def update_account_data_components(self):
-        data = get_all_user_files(self.token)
+        data = get_all_user_files_for_display(self.token)
         self.user_file_count = len(data)
-        list_of_file_sizes = [x[3] for x in data] # because as of writing this, file_size is the third column in the database
-        sum_of_file_sizes = sum(list_of_file_sizes)
-        self.user_storage_amount = format_bytes(sum_of_file_sizes)
+        self.user_storage_amount = get_sum_of_user_file_sizes(self.token)
 
 
     def load_any_page(self):
@@ -64,13 +49,11 @@ class State(rx.State):
         self.update_site_data_components()
         self.update_account_data_components()
 
-    user_files = []
+    user_files: list[list] = []
     def load_files_page(self):
         self.load_any_page()
-        self.user_files = get_all_user_files(self.token)
+        self.user_files: list[list] = get_all_user_files_for_display(self.token)
 
-    def temp_edit_aspect(self):
-        print("editing aspect")
 
     async def page_not_found_redirect_back_to_home_page(self):
         await asyncio.sleep(5)
@@ -81,7 +64,6 @@ class State(rx.State):
     upload_progress:int=0
     async def handle_upload(self, files: list[rx.UploadFile]):
         UPLOAD_ID = "upload1"
-        print("detected")
         yield rx.clear_selected_files(UPLOAD_ID)
         for file in files:
             upload_data = await file.read()
@@ -96,8 +78,21 @@ class State(rx.State):
                 file_size=get_file_size(outfile),
                 original_file_name=file.filename
             )
+            self.user_files: list[list] = get_all_user_files_for_display(self.token)
     
     def upload_progressbar(self, prog):
         self.upload_progress = prog["progress"]*100
-#        if prog["progress"] == 1:
-#            self.upload_progress=0
+        if prog["progress"] == 1:
+            self.upload_progress=0
+    
+    def delete_file(self, file_obj):
+        file_directory = file_obj[1]
+        try:
+            os.remove(os.path.join("file_handler","assets",file_directory))
+        except Exception as e:
+            print(f"Error occured in execuring AngaDriveV2.State.delete_file.os_remove: {file_obj}")
+        try:
+            remove_file_from_database(file_directory)
+        except Exception as e:
+            print(f"Error occured in execuring AngaDriveV2.State.delete_file.remove_file_from_database: {file_obj}")
+        self.user_files = get_all_user_files_for_display(self.token)

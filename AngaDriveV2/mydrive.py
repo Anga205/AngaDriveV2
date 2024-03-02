@@ -60,13 +60,13 @@ def upload_button():
             ),
         )
 
-def file_card():
+def file_card(file_obj):
     rx = reflex.chakra
     return rx.vstack(
         rx.hstack(
             rx.spacer(),
             rx.text(
-                "Filename",
+                file_obj[0], # original file name like sample.png
                 font_size="23px",
                 color="WHITE"
                 ),
@@ -110,13 +110,13 @@ def file_card():
                 ),
                 rx.vstack(
                     rx.text(
-                        "bgtr783nc8n5i.png"
+                        file_obj[1] # file directory like 9487br483.png
                     ),
                     rx.text(
-                        f"{time.ctime(time.time())}"
+                        file_obj[3] # timestamp like time.ctime
                     ),
                     rx.text(
-                        "48.42 GB"
+                        file_obj[2] # file size like 32KB
                     ),
                     spacing="0vh",
                     justify="start",
@@ -147,6 +147,7 @@ def file_card():
                     border_radius="2vh",
                     height="30px",
                     width="15%",
+                    on_click=State.delete_file(file_obj)
                 ),
                 label = "Delete"
             ),
@@ -235,7 +236,12 @@ def index():
             ),
             rx.cond(
                 State.user_files,
-                file_card(),
+                rx.chakra.flex(
+                    rx.foreach(
+                        State.user_files,
+                        file_card
+                    )
+                ),
                 rx.chakra.vstack(
                     rx.chakra.spacer(),
                     rx.chakra.alert(
