@@ -29,10 +29,27 @@ def upload_button():
                 ),
             rx.alert_dialog.description(
                 rx.upload(
-                    rx.chakra.text(
-                        "Drag and drop files here or click to select files"
-                        ),
-                    height="20vh",
+                    rx.cond(
+                        rx.selected_files("file_page_upload"),
+                        rx.chakra.vstack(
+                            rx.chakra.box(
+                                height="5vh"
+                                ),
+                            rx.foreach(
+                                rx.selected_files("file_page_upload"),
+                                rx.chakra.text
+                                ),
+                            rx.chakra.box(
+                                height="5vh"
+                                )
+                            ),
+                        rx.chakra.vstack(
+                            rx.spacer(),
+                            rx.chakra.text("Drag and drop files here or click to select files"),
+                            rx.spacer(),
+                            height="15vh"
+                            ),
+                    ),
                     display='flex',
                     justify_content= 'center',
                     align_items= 'center',
@@ -49,10 +66,27 @@ def upload_button():
                         "Close",
                         bg="#440000",
                         color="WHITE",
-                        _hover={"bg":"#000033"}
+                        _hover={"bg":"#000033"},
+                        on_click=rx.clear_selected_files("file_page_upload")
                         )
                     ),
                 rx.spacer(),
+                rx.cond(
+                    rx.selected_files("file_page_upload"),
+                    rx.alert_dialog.cancel(
+                        rx.chakra.button(
+                            "Upload",
+                            bg="#113322",
+                            color="WHITE",
+                            _hover={"bg":"#224433"},
+                            on_click=State.handle_file_page_upload(rx.upload_files(upload_id="file_page_upload"))
+                        )
+                    ),
+                    rx.box(
+                        width="0px", 
+                        height="0px"
+                        ),
+                ),
                 width="100%"
                 ),
             bg="#111111",
@@ -236,11 +270,11 @@ def index():
             ),
             rx.cond(
                 State.user_files,
-                rx.chakra.flex(
+                rx.chakra.wrap(
                     rx.foreach(
                         State.user_files,
                         file_card
-                    )
+                    ),
                 ),
                 rx.chakra.vstack(
                     rx.chakra.spacer(),

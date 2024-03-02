@@ -78,7 +78,7 @@ class State(rx.State):
                 file_size=get_file_size(outfile),
                 original_file_name=file.filename
             )
-            self.user_files: list[list] = get_all_user_files_for_display(self.token)
+        self.user_files: list[list] = get_all_user_files_for_display(self.token)
     
     def upload_progressbar(self, prog):
         self.upload_progress = prog["progress"]*100
@@ -96,3 +96,21 @@ class State(rx.State):
         except Exception as e:
             print(f"Error occured in execuring AngaDriveV2.State.delete_file.remove_file_from_database: {file_obj}")
         self.user_files = get_all_user_files_for_display(self.token)
+
+    
+    async def handle_file_page_upload(self, files: list[rx.UploadFile]):
+        for file in files:
+            upload_data = await file.read()
+            filename = gen_filename(file.filename)
+            outfile = os.path.join("file_handler","assets",filename)
+            with open(outfile, "wb") as f:
+                f.write(upload_data)
+            self.image_relative_path = filename
+            add_file_to_database(
+                account_token=self.token,
+                file_directory=filename,
+                file_size=get_file_size(outfile),
+                original_file_name=file.filename
+            )
+        self.user_files = get_all_user_files_for_display(self.token)
+        return rx.clear_selected_files("file_page_upload")

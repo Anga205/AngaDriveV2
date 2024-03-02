@@ -2,6 +2,7 @@ import sqlite3, os, time, sys
 from AngaDriveV2.library import *
 
 database_directory = 'rx.db'
+file_link = "https://i.anga.pro/"
 
 def create_database():
     # Check if rx.db file exists in the current directory
@@ -154,7 +155,7 @@ def get_all_user_files_for_display(account_token):
 
     cur.execute(f"SELECT original_file_name, file_directory, file_size, timestamp FROM file_data WHERE account_token={account_token}")
 
-    rows = [[x[0], x[1], format_bytes(x[2]), time.ctime(x[3])] for x in cur]
+    rows = [[x[0], x[1], format_bytes(x[2]), time.ctime(x[3]), file_link+[file_directory]] for x in cur]
 
     con.close()
 
