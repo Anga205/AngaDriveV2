@@ -1,6 +1,6 @@
 import reflex as rx
 import time
-from AngaDriveV2.library import time_ago
+from AngaDriveV2.common import time_ago
 from AngaDriveV2.State import State
 
 def card(heading, content, **kwargs):

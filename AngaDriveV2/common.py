@@ -21,7 +21,7 @@ def gen_token():
     a=a+"1234567890"
     return "".join(random.choices(a, k=10))+"."+"".join(random.choices(a, k=20))+"."+str(round(time.time()))
 
-def time_ago(timestamp):
+def time_ago(timestamp):        # calculates how long ago a given time.time()
     current_time = datetime.datetime.now()
     input_time = datetime.datetime.fromtimestamp(timestamp)
     time_difference = current_time - input_time
@@ -49,6 +49,8 @@ def time_ago(timestamp):
 
 
 def format_time(number: int) -> str:
+    if number == None:
+        return format_time(0)
     # Check if the input number is negative
     if number < 0:
         return "Negative numbers are not supported"

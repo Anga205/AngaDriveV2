@@ -1,6 +1,6 @@
 import reflex as rx
 import time, asyncio
-from AngaDriveV2.library import *
+from AngaDriveV2.common import *
 from AngaDriveV2.DBMS import *
 
 
@@ -21,6 +21,7 @@ class State(rx.State):
         if self.token == "":
             generated_token = gen_token()
             self.token:str = generated_token
+            create_new_account_without_info(generated_token)
 
     files_hosted : int = 0
     space_used : str = "0 KB"

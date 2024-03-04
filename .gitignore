@@ -5,3 +5,4 @@
 __pycache__/
 uploaded_files/
 venv/
+*.o

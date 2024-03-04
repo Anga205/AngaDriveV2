@@ -1,5 +1,5 @@
 import sqlite3, os, time, sys
-from AngaDriveV2.library import *
+from AngaDriveV2.common import *
 
 database_directory = 'rx.db'
 file_link = "http://localhost:5000/i/"
@@ -50,6 +50,14 @@ def create_database():
                     timestamps INTEGER
                 )
             ''')
+
+            cur.execute('''
+                CREATE TABLE collections(
+                        collection_id TEXT PRIMARY KEY,
+                        collection_name TEXT,
+                        collection_data TEXT
+                )
+                        ''')
             con.commit()
 
             print("Database and table created successfully.")
@@ -78,7 +86,7 @@ def add_timestamp_to_activity():
 def get_user_count():
     con = sqlite3.connect(database_directory)
     cur = con.cursor()
-    cur.execute(f"SELECT COUNT(DISTINCT account_token) FROM file_data")
+    cur.execute(f"SELECT COUNT(token) FROM accounts")
     try:
        count = int(cur.fetchone()[0])
     except Exception as e:
@@ -180,7 +188,8 @@ def get_sum_of_user_file_sizes(token):
     sum_of_file_sizes = cur.fetchone()[0]
 
     con.close()
-    if sum_of_file_sizes!=0:
+    try:
         return format_bytes(sum_of_file_sizes)
-    else:
+    except Exception as e:
+        print(f"Error occured when calculating AngaDriveV2.DBMS.get_sum_of_user_file_sizes\nVar Dump:\nsum_of_file_sizes: {sum_of_file_sizes}\nError: {e}")
         return format_bytes(0)
