@@ -4,7 +4,26 @@ from AngaDriveV2.shared_components import *
 
 
 def collection_accordian():
-    return rx.chakra.text("HELLO WORLD") # TODO:MAKE A CARD FOR COLLECTIONS
+    return rx.chakra.accordion(
+        rx.chakra.accordion_item(
+            rx.chakra.accordion_button(
+                rx.chakra.vstack(
+                    rx.chakra.hstack(
+                        rx.chakra.text(
+                            "Collection1 name",
+                            font_size="20px"
+                        ),
+                        rx.chakra.accordion_icon(),
+                    ),
+                    rx.chakra.divider(
+                        border_color="GRAY"
+                    )
+                )
+            )
+        ),
+        allow_toggle=True,
+        border_color="#0f0f0f"
+    )
 
 
 
@@ -35,9 +54,9 @@ def index():
                                 height="0vh",
                                 width="100%"
                             ),
-                            rx.chakra.vstack(
+                            rx.chakra.wrap(
                                 collection_accordian(),
-                                width="98%"
+                                width="100%"
                             ),
                             spacing="0vh"
                         ),
