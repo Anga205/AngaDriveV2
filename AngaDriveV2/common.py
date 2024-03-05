@@ -1,4 +1,4 @@
-import datetime, time, os, random
+import datetime, time, os, random, sqlite3
 
 file_directory = os.path.join(os.getcwd(), "file_handler", "assets")
 
@@ -157,3 +157,13 @@ def get_file_size(file_path: str) -> int:
 
 def delete_file(file_to_be_deleted):
     os.remove(file_directory, file_to_be_deleted)
+
+
+def create_assets_folder():
+    assets_folder_path = os.path.join("file_handler", "assets")
+    
+    if not os.path.exists(assets_folder_path):
+        os.makedirs(assets_folder_path)
+        print("Assets folder created successfully.")
+
+create_assets_folder()

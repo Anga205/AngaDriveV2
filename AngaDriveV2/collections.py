@@ -3,6 +3,36 @@ from AngaDriveV2.State import State
 from AngaDriveV2.shared_components import *
 
 
+def confirm_delete_collection_dialog(button):
+    return rx.dialog.root(
+        rx.dialog.trigger(
+            button
+        ),
+        rx.dialog.content(
+            rx.dialog.title("Confirm delete"),
+            rx.dialog.description(
+                rx.chakra.vstack(
+                    rx.chakra.text(
+                        rx.chakra.span("Are you SURE you want to delete "),
+                        rx.chakra.span("'", font_weight="bold"),
+                        rx.chakra.span("Collection1 name", font_weight="bold"),
+                        rx.chakra.span("' ", font_weight="bold"),
+                        rx.chakra.span("permanently?"),
+                        align_items="start"
+                    ),
+                    rx.chakra.text(
+                        "Warning: this action cannot be undone.",
+                        align_items="start",
+                        color="RED",
+                    ),
+                    width="100%",
+                    align_items="start"
+                )
+            )
+        )
+    )
+
+
 def collection_accordian():
     card_color="#1c1c1c"
     return rx.chakra.box(
@@ -64,17 +94,19 @@ def collection_accordian():
                         ),
                         rx.chakra.spacer(),
                         rx.chakra.tooltip(
-                            rx.chakra.button(
-                                rx.chakra.icon(
-                                    tag="delete",
-                                    font_size="20px"
-                                ),
-                                height="30px",
-                                width="40px",
-                                border_radius="15px",
-                                bg="rgb(75, 0, 0)",
-                                color="rgb(200, 0, 0)",
-                                _hover={"bg":"rgb(100, 0, 0)", "color": "rgb(255, 0, 0)"}
+                            confirm_delete_collection_dialog(
+                                rx.chakra.button(
+                                    rx.chakra.icon(
+                                        tag="delete",
+                                        font_size="20px"
+                                    ),
+                                    height="30px",
+                                    width="40px",
+                                    border_radius="15px",
+                                    bg="rgb(75, 0, 0)",
+                                    color="rgb(200, 0, 0)",
+                                    _hover={"bg":"rgb(100, 0, 0)", "color": "rgb(255, 0, 0)"}
+                                )
                             ),
                             label="Delete Collection"
                         ),
@@ -107,44 +139,54 @@ def collection_accordian():
         border_width="5px"
     )
 
-
+def context_menu_wrapper(*components):
+    return rx.context_menu.root(
+        rx.context_menu.trigger(
+            *components
+        ),
+        rx.context_menu.content(
+            rx.context_menu.item("New Collection")
+        )
+    )
 
 def index():
     return site_template(
         "Collections",
-        rx.chakra.vstack(
-            rx.chakra.hstack(
-                rx.chakra.tabs(
-                    rx.chakra.tab_list(
-                        rx.chakra.tab("My Collections"),
-                        rx.chakra.tab("Shared with me"),
-                    ),
-                    rx.chakra.tab_panels(
-                        rx.chakra.tab_panel(
-                            rx.chakra.box(
-                                height="2vh"
+        context_menu_wrapper(
+            rx.chakra.vstack(
+                rx.chakra.hstack(
+                    rx.chakra.tabs(
+                        rx.chakra.tab_list(
+                            rx.chakra.tab("My Collections"),
+                            rx.chakra.tab("Shared with me"),
+                        ),
+                        rx.chakra.tab_panels(
+                            rx.chakra.tab_panel(
+                                rx.chakra.box(
+                                    height="2vh"
+                                    ),
+                                rx.chakra.wrap(
+                                    collection_accordian(),
+                                    width="100%"
                                 ),
-                            rx.chakra.wrap(
-                                collection_accordian(),
-                                width="100%"
+                                spacing="0vh"
                             ),
-                            spacing="0vh"
+                            rx.chakra.tab_panel(
+                                rx.chakra.text("test2")
+                            ),
                         ),
-                        rx.chakra.tab_panel(
-                            rx.chakra.text("test2")
-                        ),
+                        color="WHITE",
+                        width="100%",
+                        variant="line",
+                        color_scheme="cyan",
+                        height="100%",
+                        is_fitted=True
                     ),
-                    color="WHITE",
                     width="100%",
-                    variant="line",
-                    color_scheme="cyan",
                     height="100%",
-                    is_fitted=True
                 ),
                 width="100%",
-                height="100%",
-            ),
-            width="100%",
-            height="100%"
+                height="100%"
+            )
         )
     )

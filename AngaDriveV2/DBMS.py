@@ -195,3 +195,45 @@ def get_sum_of_user_file_sizes(token):
     except Exception as e:
         print(f"Error occured when calculating AngaDriveV2.DBMS.get_sum_of_user_file_sizes\nVar Dump:\nsum_of_file_sizes: {sum_of_file_sizes}\nError: {e}")
         return format_bytes(0)
+    
+def get_collection_count():
+
+    con = sqlite3.connect(database_directory)
+    cur = con.cursor()
+
+    cur.execute(f"SELECT COUNT(id) FROM collections")
+    count = cur.fetchone()[0]
+
+    cur.close()
+    con.close()
+
+    return count
+
+def get_all_collection_ids():
+    
+    con = sqlite3.connect(database_directory)
+    cur = con.cursor()
+
+    cur.execute("SELECT id FROM collections")
+       
+    ids = [x[0] for x in cur]
+
+    con.close()
+    return ids
+
+
+def gen_collection_id():
+    
+    generated_id = "".join([random.choice(list("1234567890qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM")) for x in range(15)])
+
+    if generated_id in get_all_collection_ids():
+        return gen_collection_id()
+    else:
+        return generated_id
+
+def create_new_collection(token, collection_name):
+    con = sqlite3.connect(database_directory)
+    cur = con.cursor()
+
+    cur.execute(f"INSERT INTO collections (id, timestamp, name, editors, data) VALUES ({dbify(gen_collection_id())}, {dbify(time.time())}, {dbify(collection_name)}, {dbify(token)}, {dbify(str([]))})")
+    con.commit()
