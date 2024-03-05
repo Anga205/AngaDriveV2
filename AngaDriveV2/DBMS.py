@@ -53,9 +53,10 @@ def create_database():
 
             cur.execute('''
                 CREATE TABLE collections(
-                        collection_id TEXT PRIMARY KEY,
-                        collection_name TEXT,
-                        collection_data TEXT
+                        id TEXT PRIMARY KEY,
+                        name TEXT,
+                        editors TEXT,
+                        data TEXT
                 )
                         ''')
             con.commit()

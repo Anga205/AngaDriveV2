@@ -120,4 +120,5 @@ class State(rx.State):
         return rx.set_clipboard(file_link+file_obj[1])
     
     def download_file(self, file_obj):
-        return rx.download("/"+os.path.join("..","file_handler","assets",file_obj[1]))
+        add_timestamp_to_activity()
+        return rx.download("/"+os.path.join("..","file_handler","assets",file_obj[1]), filename=file_obj[0])
