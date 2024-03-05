@@ -131,6 +131,8 @@ def get_directory_size(directory):
     return total_size
 
 def format_bytes(bytes):
+    if bytes == None:
+        return 0
     for unit in ['B', 'KB', 'MB', 'GB', 'TB']:
         if bytes < 1024:
             return f"{bytes:.2f} {unit}"

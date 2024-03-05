@@ -54,6 +54,7 @@ def create_database():
             cur.execute('''
                 CREATE TABLE collections(
                         id TEXT PRIMARY KEY,
+                        timestamp INTEGER,
                         name TEXT,
                         editors TEXT,
                         data TEXT

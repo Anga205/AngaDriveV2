@@ -4,25 +4,107 @@ from AngaDriveV2.shared_components import *
 
 
 def collection_accordian():
-    return rx.chakra.accordion(
-        rx.chakra.accordion_item(
-            rx.chakra.accordion_button(
-                rx.chakra.vstack(
-                    rx.chakra.hstack(
-                        rx.chakra.text(
-                            "Collection1 name",
-                            font_size="20px"
+    card_color="#1c1c1c"
+    return rx.chakra.box(
+        rx.chakra.accordion(
+            rx.chakra.accordion_item(
+                rx.chakra.accordion_button(
+                    rx.chakra.vstack(
+                        rx.chakra.hstack(
+                            rx.chakra.text(
+                                "Collection1 name",
+                                font_size="30px"
+                            ),
+                            rx.chakra.accordion_icon(),
                         ),
-                        rx.chakra.accordion_icon(),
-                    ),
-                    rx.chakra.divider(
-                        border_color="GRAY"
+                        rx.chakra.divider(
+                            border_color="GRAY"
+                        ),
+                        rx.chakra.box(
+                            height="10px"
+                        ),
+                        rx.chakra.hstack(
+                            rx.chakra.vstack(
+                                rx.chakra.text("File Count: "),
+                                rx.chakra.text("Total Size: "),
+                                rx.chakra.text("Editors: "),
+                                spacing="5px",
+                                align_items="start"
+                            ),
+                            rx.chakra.vstack(
+                                rx.chakra.text("72"),
+                                rx.chakra.text("1.2 GB"),
+                                rx.chakra.text("12"),
+                                spacing="5px",
+                                align_items="start",
+                            ),
+                            font_size="15px",
+                            color="#bbbbbb",
+                            spacing="10px"
+                        ),
+                        spacing="0vh"
+                    )
+                ),
+                rx.chakra.accordion_panel(
+                    rx.chakra.hstack(
+                        rx.chakra.tooltip(
+                            rx.chakra.button(
+                                rx.chakra.icon(
+                                    tag="edit",
+                                    font_size="20px"
+                                ),
+                                height="30px",
+                                width="40px",
+                                border_radius="15px",
+                                bg="rgb(0, 75, 75)",
+                                color="rgb(0, 200, 200)",
+                                _hover={"bg":"rgb(0, 100, 100)", "color": "rgb(0, 255, 255)"}
+                            ),
+                            label="Edit Files"
+                        ),
+                        rx.chakra.spacer(),
+                        rx.chakra.tooltip(
+                            rx.chakra.button(
+                                rx.chakra.icon(
+                                    tag="delete",
+                                    font_size="20px"
+                                ),
+                                height="30px",
+                                width="40px",
+                                border_radius="15px",
+                                bg="rgb(75, 0, 0)",
+                                color="rgb(200, 0, 0)",
+                                _hover={"bg":"rgb(100, 0, 0)", "color": "rgb(255, 0, 0)"}
+                            ),
+                            label="Delete Collection"
+                        ),
+                        rx.chakra.spacer(),
+                        rx.chakra.tooltip(
+                            rx.chakra.button(
+                                rx.chakra.icon(
+                                    tag="copy",
+                                    font_size="20px"
+                                ),
+                                height="30px",
+                                width="40px",
+                                border_radius="15px",
+                                bg="rgb(75, 0, 75)",
+                                color="rgb(200, 0, 200)",
+                                _hover={"bg":"rgb(100, 100, 0)", "color": "rgb(255, 255, 0)"}
+                            ),
+                            label="Share Collection"
+                        ),
+                        width="100%"
                     )
                 )
-            )
+            ),
+            allow_toggle=True,
+            border_color=card_color
         ),
-        allow_toggle=True,
-        border_color="#0f0f0f"
+        bg=card_color,
+        border_color=card_color,
+        border_radius="5px",
+        border_width="5px"
     )
 
 
@@ -42,18 +124,6 @@ def index():
                             rx.chakra.box(
                                 height="2vh"
                                 ),
-                            rx.chakra.hstack(
-                                rx.chakra.spacer(),
-                                rx.chakra.button(
-                                    "Create new collection", 
-                                    height="60px",
-                                    color_scheme="cyan",
-                                    opacity="0.3",
-                                    _hover={"opacity":"1"}
-                                    ),
-                                height="0vh",
-                                width="100%"
-                            ),
                             rx.chakra.wrap(
                                 collection_accordian(),
                                 width="100%"
