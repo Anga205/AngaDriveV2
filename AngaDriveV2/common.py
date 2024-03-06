@@ -1,6 +1,9 @@
 import datetime, time, os, random, re
 
 file_directory = os.path.join("assets", "i")
+database_directory = 'rx.db'
+file_link = "http://localhost:8000/i/"
+app_link = "http://localhost:3000"
 
 def dbify(var):
     if var==None:

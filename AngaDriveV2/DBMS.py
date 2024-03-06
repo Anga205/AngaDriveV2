@@ -1,8 +1,5 @@
-import sqlite3, os, time, sys
+import sqlite3, os, time
 from AngaDriveV2.common import *
-
-database_directory = 'rx.db'
-file_link = "http://localhost:8000/i/"
 
 def create_database():
     # Check if rx.db file exists in the current directory
