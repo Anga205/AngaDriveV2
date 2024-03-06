@@ -72,7 +72,7 @@ class State(rx.State):
         for file in files:
             upload_data = await file.read()
             filename = gen_filename(file.filename)
-            outfile = os.path.join("file_handler","assets",filename)
+            outfile = os.path.join(file_directory,filename)
             with open(outfile, "wb") as f:
                 f.write(upload_data)
             self.image_relative_path = filename
@@ -90,15 +90,15 @@ class State(rx.State):
             self.upload_progress=0
     
     def delete_file(self, file_obj):
-        file_directory = file_obj[1]
+        filename = file_obj[1]
         try:
-            os.remove(os.path.join("file_handler","assets",file_directory))
+            os.remove(os.path.join(file_directory,filename))
+            try:
+                remove_file_from_database(filename)
+            except Exception as e:
+                print(f"Error occured in execuring AngaDriveV2.State.delete_file.remove_file_from_database: {file_obj}")
         except Exception as e:
-            print(f"Error occured in execuring AngaDriveV2.State.delete_file.os_remove: {file_obj}")
-        try:
-            remove_file_from_database(file_directory)
-        except Exception as e:
-            print(f"Error occured in execuring AngaDriveV2.State.delete_file.remove_file_from_database: {file_obj}")
+            print(f"Error occured in execuring AngaDriveV2.State.delete_file.os_remove: {file_obj}\nError was: {e}")
         self.user_files = get_all_user_files_for_display(self.token)
 
     
@@ -106,7 +106,7 @@ class State(rx.State):
         for file in files:
             upload_data = await file.read()
             filename = gen_filename(file.filename)
-            outfile = os.path.join("file_handler","assets",filename)
+            outfile = os.path.join(file_directory,filename)
             with open(outfile, "wb") as f:
                 f.write(upload_data)
             self.image_relative_path = filename
@@ -124,4 +124,4 @@ class State(rx.State):
     
     def download_file(self, file_obj):
         add_timestamp_to_activity()
-        return rx.download("/"+os.path.join("..","file_handler","assets",file_obj[1]), filename=file_obj[0])
+        return rx.download("/"+os.path.join("..",file_directory,file_obj[1]), filename=file_obj[0])

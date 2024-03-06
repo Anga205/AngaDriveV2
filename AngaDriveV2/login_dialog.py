@@ -1,7 +1,8 @@
 import reflex as rx
 from AngaDriveV2.common import *
+from AngaDriveV2.State import State
 
-class LoginState(rx.State):
+class LoginState(State):
     signup_mode:bool = False
 
     def set_to_signup_mode(self):
@@ -46,7 +47,8 @@ class LoginState(rx.State):
             self.is_invalid_login_password = True
         self.update_login_button()
 
-
+    def print_token(self):
+        print(self.token)
 
 def signup_form():
     return rx.text("d1")
@@ -82,13 +84,14 @@ def login_form():
                     rx.chakra.button(
                         "Login",
                         color_scheme="facebook",
-                        is_disabled=True
+                        is_disabled=True,
                     )
                 ),
                 rx.chakra.button(
                     "Login",
                     color_scheme="facebook",
-                    is_disabled=False
+                    is_disabled=False,
+                    on_click=LoginState.print_token
                 ),
             ),
             width="85%"

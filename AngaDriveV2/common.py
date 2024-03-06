@@ -1,6 +1,6 @@
 import datetime, time, os, random, re
 
-file_directory = os.path.join(os.getcwd(), "file_handler", "assets")
+file_directory = os.path.join("assets", "i")
 
 def dbify(var):
     if var==None:
@@ -160,10 +160,9 @@ def delete_file(file_to_be_deleted):
 
 
 def create_assets_folder():
-    assets_folder_path = os.path.join("file_handler", "assets")
-    
-    if not os.path.exists(assets_folder_path):
-        os.makedirs(assets_folder_path)
+
+    if not os.path.exists(file_directory):
+        os.makedirs(file_directory)
         print("Assets folder created successfully.")
 
 create_assets_folder()
