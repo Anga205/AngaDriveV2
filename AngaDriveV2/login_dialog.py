@@ -50,8 +50,80 @@ class LoginState(State):
     def print_token(self):
         print(self.token)
 
+
+def security_tooltip(text):
+    return rx.hover_card.root(
+        rx.hover_card.trigger(
+            text
+        ),
+        rx.hover_card.content(
+            rx.vstack(
+                rx.text("- All passwords are encrypted before being stored"),
+                rx.text("- Database isnt open to the internet"),
+                rx.text("- this site might be using https, depending on if i manage to figure out cloudflare SSL"),
+                rx.text("- do people even read these?"),
+                rx.text("- its 1am when im typing this"),
+                rx.chakra.vstack(
+                    rx.chakra.text("all of these on its own doesnt really mean anything, but rest assured i do try to use best practices to keep your data safe, if you are a programmer trying to understand this website, most of the encryption related stuff is in common.py, all the best!"),
+                    spacing="0px",
+                    font_size="10px",
+                    text_align="start",
+                    width="300px"
+                )
+            ),
+            bg="#101010",
+            color="GRAY"
+        )
+    )
+
 def signup_form():
-    return rx.text("d1")
+    return rx.chakra.vstack(
+        rx.chakra.box(
+            height="2vh"
+        ),
+        rx.chakra.input(
+            placeholder="Display name",
+            width="85%",
+            color="WHITE",
+        ),
+        rx.chakra.input(
+            placeholder = "E-mail",
+            width="85%",
+            color="WHITE"
+        ),
+        rx.chakra.password(
+            placeholder="Create a password",
+            width="85%",
+            color="WHITE"
+        ),
+        rx.chakra.password(
+            placeholder="Re-type password",
+            width="85%",
+            color="WHITE"
+        ),
+        rx.chakra.text(
+            rx.chakra.span("Disclaimer: ", font_weight="bold", as_="b"),
+            rx.chakra.span("Although AngaDrive uses "),
+            security_tooltip(
+                rx.chakra.span("standard security practices", as_="u")
+            ),
+            rx.chakra.span(" to assure security, if I were you, I wouldnt use the same password for everything, especially not for a website maintained by a teenager."),
+            color="RED"
+        ),
+        spacing="1vh"
+    )
+
+def data_transfer_on_login_switch():
+    return rx.hover_card.root(
+        rx.hover_card.trigger( 
+            rx.chakra.switch(
+                is_checked=True,
+            )
+        ),
+        rx.hover_card.content(
+            rx.text("Transfer files after login"),
+        )
+    )
 
 def login_form():
     return rx.chakra.vstack(
@@ -77,21 +149,22 @@ def login_form():
             is_invalid=LoginState.is_invalid_login_password
         ),
         rx.chakra.hstack(
+            data_transfer_on_login_switch(),
             rx.chakra.spacer(),
             rx.cond(
                 LoginState.disable_login_button,
+                rx.chakra.button(
+                    "Login",
+                    color_scheme="facebook",
+                    is_disabled=True,
+                ),
                 rx.dialog.close(
                     rx.chakra.button(
                         "Login",
                         color_scheme="facebook",
-                        is_disabled=True,
+                        is_disabled=False,
+                        on_click=LoginState.print_token
                     )
-                ),
-                rx.chakra.button(
-                    "Login",
-                    color_scheme="facebook",
-                    is_disabled=False,
-                    on_click=LoginState.print_token
                 ),
             ),
             width="85%"

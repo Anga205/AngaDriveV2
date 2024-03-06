@@ -60,8 +60,6 @@ def create_database():
 
             print("Database and table created successfully.")
 
-    else:
-        print("Database Found")
 create_database()
 
 
