@@ -2,6 +2,7 @@ import reflex as rx
 from AngaDriveV2.presets import *
 from AngaDriveV2.State import State
 from AngaDriveV2.shared_components import *
+from AngaDriveV2.login_dialog import *
 
 
 def static_data_box() -> rx.Component:
@@ -83,27 +84,31 @@ def static_data_box() -> rx.Component:
 def login_button_group() -> rx.Component:
     return rx.chakra.vstack(
         rx.chakra.hstack(
-            rx.chakra.button(
-                "Sign Up",
-                height="100%",
-                width="55%",
-                on_click=rx.redirect("/signup"),
-                font_size="1.4vh",
-                bg="#0f1f0f",
-                color="white",
-                border_radius="1vh 0vh 0vh 0vh",
-                _hover={"bg":"#0f1f0f","color":"#11cc11"}
+            login_dialog(
+                rx.chakra.button(
+                    "Sign Up",
+                    height="100%",
+                    width="55%",
+                    on_click=LoginState.set_to_signup_mode,
+                    font_size="1.4vh",
+                    bg="#0f1f0f",
+                    color="white",
+                    border_radius="1vh 0vh 0vh 0vh",
+                    _hover={"bg":"#0f1f0f","color":"#11cc11"}
+                )
             ),
-            rx.chakra.button(
-                "Login",
-                height="100%",
-                width="45%",
-                bg="#1f0f0f",
-                color="WHITE",
-                on_click=rx.redirect("/login"),
-                font_size="1.4vh",
-                border_radius="0vh 1vh 0vh 0vh",
-                _hover={"bg":"#1f0f0f","color":"#cc1111"}
+            login_dialog(
+                rx.chakra.button(
+                    "Login",
+                    height="100%",
+                    width="45%",
+                    bg="#1f0f0f",
+                    color="WHITE",
+                    on_click=LoginState.set_to_login_mode,
+                    font_size="1.4vh",
+                    border_radius="0vh 1vh 0vh 0vh",
+                    _hover={"bg":"#1f0f0f","color":"#cc1111"}
+                )
             ),
             height="50%",
             spacing="0vh",

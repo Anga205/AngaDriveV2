@@ -2,6 +2,38 @@ import reflex as rx
 from AngaDriveV2.State import State
 from AngaDriveV2.shared_components import *
 
+class CollectionState(rx.State):
+    new_collection_name:str = ""
+    is_valid_collection_name:bool = False
+
+    def set_new_collection_name(self, new_name:str):
+        self.is_valid_collection_name = False
+        if new_name.replace(" ", "") == "":
+            self.is_valid_collection_name = False
+            return
+        if (len(new_name)>=2 and new_name.replace(" ","").replace("-","").replace("+","").replace(".","").replace("&","").isalnum()):
+            self.new_collection_name = new_name
+            self.is_valid_collection_name = True
+
+
+def create_new_collection_dialog(button):
+    return rx.dialog.root(
+        rx.dialog.trigger(
+            button
+        ),
+        rx.dialog.content(
+            rx.dialog.title("Create new Collection"),
+            rx.dialog.description(
+                rx.input(
+                    placeholder="Enter collection name...",
+                    max_length="32",
+                    on_blur=CollectionState.set_new_collection_name,
+                    width="85%"
+                ),
+            )
+        )
+    )
+
 
 def confirm_delete_collection_dialog(button):
     return rx.dialog.root(
@@ -145,7 +177,10 @@ def context_menu_wrapper(*components):
             *components
         ),
         rx.context_menu.content(
-            rx.context_menu.item("New Collection")
+            rx.context_menu.item(
+                "New Collection",
+                on_click=rx.redirect("/new-collection")
+                )
         )
     )
 
