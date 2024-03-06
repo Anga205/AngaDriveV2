@@ -17,7 +17,7 @@ class State(rx.State):
     username:str = "Sample Username"
     email:str = "anonymous@email.com"
     def add_token_if_not_present(self): # check if there is a token, if not, create one and then add it to database
-        if self.token == "":
+        if self.token == "" or (not is_valid_token(self.token)):
             generated_token = gen_token()
             self.token:str = generated_token
             create_new_account_without_info(generated_token)
@@ -41,10 +41,12 @@ class State(rx.State):
         self.user_file_count = len(data)
         self.user_storage_amount = get_sum_of_user_file_sizes(self.token)
 
-
+    state_initialized:bool = False
     def load_any_page(self):
         add_timestamp_to_activity()
-        self.add_token_if_not_present()
+        if not self.state_initialized:
+            self.add_token_if_not_present()
+            self.state_initialized = True
 
     def load_index_page(self):
         self.load_any_page()

@@ -19,8 +19,7 @@ def create_database():
                     token TEXT PRIMARY KEY,
                     display_name TEXT,
                     email TEXT,
-                    hashed_password TEXT,
-                    avatar TEXT
+                    hashed_password TEXT
                 )
                         ''')
             
@@ -237,3 +236,26 @@ def create_new_collection(token, collection_name):
 
     cur.execute(f"INSERT INTO collections (id, timestamp, name, editors, data) VALUES ({dbify(gen_collection_id())}, {dbify(time.time())}, {dbify(collection_name)}, {dbify(token)}, {dbify(str([]))})")
     con.commit()
+
+def is_valid_token(token: str) -> bool:
+    try:
+        # Connect to the SQLite database
+        conn = sqlite3.connect(database_directory)
+        cursor = conn.cursor()
+
+        # Execute a query to check if the token exists in the 'accounts' table
+        cursor.execute("SELECT EXISTS(SELECT 1 FROM accounts WHERE token = ?)", (token,))
+        
+        # Fetch the result
+        result = cursor.fetchone()[0]
+
+        # Close the cursor and connection
+        cursor.close()
+        conn.close()
+
+        # Return True if the token exists, False otherwise
+        return bool(result)
+    
+    except sqlite3.Error as e:
+        print("SQLite error:", e)
+        return False

@@ -1,4 +1,4 @@
-import datetime, time, os, random, sqlite3
+import datetime, time, os, random, re
 
 file_directory = os.path.join(os.getcwd(), "file_handler", "assets")
 
@@ -167,3 +167,10 @@ def create_assets_folder():
         print("Assets folder created successfully.")
 
 create_assets_folder()
+
+
+def is_valid_email(email: str) -> bool:
+
+    email_pattern = r'^[\w\.-]+@[a-zA-Z\d\.-]+\.[a-zA-Z]{2,}$'
+    
+    return bool(re.match(email_pattern, email))
