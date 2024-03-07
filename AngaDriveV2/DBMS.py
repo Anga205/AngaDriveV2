@@ -254,3 +254,16 @@ def is_valid_token(token: str) -> bool:
     except sqlite3.Error as e:
         print("SQLite error:", e)
         return False
+
+def does_user_have_files(token):
+    try:
+        conn = sqlite3.connect(database_directory)
+        cursor = conn.cursor()
+        # Execute a SELECT query to check if the search string exists in any row of the "token" column
+        cursor.execute("SELECT EXISTS(SELECT 1 FROM file_data WHERE account_token = ?)", (token,))
+        result = cursor.fetchone()[0]  # Fetch the result of the query
+        conn.close()
+        return bool(result)
+    except sqlite3.Error as e:
+        print("SQLite error:", e)
+        return False

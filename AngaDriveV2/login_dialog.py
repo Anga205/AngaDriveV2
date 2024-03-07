@@ -1,6 +1,7 @@
 import reflex as rx
 from AngaDriveV2.common import *
 from AngaDriveV2.State import State
+from AngaDriveV2.DBMS import does_user_have_files
 
 class LoginState(State):
     signup_mode:bool = False
@@ -76,6 +77,13 @@ def security_tooltip(text):
         )
     )
 
+def signup_button():
+    button = rx.chakra.button(
+        "Sign Up",
+        color_scheme="facebook"
+    )
+    return button
+
 def signup_form():
     return rx.chakra.vstack(
         rx.chakra.box(
@@ -110,18 +118,55 @@ def signup_form():
             rx.chakra.span(" to assure security, if I were you, I wouldnt use the same password for everything, especially not for a website maintained by a teenager."),
             color="RED"
         ),
+        rx.chakra.hstack(
+            rx.chakra.spacer(),
+            rx.chakra.button(
+                "Sign Up",
+                color_scheme="facebook"
+            ),
+            width="100%",
+            spacing="0px"
+        ),
         spacing="1vh"
     )
 
+class LoginSwitchState(State):
+    hover_card_text="Transfer files after login"
+    switch_state:bool = False
+    should_it_load_switch:bool = False
+
+    def mount_login_switch(self):
+        self.should_it_load_switch = does_user_have_files(self.token)
+        self.switch_state = self.should_it_load_switch
+
+    def switch(self, new_switch_state):
+        self.switch_state = new_switch_state
+        if new_switch_state == True:
+            self.hover_card_text = "Transfer files after login"
+        else:
+            self.hover_card_text = "DON'T transfer files after login"
+
 def data_transfer_on_login_switch():
-    return rx.hover_card.root(
+    switch = rx.hover_card.root(
         rx.hover_card.trigger( 
-            rx.chakra.switch(
-                is_checked=True,
+            rx.chakra.box(
+                rx.chakra.switch(
+                    is_checked=LoginSwitchState.switch_state,
+                    on_change=LoginSwitchState.switch
+                )
             )
         ),
         rx.hover_card.content(
-            rx.text("Transfer files after login"),
+            rx.text(LoginSwitchState.hover_card_text),
+        )
+    )
+    return rx.cond(
+        LoginSwitchState.should_it_load_switch,
+        switch,
+        rx.chakra.box(
+            height="0px",
+            width="0px",
+            on_mount=LoginSwitchState.mount_login_switch
         )
     )
 
