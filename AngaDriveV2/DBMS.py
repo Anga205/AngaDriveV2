@@ -1,4 +1,4 @@
-import sqlite3, os, time
+import sqlite3, os, time, bcrypt
 from AngaDriveV2.common import *
 
 def create_database():
@@ -267,3 +267,15 @@ def does_user_have_files(token):
     except sqlite3.Error as e:
         print("SQLite error:", e)
         return False
+    
+def user_signup(token, display_name, email, password):
+
+    hashed_password = bcrypt.hashpw(password, bcrypt.gensalt()).decode('utf-8')
+    
+    con = sqlite3.connect(database_directory)
+    cur = con.cursor()
+
+    cur.execute("UPDATE accounts SET display_name = ?, email = ?, hashed_password = ? WHERE token = ?", (display_name, email, hashed_password))
+
+    con.commit()
+    con.close()
