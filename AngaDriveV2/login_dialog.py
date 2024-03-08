@@ -1,7 +1,7 @@
 import reflex as rx
 from AngaDriveV2.common import *
 from AngaDriveV2.State import State
-from AngaDriveV2.DBMS import does_user_have_files
+from AngaDriveV2.DBMS import *
 
 class LoginState(State):
     signup_mode:bool = False
@@ -89,6 +89,15 @@ class SignUpPopupState(State):
     signup_is_invalid_password:bool = False
     signup_is_invalid_retyped_password:bool = False
 
+    disable_signup_button = True
+    def enable_signup_button(self):
+        if "" in [self.signup_display_name,self.signup_email,self.signup_password,self.signup_retyped_password]:
+            self.disable_signup_button = True
+        elif True in [self.signup_is_invalid_display_name, self.signup_is_invalid_email, self.signup_is_invalid_password, self.signup_is_invalid_retyped_password]:
+            self.disable_signup_button = True
+        else:
+            self.disable_signup_button = False
+
     def set_signup_display_name(self, new_text:str):
         self.signup_display_name = new_text.strip()
         if self.signup_display_name=="":
@@ -97,6 +106,7 @@ class SignUpPopupState(State):
             self.signup_is_invalid_display_name = True
         else:
             self.signup_is_invalid_display_name = False
+        self.enable_signup_button()
     
     def set_signup_email(self, new_text:str):
         self.signup_email = new_text.replace(" ","")
@@ -106,6 +116,7 @@ class SignUpPopupState(State):
             self.signup_is_invalid_email = True
         else:
             self.signup_is_invalid_email = False
+        self.enable_signup_button()
 
     def set_signup_password(self, new_text:str):
         self.signup_password = new_text
@@ -116,6 +127,14 @@ class SignUpPopupState(State):
         else:
             self.signup_is_invalid_password = False
 
+        if (self.signup_retyped_password != "") and (self.signup_retyped_password!=self.signup_password):
+            self.signup_is_invalid_retyped_password = True
+
+        if self.signup_retyped_password==self.signup_password:
+            self.signup_is_invalid_retyped_password = False
+
+        self.enable_signup_button()
+
     def set_signup_retyped_password(self, new_text:str):
         self.signup_retyped_password = new_text
         if self.signup_retyped_password == "":
@@ -123,7 +142,9 @@ class SignUpPopupState(State):
         elif self.signup_retyped_password!=self.signup_password:
             self.signup_is_invalid_retyped_password = True
         else:
-            self.signup_is_invalid_retyped_password = False
+            self.signup_is_invalid_retyped_password = self.signup_is_invalid_password
+        self.enable_signup_button()
+    
 
 def signup_form():
     return rx.chakra.vstack(
@@ -177,9 +198,21 @@ def signup_form():
         ),
         rx.chakra.hstack(
             rx.chakra.spacer(),
-            rx.chakra.button(
-                "Sign Up",
-                color_scheme="facebook"
+            rx.cond(
+                SignUpPopupState.disable_signup_button,
+                rx.chakra.button(
+                    "Sign Up",
+                    color_scheme="facebook",
+                    is_disabled=True
+                ),
+                rx.dialog.close(
+                    rx.chakra.button(
+                        "Sign Up",
+                        color_scheme="facebook",
+                        is_disabled=False,
+                        on_click = rx.window_alert("login successful!")
+                    )
+                )
             ),
             width="100%",
             spacing="0px"
