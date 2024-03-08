@@ -41,7 +41,7 @@ class LoginState(State):
         self.update_login_button()
     
     def set_login_password(self, new_text):
-        self.login_password = new_text
+        self.login_password = new_text.strip()
         if (self.login_password=="") or (not (len(self.login_password)<3 or len(self.login_password)>64)):
             self.is_invalid_login_password = False
         else:
@@ -77,12 +77,53 @@ def security_tooltip(text):
         )
     )
 
-def signup_button():
-    button = rx.chakra.button(
-        "Sign Up",
-        color_scheme="facebook"
-    )
-    return button
+class SignUpPopupState(State):
+    
+    signup_display_name:str = ""
+    signup_email:str = ""
+    signup_password:str = ""
+    signup_retyped_password:str = ""
+
+    signup_is_invalid_display_name:bool = False
+    signup_is_invalid_email:bool = False
+    signup_is_invalid_password:bool = False
+    signup_is_invalid_retyped_password:bool = False
+
+    def set_signup_display_name(self, new_text:str):
+        self.signup_display_name = new_text.strip()
+        if self.signup_display_name=="":
+            self.signup_is_invalid_display_name = False
+        elif len(self.signup_display_name)>30 or len(self.signup_display_name)<3:
+            self.signup_is_invalid_display_name = True
+        else:
+            self.signup_is_invalid_display_name = False
+    
+    def set_signup_email(self, new_text:str):
+        self.signup_email = new_text.replace(" ","")
+        if self.signup_email == "":
+            self.signup_is_invalid_email = False
+        elif (not is_valid_email(self.signup_email)):
+            self.signup_is_invalid_email = True
+        else:
+            self.signup_is_invalid_email = False
+
+    def set_signup_password(self, new_text:str):
+        self.signup_password = new_text
+        if self.signup_password == "":
+            self.signup_is_invalid_password = False
+        elif len(self.signup_password)>30 or len(self.signup_password)<3:
+            self.signup_is_invalid_password = True
+        else:
+            self.signup_is_invalid_password = False
+
+    def set_signup_retyped_password(self, new_text:str):
+        self.signup_retyped_password = new_text
+        if self.signup_retyped_password == "":
+            self.signup_is_invalid_retyped_password = False
+        elif self.signup_retyped_password!=self.signup_password:
+            self.signup_is_invalid_retyped_password = True
+        else:
+            self.signup_is_invalid_retyped_password = False
 
 def signup_form():
     return rx.chakra.vstack(
@@ -93,21 +134,37 @@ def signup_form():
             placeholder="Display name",
             width="85%",
             color="WHITE",
+            value = SignUpPopupState.signup_display_name,
+            is_invalid=SignUpPopupState.signup_is_invalid_display_name,
+            on_change = SignUpPopupState.set_signup_display_name,
+            error_border_color="#880000",
         ),
         rx.chakra.input(
             placeholder = "E-mail",
             width="85%",
-            color="WHITE"
+            color="WHITE",
+            value = SignUpPopupState.signup_email,
+            is_invalid=SignUpPopupState.signup_is_invalid_email,
+            on_change = SignUpPopupState.set_signup_email,
+            error_border_color="#880000",
         ),
         rx.chakra.password(
             placeholder="Create a password",
             width="85%",
-            color="WHITE"
+            color="WHITE",
+            value = SignUpPopupState.signup_password,
+            is_invalid = SignUpPopupState.signup_is_invalid_password,
+            on_change = SignUpPopupState.set_signup_password,
+            error_border_color="#880000",
         ),
         rx.chakra.password(
             placeholder="Re-type password",
             width="85%",
-            color="WHITE"
+            color="WHITE",
+            value = SignUpPopupState.signup_retyped_password,
+            is_invalid = SignUpPopupState.signup_is_invalid_retyped_password,
+            on_change = SignUpPopupState.set_signup_retyped_password,
+            error_border_color="#880000",
         ),
         rx.chakra.text(
             rx.chakra.span("Disclaimer: ", font_weight="bold", as_="b"),

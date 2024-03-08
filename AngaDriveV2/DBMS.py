@@ -279,3 +279,35 @@ def user_signup(token, display_name, email, password):
 
     con.commit()
     con.close()
+
+def move_files_after_login(old_token, new_token):
+
+    con = sqlite3.connect(database_directory)
+    cur = con.cursor()
+
+    cur.execute("UPDATE file_data SET account_token = ? WHERE account_token = ?", (old_token, new_token))
+
+    con.commit()
+    con.close()
+
+def remove_account_from_accounts_table(token):
+
+    con = sqlite3.connect(database_directory)
+    cur = con.cursor()
+
+    cur.execute("DELETE FROM accounts WHERE token = ?", (token,))
+
+    con.commit()
+    con.close()
+
+def email_already_exists(email):
+
+    con = sqlite3.connect(database_directory)
+    cur = con.cursor()
+
+    cur.execute("SELECT COUNT(*) FROM accounts WHERE email = ?", (email,))
+
+    result = cur.fetchone()
+    con.close()
+
+    return result>0
