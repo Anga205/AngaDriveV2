@@ -4,13 +4,19 @@ from AngaDriveV2.State import State
 from AngaDriveV2.DBMS import *
 
 class LoginState(State):
+    open_login_dialog_var:bool = False
+    def open_dialog(self):
+        self.open_login_dialog_var = True
+
     signup_mode:bool = False
 
     def set_to_signup_mode(self):
         self.signup_mode=True
+        self.open_dialog()
     
     def set_to_login_mode(self):
         self.signup_mode=False
+        self.open_dialog()
 
     login_email_id:str
     login_password:str
@@ -23,13 +29,6 @@ class LoginState(State):
             self.disable_login_button = True
         elif (not self.is_invalid_login_email_id) and (not self.is_invalid_login_password):
             self.disable_login_button = False
-
-    def reset_dialog(self, is_opened):
-        self.login_email_id = ""
-        self.login_password = ""
-        self.is_invalid_login_email_id:bool = False
-        self.is_invalid_login_password:bool = False
-        self.update_login_button()
 
     def set_login_email_id(self, new_text):
         new_text = new_text.replace(" ","")
@@ -47,9 +46,14 @@ class LoginState(State):
         else:
             self.is_invalid_login_password = True
         self.update_login_button()
+    
+    login_error:str = ""
 
-    def print_token(self):
-        print(self.token)
+    def print_token(self, input_data=None):
+        if input_data is None:
+            print(self.token)
+        else:
+            print(input_data)
 
 
 def security_tooltip(text):
@@ -77,7 +81,7 @@ def security_tooltip(text):
         )
     )
 
-class SignUpPopupState(State):
+class SignUpPopupState(LoginState):
     
     signup_display_name:str = ""
     signup_email:str = ""
@@ -145,6 +149,23 @@ class SignUpPopupState(State):
             self.signup_is_invalid_retyped_password = self.signup_is_invalid_password
         self.enable_signup_button()
     
+    def close_dialog(self, empty_var):
+        self.login_email_id = ""
+        self.login_password = ""
+        self.is_invalid_login_email_id:bool = False
+        self.is_invalid_login_password:bool = False
+        self.signup_display_name = ""
+        self.signup_email = ""
+        self.signup_password = ""
+        self.signup_retyped_password = ""
+        self.signup_is_invalid_display_name = False
+        self.signup_is_invalid_email = False
+        self.signup_is_invalid_password = False
+        self.signup_is_invalid_password = False
+        self.update_login_button()
+        self.enable_signup_button()
+        self.open_login_dialog_var = False
+    
 
 def signup_form():
     return rx.chakra.vstack(
@@ -198,21 +219,10 @@ def signup_form():
         ),
         rx.chakra.hstack(
             rx.chakra.spacer(),
-            rx.cond(
-                SignUpPopupState.disable_signup_button,
-                rx.chakra.button(
-                    "Sign Up",
-                    color_scheme="facebook",
-                    is_disabled=True
-                ),
-                rx.dialog.close(
-                    rx.chakra.button(
-                        "Sign Up",
-                        color_scheme="facebook",
-                        is_disabled=False,
-                        on_click = rx.window_alert("login successful!")
-                    )
-                )
+            rx.chakra.button(
+                "Sign Up",
+                color_scheme="facebook",
+                is_disabled=SignUpPopupState.disable_signup_button
             ),
             width="100%",
             spacing="0px"
@@ -286,21 +296,16 @@ def login_form():
         rx.chakra.hstack(
             data_transfer_on_login_switch(),
             rx.chakra.spacer(),
-            rx.cond(
-                LoginState.disable_login_button,
+            rx.chakra.vstack(
                 rx.chakra.button(
                     "Login",
                     color_scheme="facebook",
-                    is_disabled=True,
+                    is_disabled=LoginState.disable_login_button,
                 ),
-                rx.dialog.close(
-                    rx.chakra.button(
-                        "Login",
-                        color_scheme="facebook",
-                        is_disabled=False,
-                        on_click=LoginState.print_token
-                    )
-                ),
+                rx.chakra.text(
+                    LoginState.login_error,
+                    color="RED"
+                )
             ),
             width="85%"
         ),
@@ -328,7 +333,8 @@ def login_dialog(trigger):
                     login_form()
                 )
             ),
-            bg="#0f0f0f"
+            bg="#0f0f0f",
+            on_pointer_down_outside = SignUpPopupState.close_dialog
         ),
-        on_open_change=LoginState.reset_dialog
+        open=LoginState.open_login_dialog_var
     )
