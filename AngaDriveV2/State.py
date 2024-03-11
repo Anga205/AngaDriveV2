@@ -14,13 +14,21 @@ class State(rx.State):
         self.uptime = format_time(round(time.time() - self.local_start_time))
 
     token:str = rx.Cookie(name="token")
+    is_logged_in:bool = rx.Cookie(name="logged_in")
     username:str = "Sample Username"
     email:str = "anonymous@email.com"
     def add_token_if_not_present(self): # check if there is a token, if not, create one and then add it to database
         if self.token == "" or (not is_valid_token(self.token)):
             generated_token = gen_token()
             self.token:str = generated_token
+            self.is_logged_in:str = False
             create_new_account_without_info(generated_token)
+
+    def update_account_info(self):
+        if self.is_logged_in:
+            account_data = account_info(self.token)
+            self.username = account_data.get("display_name")
+            self.email = account_data.get("email")
 
     files_hosted : int = 0
     space_used : str = "0 KB"
@@ -52,6 +60,7 @@ class State(rx.State):
         self.load_any_page()
         self.update_site_data_components()
         self.update_account_data_components()
+        self.update_account_info()
 
     user_files: list[list] = []
     def load_files_page(self):

@@ -82,7 +82,7 @@ def add_timestamp_to_activity():
 def get_user_count():
     con = sqlite3.connect(database_directory)
     cur = con.cursor()
-    cur.execute(f"SELECT COUNT(token) FROM accounts")
+    cur.execute(f"SELECT COUNT(DISTINCT account_token) FROM file_data")
     try:
        count = int(cur.fetchone()[0])
     except Exception as e:
@@ -268,14 +268,14 @@ def does_user_have_files(token):
         print("SQLite error:", e)
         return False
     
-def user_signup(token, display_name, email, password):
+def user_signup(token, display_name, email, password:str):
 
-    hashed_password = bcrypt.hashpw(password, bcrypt.gensalt()).decode('utf-8')
+    hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
     
     con = sqlite3.connect(database_directory)
     cur = con.cursor()
 
-    cur.execute("UPDATE accounts SET display_name = ?, email = ?, hashed_password = ? WHERE token = ?", (display_name, email, hashed_password))
+    cur.execute("UPDATE accounts SET display_name = ?, email = ?, hashed_password = ? WHERE token = ?", (display_name, email, hashed_password, token))
 
     con.commit()
     con.close()
@@ -289,6 +289,7 @@ def move_files_after_login(old_token, new_token):
 
     con.commit()
     con.close()
+    remove_account_from_accounts_table(old_token)
 
 def remove_account_from_accounts_table(token):
 
@@ -309,5 +310,23 @@ def email_already_exists(email):
 
     result = cur.fetchone()
     con.close()
+    try:
+        return result>0
+    except:
+        return result[0]>0
 
-    return result>0
+def user_login(email: str, password:str):
+
+    con = sqlite3.connect(database_directory)
+    cur = con.cursor()
+
+    cur.execute("SELECT token, hashed_password FROM accounts WHERE email = ?", (email,))
+    
+    result:list[str] = cur.fetchone()
+    con.close()
+
+    if result == None:
+        return {False: "Account not found"}
+    if not bcrypt.checkpw(result[1].encode('utf-8'), password.encode('utf-8')):
+        return {False: "Authentication Failed"}
+    return {True: result[0]}

@@ -47,8 +47,6 @@ class LoginState(State):
             self.is_invalid_login_password = True
         self.update_login_button()
     
-    login_error:str = ""
-
     def print_token(self, input_data=None):
         if input_data is None:
             print(self.token)
@@ -167,6 +165,15 @@ class SignUpPopupState(LoginState):
         self.open_login_dialog_var = False
     
 
+class SignUpButtonState(SignUpPopupState):
+    def on_click_signup_button(self):
+        if email_already_exists(self.signup_email):
+            rx.window_alert("Email ID already exists!")
+        else:
+            user_signup(token=self.token, display_name=self.signup_display_name,email=self.signup_email, password=self.signup_password)
+            self.is_logged_in:bool = True
+            self.open_login_dialog_var = False
+
 def signup_form():
     return rx.chakra.vstack(
         rx.chakra.box(
@@ -222,7 +229,8 @@ def signup_form():
             rx.chakra.button(
                 "Sign Up",
                 color_scheme="facebook",
-                is_disabled=SignUpPopupState.disable_signup_button
+                is_disabled=SignUpPopupState.disable_signup_button,
+                on_click=SignUpButtonState.on_click_signup_button
             ),
             width="100%",
             spacing="0px"
@@ -230,7 +238,7 @@ def signup_form():
         spacing="1vh"
     )
 
-class LoginSwitchState(State):
+class LoginSwitchState(LoginState):
     hover_card_text="Transfer files after login"
     switch_state:bool = False
     should_it_load_switch:bool = False
@@ -270,6 +278,21 @@ def data_transfer_on_login_switch():
         )
     )
 
+class LoginButtonState(LoginSwitchState):
+    def on_login_button_press(self):
+        check_login = user_login(self.login_email_id, self.login_password)
+        if False in check_login:
+            return rx.window_alert(check_login[False])
+        else:
+            self.open_login_dialog_var = False
+            self.login_email_id = ""
+            self.login_password = ""
+            old_token = self.token
+            self.token = check_login[True]
+            self.is_logged_in = True
+            if self.switch_state:
+                move_files_after_login(old_token=old_token, new_token=self.token)
+
 def login_form():
     return rx.chakra.vstack(
         rx.chakra.box(
@@ -301,10 +324,7 @@ def login_form():
                     "Login",
                     color_scheme="facebook",
                     is_disabled=LoginState.disable_login_button,
-                ),
-                rx.chakra.text(
-                    LoginState.login_error,
-                    color="RED"
+                    on_click = LoginButtonState.on_login_button_press
                 )
             ),
             width="85%"

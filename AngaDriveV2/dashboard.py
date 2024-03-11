@@ -125,6 +125,11 @@ def login_button_group() -> rx.Component:
         width="40%",
     )
 
+
+class AccountEditorState(State):
+    def temp_edit_aspect(self):
+        print(self.token)
+
 def account_manager(logged_in : bool = False):
     if not logged_in:
         return rx.chakra.vstack(
@@ -235,7 +240,7 @@ def account_manager(logged_in : bool = False):
             account_aspect_line(
                 "Name", 
                 State.username, 
-                State.temp_edit_aspect
+                AccountEditorState.temp_edit_aspect
                 ),
             rx.chakra.divider(
                 border_color="GRAY"
@@ -243,7 +248,7 @@ def account_manager(logged_in : bool = False):
             account_aspect_line(
                 "E - mail",
                 State.email,
-                State.temp_edit_aspect
+                AccountEditorState.temp_edit_aspect
                 ),
             rx.chakra.divider(
                 border_color="GRAY"
@@ -251,7 +256,7 @@ def account_manager(logged_in : bool = False):
             account_aspect_line(
                 "Password",
                 "*********",
-                State.temp_edit_aspect
+                AccountEditorState.temp_edit_aspect
                 ),
             rx.chakra.divider(
                 border_color="GRAY"
@@ -337,7 +342,11 @@ def static_account_info():
                 height="100%",
                 spacing="0.75vh"
             ),
-            account_manager(),
+            rx.cond(
+                State.is_logged_in,
+                account_manager(logged_in=True),
+                account_manager(logged_in=False)
+            ),
             width="100%",
             height="100%",
             spacing="0.75vh"
