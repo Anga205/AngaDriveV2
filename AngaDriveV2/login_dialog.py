@@ -23,6 +23,7 @@ class LoginState(State):
     is_invalid_login_email_id:bool = False
     is_invalid_login_password:bool = False
     disable_login_button:bool = True
+    login_password_focus_color = "#3182ce"
 
     def update_login_button(self):
         if "" in [self.login_email_id, self.login_password]:
@@ -43,8 +44,10 @@ class LoginState(State):
         self.login_password = new_text.strip()
         if (self.login_password=="") or (not (len(self.login_password)<3 or len(self.login_password)>64)):
             self.is_invalid_login_password = False
+            self.login_password_focus_color = "#3182ce"
         else:
             self.is_invalid_login_password = True
+            self.login_password_focus_color = "#880000"
         self.update_login_button()
     
     def print_token(self, input_data=None):
@@ -91,6 +94,10 @@ class SignUpPopupState(LoginState):
     signup_is_invalid_password:bool = False
     signup_is_invalid_retyped_password:bool = False
 
+    signup_display_name_focus_color:str = "#3182ce"
+    signup_password_focus_color:str = "#3182ce"
+    signup_retyped_password_focus_color:str = "#3182ce"
+
     disable_signup_button = True
     def enable_signup_button(self):
         if "" in [self.signup_display_name,self.signup_email,self.signup_password,self.signup_retyped_password]:
@@ -104,10 +111,13 @@ class SignUpPopupState(LoginState):
         self.signup_display_name = new_text.strip()
         if self.signup_display_name=="":
             self.signup_is_invalid_display_name = False
+            self.signup_display_name_focus_color:str = "#3182ce"
         elif len(self.signup_display_name)>30 or len(self.signup_display_name)<3:
             self.signup_is_invalid_display_name = True
+            self.signup_display_name_focus_color = "#880000"
         else:
             self.signup_is_invalid_display_name = False
+            self.signup_display_name_focus_color:str = "#3182ce"
         self.enable_signup_button()
     
     def set_signup_email(self, new_text:str):
@@ -124,16 +134,21 @@ class SignUpPopupState(LoginState):
         self.signup_password = new_text
         if self.signup_password == "":
             self.signup_is_invalid_password = False
-        elif len(self.signup_password)>30 or len(self.signup_password)<3:
+            self.signup_password_focus_color:str = "#3182ce"
+        elif len(self.signup_password)>64 or len(self.signup_password)<3:
             self.signup_is_invalid_password = True
+            self.signup_password_focus_color:str = "#880000"
         else:
             self.signup_is_invalid_password = False
+            self.signup_password_focus_color:str = "#3182ce"
 
         if (self.signup_retyped_password != "") and (self.signup_retyped_password!=self.signup_password):
             self.signup_is_invalid_retyped_password = True
+            self.signup_password_focus_color:str = "#880000"
 
         if self.signup_retyped_password==self.signup_password:
             self.signup_is_invalid_retyped_password = False
+            self.signup_password_focus_color:str = "#3182ce"
 
         self.enable_signup_button()
 
@@ -141,10 +156,13 @@ class SignUpPopupState(LoginState):
         self.signup_retyped_password = new_text
         if self.signup_retyped_password == "":
             self.signup_is_invalid_retyped_password = False
+            self.signup_retyped_password_focus_color:str = "#3182ce"
         elif self.signup_retyped_password!=self.signup_password:
             self.signup_is_invalid_retyped_password = True
+            self.signup_retyped_password_focus_color:str = "#880000"
         else:
             self.signup_is_invalid_retyped_password = self.signup_is_invalid_password
+            self.signup_retyped_password_focus_color:str = self.signup_password_focus_color
         self.enable_signup_button()
     
     def close_dialog(self, empty_var):
@@ -188,6 +206,7 @@ def signup_form():
             is_invalid=SignUpPopupState.signup_is_invalid_display_name,
             on_change = SignUpPopupState.set_signup_display_name,
             error_border_color="#880000",
+            focus_border_color=SignUpPopupState.signup_display_name_focus_color
         ),
         rx.chakra.input(
             placeholder = "E-mail",
@@ -206,6 +225,7 @@ def signup_form():
             is_invalid = SignUpPopupState.signup_is_invalid_password,
             on_change = SignUpPopupState.set_signup_password,
             error_border_color="#880000",
+            focus_border_color=SignUpPopupState.signup_password_focus_color
         ),
         rx.chakra.password(
             placeholder="Re-type password",
@@ -215,6 +235,7 @@ def signup_form():
             is_invalid = SignUpPopupState.signup_is_invalid_retyped_password,
             on_change = SignUpPopupState.set_signup_retyped_password,
             error_border_color="#880000",
+            focus_border_color=SignUpButtonState.signup_retyped_password_focus_color
         ),
         rx.chakra.text(
             rx.chakra.span("Disclaimer: ", font_weight="bold", as_="b"),
@@ -316,7 +337,8 @@ def login_form():
             error_border_color="#880000",
             value=LoginState.login_password,
             on_change=LoginState.set_login_password,
-            is_invalid=LoginState.is_invalid_login_password
+            is_invalid=LoginState.is_invalid_login_password,
+            focus_border_color=LoginState.login_password_focus_color
         ),
         rx.chakra.hstack(
             data_transfer_on_login_switch(),
