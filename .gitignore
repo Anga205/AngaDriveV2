@@ -4,6 +4,6 @@
 .web
 .web/
 __pycache__/
+assets/i/
 uploaded_files/
 venv/
-assets/i/

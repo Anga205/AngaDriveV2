@@ -171,7 +171,8 @@ class SignUpButtonState(SignUpPopupState):
             rx.window_alert("Email ID already exists!")
         else:
             user_signup(token=self.token, display_name=self.signup_display_name,email=self.signup_email, password=self.signup_password)
-            self.is_logged_in:bool = True
+            self.is_logged_in = "True"
+            self.update_account_info()
             self.open_login_dialog_var = False
 
 def signup_form():
@@ -289,7 +290,8 @@ class LoginButtonState(LoginSwitchState):
             self.login_password = ""
             old_token = self.token
             self.token = check_login[True]
-            self.is_logged_in = True
+            self.is_logged_in = "True"
+            self.update_account_info()
             if self.switch_state:
                 move_files_after_login(old_token=old_token, new_token=self.token)
 
@@ -332,10 +334,11 @@ def login_form():
         spacing="1vh"
     )
 
-def login_dialog(trigger):
+def login_dialog(trigger, **kwargs):
     return rx.dialog.root(
         rx.dialog.trigger(
-            trigger
+            trigger,
+            **kwargs
         ),
         rx.dialog.content(
             rx.dialog.title(

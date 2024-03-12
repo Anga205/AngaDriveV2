@@ -88,34 +88,38 @@ def login_button_group() -> rx.Component:
                 rx.chakra.button(
                     "Sign Up",
                     height="100%",
-                    width="55%",
+                    width="100%",
                     on_click=LoginState.set_to_signup_mode,
                     font_size="1.4vh",
                     bg="#0f1f0f",
                     color="white",
                     border_radius="1vh 0vh 0vh 0vh",
                     _hover={"bg":"#0f1f0f","color":"#11cc11"}
-                )
+                ),
+                height="100%",
+                width="110%"
             ),
             login_dialog(
                 rx.chakra.button(
                     "Login",
                     height="100%",
-                    width="45%",
+                    width="100%",
                     bg="#1f0f0f",
                     color="WHITE",
                     on_click=LoginState.set_to_login_mode,
                     font_size="1.4vh",
                     border_radius="0vh 1vh 0vh 0vh",
                     _hover={"bg":"#1f0f0f","color":"#cc1111"}
-                )
+                ),
+                height="100%",
+                width="90%"
             ),
-            height="50%",
+            height="100%",
             spacing="0vh",
             width="100%"
         ),
         tpu_signup_button(
-            height="50%",
+            height="100%",
             width="100%",
             font_size="1.4vh",
             border_radius="0vh 0vh 1vh 1vh"
@@ -345,7 +349,7 @@ def static_account_info():
             rx.cond(
                 State.is_logged_in,
                 account_manager(logged_in=True),
-                account_manager(logged_in=False)
+                account_manager(logged_in=False),
             ),
             width="100%",
             height="100%",
