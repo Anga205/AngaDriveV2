@@ -133,6 +133,16 @@ def login_button_group() -> rx.Component:
 class AccountEditorState(State):
     def temp_edit_aspect(self):
         print(self.token)
+    
+    def logout(self):
+        self.token = gen_token()
+        self.is_logged_in = ""
+        self.username:str = "Sample Username"
+        self.email:str = "anonymous@email.com"
+
+    def delete_account(self):
+        remove_account_from_accounts_table(self.token)
+        self.logout()
 
 def account_manager(logged_in : bool = False):
     if not logged_in:
@@ -270,7 +280,7 @@ def account_manager(logged_in : bool = False):
                     rx.chakra.hstack(
                         rx.chakra.image(
                             src="/logout.png",
-                            height="3.5vh",
+                            height="2.5vh",
                             width="auto"
                         ),
                         rx.chakra.text(
@@ -279,6 +289,7 @@ def account_manager(logged_in : bool = False):
                         ),
                         spacing="1vh"
                     ),
+                    on_click = AccountEditorState.logout,
                     bg="#2f0000",
                     _hover={"bg":"#330202"},
                     height="5vh",
@@ -289,12 +300,12 @@ def account_manager(logged_in : bool = False):
                     rx.chakra.hstack(
                         rx.chakra.icon(
                             tag="delete",
-                            height="3.5vh",
+                            height="2.5vh",
                             width="auto",
                             color="WHITE"
                         ),
                         rx.chakra.text(
-                            "Log out",
+                            "Delete",
                             font_size="1.65vh"
                         ),
                         spacing="0.75vh"
@@ -302,7 +313,8 @@ def account_manager(logged_in : bool = False):
                     bg="#2f0000",
                     _hover={"bg":"#330202"},
                     height="5vh",
-                    border_radius="0.75vh"
+                    border_radius="0.75vh",
+                    on_click=AccountEditorState.delete_account
                 ),
                 width="100%",
                 spacing="0vh",

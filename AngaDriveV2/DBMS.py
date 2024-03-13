@@ -325,6 +325,6 @@ def user_login(email: str, password:str):
 
     if result == None:
         return {False: "Account not found"}
-    if not bcrypt.checkpw(result[1].encode('utf-8'), password.encode('utf-8')):
+    if not bcrypt.checkpw(password.encode('utf-8'), result[1].encode('utf-8')):
         return {False: "Authentication Failed"}
     return {True: result[0]}
