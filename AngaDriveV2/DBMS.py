@@ -273,7 +273,7 @@ def user_signup(token, display_name, email, password:str):
     con = sqlite3.connect(database_directory)
     cur = con.cursor()
 
-    cur.execute("UPDATE accounts SET display_name = ?, email = ?, hashed_password = ? WHERE token = ?", (display_name, email, hashed_password, token))
+    cur.execute("INSERT INTO accounts(token, display_name, email, hashed_password) VALUES (%, %, %, %)", (token ,display_name,email,hashed_password))
 
     con.commit()
     con.close()

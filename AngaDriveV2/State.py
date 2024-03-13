@@ -22,7 +22,6 @@ class State(rx.State):
             generated_token = gen_token()
             self.token:str = generated_token
             self.is_logged_in = ""
-            create_new_account_without_info(generated_token)
 
     def update_account_info(self):
         if self.is_logged_in:
