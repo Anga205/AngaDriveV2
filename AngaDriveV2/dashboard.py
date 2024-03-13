@@ -22,11 +22,14 @@ def static_data_box() -> rx.Component:
                 height="100%",
                 width="140%"
                 ),
-            site_data_card(
-                "Users", 
-                State.user_count,
-                height="100%",
-                width="100%"
+            rx.chakra.tooltip(
+                site_data_card(
+                    "Users", 
+                    State.user_count,
+                    height="100%",
+                    width="100%"
+                    ),
+                    label=State.registered_user_count
                 ),
             site_data_card(
                 "Collections", 

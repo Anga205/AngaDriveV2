@@ -91,6 +91,18 @@ def get_user_count():
     con.close()
     return count
 
+def get_registered_users():
+    con = sqlite3.connect(database_directory)
+    cur = con.cursor()
+    cur.execute("SELECT COUNT(token) FROM accounts")
+    try:
+       count = int(cur.fetchone()[0])
+    except Exception as e:
+        print(f'Error occured when calculating get_registered_users: {e}')
+        count = 0
+    con.close()
+    return count
+
 def fetch_activity_from_last_week():
     con = sqlite3.connect(database_directory)
     cur = con.cursor()
@@ -99,12 +111,15 @@ def fetch_activity_from_last_week():
     con.close()
     return calls_per_day(output)
 
-def create_new_account_without_info(token):
-    con = sqlite3.connect(database_directory)
-    cur = con.cursor()
-    cur.execute(f"INSERT INTO accounts (token) VALUES ({dbify(token)});")
-    con.commit()
-    con.close()
+
+## TODO: Remove this, its useless now
+
+#def create_new_account_without_info(token):
+#    con = sqlite3.connect(database_directory)
+#    cur = con.cursor()
+#    cur.execute(f"INSERT INTO accounts (token) VALUES ({dbify(token)});")
+#    con.commit()
+#    con.close()
 
 def does_filename_already_exist(filename_to_check: str) -> bool:
     
