@@ -198,15 +198,23 @@ def signup_form():
         rx.chakra.box(
             height="2vh"
         ),
-        rx.chakra.input(
-            placeholder="Display name",
-            width="85%",
-            color="WHITE",
-            value = SignUpPopupState.signup_display_name,
-            is_invalid=SignUpPopupState.signup_is_invalid_display_name,
-            on_change = SignUpPopupState.set_signup_display_name,
-            error_border_color="#880000",
-            focus_border_color=SignUpPopupState.signup_display_name_focus_color
+        rx.tooltip(
+            rx.chakra.hstack(
+                rx.chakra.spacer(),
+                rx.chakra.input(
+                    placeholder="Display name",
+                    width="85%",
+                    color="WHITE",
+                    value = SignUpPopupState.signup_display_name,
+                    is_invalid=SignUpPopupState.signup_is_invalid_display_name,
+                    on_change = SignUpPopupState.set_signup_display_name,
+                    error_border_color="#880000",
+                    focus_border_color=SignUpPopupState.signup_display_name_focus_color
+                ),
+                rx.chakra.spacer(),
+                width="100%",
+            ),
+            content="Users will be able to see your display name in your collections"
         ),
         rx.chakra.input(
             placeholder = "E-mail",
