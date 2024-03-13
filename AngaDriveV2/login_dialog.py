@@ -270,15 +270,15 @@ def signup_form():
 
 class LoginSwitchState(LoginState):
     hover_card_text="Transfer files after login"
-    switch_state:bool = False
+    login_switch_state:bool = False
     should_it_load_switch:bool = False
 
     def mount_login_switch(self):
         self.should_it_load_switch = does_user_have_files(self.token)
-        self.switch_state = self.should_it_load_switch
+        self.login_switch_state = self.should_it_load_switch
 
     def switch(self, new_switch_state):
-        self.switch_state = new_switch_state
+        self.login_switch_state = new_switch_state
         if new_switch_state == True:
             self.hover_card_text = "Transfer files after login"
         else:
@@ -289,7 +289,7 @@ def data_transfer_on_login_switch():
         rx.hover_card.trigger( 
             rx.chakra.box(
                 rx.chakra.switch(
-                    is_checked=LoginSwitchState.switch_state,
+                    is_checked=LoginSwitchState.login_switch_state,
                     on_change=LoginSwitchState.switch
                 )
             )
@@ -321,8 +321,8 @@ class LoginButtonState(LoginSwitchState):
             self.token = check_login[True]
             self.is_logged_in = "True"
             self.update_account_info()
-            if self.switch_state:
-                move_files_after_login(old_token=old_token, new_token=self.token)
+            if self.login_switch_state:
+                migrate_files(old_token=old_token, new_token=self.token)
 
 def login_form():
     return rx.chakra.vstack(
@@ -387,7 +387,8 @@ def login_dialog(trigger, **kwargs):
                 )
             ),
             bg="#0f0f0f",
-            on_pointer_down_outside = SignUpPopupState.close_dialog
+            on_pointer_down_outside = SignUpPopupState.close_dialog,
+            on_escape_key_down = SignUpPopupState.close_dialog
         ),
         open=LoginState.open_login_dialog_var
     )

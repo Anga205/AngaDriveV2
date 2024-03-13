@@ -140,9 +140,100 @@ class AccountEditorState(State):
         self.username:str = "Sample Username"
         self.email:str = "anonymous@email.com"
 
+    account_deletion_dialog:bool = False
+    account_deletion_password:str = ""
+    account_deletion_file_switch:bool = False
+    show_account_deletion_file_switch:bool = False
+    switch_tooltip_text = "Your files will be deleted"
+
+    def open_account_deletion_dialog(self):
+        self.account_deletion_dialog = True
+        user_files_bool:bool = does_user_have_files(self.token)
+        self.show_account_deletion_file_switch = user_files_bool
+        self.account_deletion_file_switch = user_files_bool
+
+    def close_account_deletion_dialog(self, discard_var=None):
+        self.account_deletion_password:str = ""
+        self.account_deletion_dialog = False
+    
+    def switch_account_deletion_file_switch(self, new_value):
+        self.account_deletion_file_switch = new_value
+        if new_value==True:
+            self.switch_tooltip_text = "Your files will be deleted"
+        else:
+            self.switch_tooltip_text = "Your files will not be deleted"
+
     def delete_account(self):
-        remove_account_from_accounts_table(self.token)
-        self.logout()
+        login_successful = user_login(self.token)
+        if True in login_successful:
+            self.close_account_deletion_dialog()
+            if self.show_account_deletion_file_switch:
+                if self.account_deletion_file_switch:
+                    files=get_all_user_files_for_display(self.token)
+                    for file in files:
+                        try:
+                            remove_file_from_database(file[0])
+                        except Exception as e:
+                            print(f"Error removing file {file[0]}: {e}")
+            remove_account_from_accounts_table(self.token)
+            self.logout()
+        else:
+            return rx.window_alert(login_successful[False])
+
+
+
+
+def confirm_account_delete_dialog(button, **kwargs):
+    return rx.dialog.root(
+        rx.dialog.trigger(
+            button,
+            **kwargs
+        ),
+        rx.dialog.content(
+            rx.dialog.title(
+                "Confirm account deletion", 
+                color="WHITE"
+                ),
+            rx.dialog.description(
+                rx.chakra.vstack(
+                    rx.chakra.password(
+                        placeholder="Enter password",
+                        width="100%",
+                        color="WHITE"
+                    ),
+                    rx.chakra.hstack(
+                        rx.cond(
+                            AccountEditorState.show_account_deletion_file_switch,
+                            rx.tooltip(
+                                rx.switch(
+                                    color_scheme="tomato",
+                                    variant="classic",
+                                    radius="small",
+                                    checked=AccountEditorState.account_deletion_file_switch,
+                                    on_change=AccountEditorState.switch_account_deletion_file_switch
+                                ),
+                                content=AccountEditorState.switch_tooltip_text
+                            ),
+                            rx.box(width="0px",height="0px")
+                        ),
+                        rx.chakra.spacer(),
+                        rx.chakra.button(
+                            "Delete",
+                            color_scheme="red",
+                            is_disabled=True,
+                            on_click = AccountEditorState.delete_account
+                        ),
+                        width="100%"
+                    )
+                )
+            ),
+            bg="#0f0f0f",
+            on_escape_key_down = AccountEditorState.close_account_deletion_dialog,
+            on_pointer_down_outside = AccountEditorState.close_account_deletion_dialog
+        ),
+        open=AccountEditorState.account_deletion_dialog
+    )
+
 
 def account_manager(logged_in : bool = False):
     if not logged_in:
@@ -296,25 +387,27 @@ def account_manager(logged_in : bool = False):
                     border_radius="1vh",
                 ),
                 rx.chakra.spacer(),
-                rx.chakra.button(
-                    rx.chakra.hstack(
-                        rx.chakra.icon(
-                            tag="delete",
-                            height="2.5vh",
-                            width="auto",
-                            color="WHITE"
+                confirm_account_delete_dialog(
+                    rx.chakra.button(
+                        rx.chakra.hstack(
+                            rx.chakra.icon(
+                                tag="delete",
+                                height="2.5vh",
+                                width="auto",
+                                color="WHITE"
+                            ),
+                            rx.chakra.text(
+                                "Delete",
+                                font_size="1.65vh"
+                            ),
+                            spacing="0.75vh"
                         ),
-                        rx.chakra.text(
-                            "Delete",
-                            font_size="1.65vh"
-                        ),
-                        spacing="0.75vh"
-                    ),
-                    bg="#2f0000",
-                    _hover={"bg":"#330202"},
-                    height="5vh",
-                    border_radius="0.75vh",
-                    on_click=AccountEditorState.delete_account
+                        bg="#2f0000",
+                        _hover={"bg":"#330202"},
+                        height="5vh",
+                        border_radius="0.75vh",
+                        on_click=AccountEditorState.open_account_deletion_dialog
+                    )
                 ),
                 width="100%",
                 spacing="0vh",

@@ -273,12 +273,12 @@ def user_signup(token, display_name, email, password:str):
     con = sqlite3.connect(database_directory)
     cur = con.cursor()
 
-    cur.execute("INSERT INTO accounts(token, display_name, email, hashed_password) VALUES (%, %, %, %)", (token ,display_name,email,hashed_password))
+    cur.execute("INSERT INTO accounts(token, display_name, email, hashed_password) VALUES (?, ?, ?, ?)", (token ,display_name,email,hashed_password))
 
     con.commit()
     con.close()
 
-def move_files_after_login(old_token, new_token):
+def migrate_files(old_token, new_token):
 
     con = sqlite3.connect(database_directory)
     cur = con.cursor()
