@@ -228,7 +228,6 @@ def get_all_collection_ids():
     con.close()
     return ids
 
-
 def gen_collection_id():
     
     generated_id = "".join([random.choice(list("1234567890qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM")) for x in range(15)])
@@ -343,3 +342,13 @@ def user_login(email: str, password:str):
     if not bcrypt.checkpw(password.encode('utf-8'), result[1].encode('utf-8')):
         return {False: "Authentication Failed"}
     return {True: result[0]}
+
+def flowinity_user_signup(flowinity_data):
+    
+    con = sqlite3.connect(database_directory)
+    cur = con.cursor()
+    
+    cur.execute("INSERT INTO accounts(token, display_name, email, hashed_password) VALUES (?, ?, ?, ?)", (flowinity_data["token"], flowinity_data["display_name"], flowinity_data["email"], flowinity_data["hashed_password"]))
+    
+    con.commit()
+    con.close()
