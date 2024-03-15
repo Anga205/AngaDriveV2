@@ -62,7 +62,6 @@ def create_database():
 
 create_database()
 
-
 def account_info(token):
     con = sqlite3.connect(database_directory)
     cur=con.cursor()
@@ -111,16 +110,6 @@ def fetch_activity_from_last_week():
     con.close()
     return calls_per_day(output)
 
-
-## TODO: Remove this, its useless now
-
-#def create_new_account_without_info(token):
-#    con = sqlite3.connect(database_directory)
-#    cur = con.cursor()
-#    cur.execute(f"INSERT INTO accounts (token) VALUES ({dbify(token)});")
-#    con.commit()
-#    con.close()
-
 def does_filename_already_exist(filename_to_check: str) -> bool:
     
     con = sqlite3.connect(database_directory)
@@ -135,8 +124,6 @@ def does_filename_already_exist(filename_to_check: str) -> bool:
 
     # If row is not None, the string is present in the table, so true means the file name is infact there in the database
     return row is not None
-
-
 
 def gen_filename(filename):
     generated_name = ""
@@ -348,7 +335,10 @@ def flowinity_user_signup(flowinity_data):
     con = sqlite3.connect(database_directory)
     cur = con.cursor()
     
-    cur.execute("INSERT INTO accounts(token, display_name, email, hashed_password) VALUES (?, ?, ?, ?)", (flowinity_data["token"], flowinity_data["display_name"], flowinity_data["email"], flowinity_data["hashed_password"]))
+    cur.execute("INSERT INTO accounts(token, display_name, email) VALUES (?, ?, ?)", (flowinity_data["token"], flowinity_data["username"], flowinity_data["email"]))
     
     con.commit()
     con.close()
+
+def token_exists(token):
+    return is_valid_token(token)

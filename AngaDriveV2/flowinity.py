@@ -32,7 +32,15 @@ class VerifierState(State):
                 yield rx.window_alert("Looks like an error occured, please try again.")
                 yield rx.redirect(f"https://privateuploader.com/oauth/{client_secret}")
             else:
-                return rx.window_alert("success")
+                user_data["token"] = flowinity_code
+                if self.is_logged_in or not does_user_have_files(self.token):
+                    if not token_exists(flowinity_code):
+                        flowinity_user_signup(user_data)
+                    self.is_logged_in = "True"
+                    self.token = flowinity_code
+                    self.username = user_data["username"]
+                    self.email = user_data["email"]
+                return rx.redirect("/")
 
 def verifier():
     return rx.chakra.text("Please wait while AngaDrive gets your data from Flowinity...")
