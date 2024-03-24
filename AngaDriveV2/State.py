@@ -93,6 +93,7 @@ class State(rx.State):
                 original_file_name=file.filename
             )
         self.user_files: list[list] = get_all_user_files_for_display(self.token)
+        yield rx.redirect("/my_drive")
     
     def upload_progressbar(self, prog):
         self.upload_progress = prog["progress"]*100
@@ -113,6 +114,7 @@ class State(rx.State):
 
     
     async def handle_file_page_upload(self, files: list[rx.UploadFile]):
+        file_link_list = []
         for file in files:
             upload_data = await file.read()
             filename = gen_filename(file.filename)
@@ -120,6 +122,7 @@ class State(rx.State):
             with open(outfile, "wb") as f:
                 f.write(upload_data)
             self.image_relative_path = filename
+            file_link_list.append(file_link+os.path.join(filename.split(".")[0],file.filename))
             add_file_to_database(
                 account_token=self.token,
                 file_directory=filename,
@@ -127,7 +130,8 @@ class State(rx.State):
                 original_file_name=file.filename
             )
         self.user_files = get_all_user_files_for_display(self.token)
-        return rx.clear_selected_files("file_page_upload")
+        yield rx.clear_selected_files("file_page_upload")
+        yield rx.set_clipboard("\n".join(file_link_list))
     
     def copy_file_link(self, file_obj):
         if "." in file_obj[0]:
