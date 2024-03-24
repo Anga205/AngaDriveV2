@@ -10,6 +10,7 @@ def shared_navbar() -> rx.Component:
             rx.chakra.image(
                 src="/logo.png", 
                 height="5vh", 
+                custom_attrs={"draggable":"false"},
                 width="auto"
                 ),
             rx.chakra.heading(
@@ -76,6 +77,7 @@ def shared_sidebar(opened_page, **kwargs):
                 rx.chakra.image(
                     src=image,
                     height="60%",
+                    custom_attrs={"draggable":"false"},
                     width="auto"
                 ),
                 rx.chakra.box(

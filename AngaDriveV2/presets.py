@@ -64,6 +64,7 @@ def tpu_signup_button(**kwargs):
         rx.chakra.hstack(
             rx.chakra.image(
                 src="/flowinity.svg",
+                custom_attrs={"draggable":"false"},
                 height="2vh",
                 width="auto"
                 ),

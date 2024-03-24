@@ -11,6 +11,7 @@ def upload_button():
             rx.chakra.image(
                 src="/upload.png",
                 height="2vh",
+                custom_attrs={"draggable":"false"},
                 width="auto"
                 ),
             "Upload",
@@ -116,6 +117,7 @@ def file_card(file_obj):
                 rx.image(
                     src="/document.png",
                     opacity="0.4",
+                    custom_attrs={"draggable":"false"},
                     height="65%",
                     width="auto"
                 ),

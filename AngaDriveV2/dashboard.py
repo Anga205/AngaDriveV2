@@ -251,6 +251,7 @@ def account_manager(logged_in : bool = False):
                     src = "/anonymous.png",
                     height="10vh",
                     border_radius="5vh",
+                    custom_attrs={"draggable":"false"},
                     border="0.2vh solid WHITE",
                     width="auto",
                 ),
@@ -375,7 +376,8 @@ def account_manager(logged_in : bool = False):
                         rx.chakra.image(
                             src="/logout.png",
                             height="2.5vh",
-                            width="auto"
+                            width="auto",
+                            custom_attrs={"draggable":"false"},
                         ),
                         rx.chakra.text(
                             "Log out",
@@ -448,7 +450,7 @@ def static_account_info():
                 user_data_card(
                     "Your Storage",
                     State.user_storage_amount,
-                    width="21.5vh",
+                    width="22vh",
                     height="100%"
                 ),
                 height="100%",
@@ -476,6 +478,7 @@ def feature_card(image_path, heading, description):
     return rx.chakra.vstack(
         rx.chakra.image(
             src=image_path,
+            custom_attrs={"draggable":"false"},
             height="50%",
             width="auto",
         ),
@@ -566,6 +569,7 @@ def github_widget():
             rx.chakra.image(
                 src="github.png",
                 height="60%",
+                custom_attrs={"draggable":"false"},
                 width="auto"
                 ),
             rx.chakra.heading(
