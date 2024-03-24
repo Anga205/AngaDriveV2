@@ -52,9 +52,9 @@ class State(rx.State):
 
     state_initialized:bool = False
     def load_any_page(self):
-        add_timestamp_to_activity()
         if not self.state_initialized:
             self.add_token_if_not_present()
+            add_timestamp_to_activity()
             self.state_initialized = True
 
     def load_index_page(self):
