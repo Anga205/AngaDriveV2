@@ -130,6 +130,13 @@ class State(rx.State):
         return rx.clear_selected_files("file_page_upload")
     
     def copy_file_link(self, file_obj):
+        if "." in file_obj[0]:
+            file_path = os.path.join(file_obj[1].split(".")[0], file_obj[0])
+        else:
+            file_path = os.path.join(file_obj[1], file_obj[0])
+        return rx.set_clipboard(file_link+file_path)
+    
+    def copy_file_path(self, file_obj):
         return rx.set_clipboard(file_link+file_obj[1])
     
     def download_file(self, file_obj):

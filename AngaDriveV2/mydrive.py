@@ -1,5 +1,4 @@
 import reflex as rx
-import reflex #importing it twice because my dumbass forgot reflex defaults to radix instead of chakra, i later on redefined reflex.chakra as rx inside a function
 from AngaDriveV2.State import State
 from AngaDriveV2.shared_components import *
 
@@ -96,25 +95,36 @@ def upload_button():
         )
 
 def file_card(file_obj):
-    rx = reflex.chakra
-    return rx.vstack(
-        rx.hstack(
-            rx.spacer(),
-            rx.text(
+    context_menu_wrapper = (
+        lambda component:
+        rx.context_menu.root(
+            rx.context_menu.trigger(
+                component
+            ),
+            rx.context_menu.content(
+                rx.context_menu.item("Copy shortened path", on_click=lambda: State.copy_file_path(file_obj)),
+            )
+        )
+    )
+    return context_menu_wrapper(
+    rx.chakra.vstack(
+        rx.chakra.hstack(
+            rx.chakra.spacer(),
+            rx.chakra.text(
                 file_obj[0], # original file name like sample.png
                 font_size="23px",
                 color="WHITE"
                 ),
-            rx.spacer(),
+            rx.chakra.spacer(),
             bg="#1c1c1c",
             border_radius = "1vh 1vh 0vh 0vh",
             border_color="#1c1c1c",
             border_width="1vh",
             width="100%"
         ),
-        rx.vstack(
-            rx.box(
-                rx.image(
+        rx.chakra.vstack(
+            rx.chakra.box(
+                rx.chakra.image(
                     src="/document.png",
                     opacity="0.4",
                     custom_attrs={"draggable":"false"},
@@ -128,42 +138,42 @@ def file_card(file_obj):
                 width="100%",
                 color="WHITE"
             ),
-            rx.hstack(
-                rx.spacer(),
-                rx.vstack(
-                    rx.text(
+            rx.chakra.hstack(
+                rx.chakra.spacer(),
+                rx.chakra.vstack(
+                    rx.chakra.text(
                         "Uploaded Name:"
                     ),
-                    rx.text(
+                    rx.chakra.text(
                         "Timestamp:"
                     ),
-                    rx.text(
+                    rx.chakra.text(
                         "File Size:"
                     ),
                     spacing="0vh",
                     justify="start",
                     align_items="start",
                 ),
-                rx.vstack(
-                    rx.text(
+                rx.chakra.vstack(
+                    rx.chakra.text(
                         file_obj[1] # file directory like 9487br483.png
                     ),
-                    rx.text(
+                    rx.chakra.text(
                         file_obj[3] # timestamp like time.ctime
                     ),
-                    rx.text(
+                    rx.chakra.text(
                         file_obj[2] # file size like 32KB
                     ),
                     spacing="0vh",
                     justify="start",
                     align_items="start",
                 ),
-                rx.spacer(),
+                rx.chakra.spacer(),
                 font_size="11px",
                 width="100%",
                 color="GRAY",
             ),
-            rx.box(
+            rx.chakra.box(
                 height="1vh"
             ),
             spacing="0.75vh",
@@ -171,10 +181,10 @@ def file_card(file_obj):
             border_width="0.2vh",
             width="100%"
         ),
-        rx.hstack(
-            rx.tooltip(
-                rx.button(
-                    rx.icon(
+        rx.chakra.hstack(
+            rx.chakra.tooltip(
+                rx.chakra.button(
+                    rx.chakra.icon(
                         tag="delete"
                     ),
                     color="#ee0000",
@@ -187,9 +197,9 @@ def file_card(file_obj):
                 ),
                 label = "Delete"
             ),
-            rx.tooltip(
-                rx.button(
-                    rx.icon(
+            rx.chakra.tooltip(
+                rx.chakra.button(
+                    rx.chakra.icon(
                         tag="copy"
                     ),
                     color="#00a799",
@@ -202,9 +212,9 @@ def file_card(file_obj):
                 ),
                 label="Copy Link"
             ),
-            rx.tooltip(
-                rx.button(
-                    rx.icon(
+            rx.chakra.tooltip(
+                rx.chakra.button(
+                    rx.chakra.icon(
                         tag="download"
                     ),
                     color="#12a1fb",
@@ -217,9 +227,9 @@ def file_card(file_obj):
                 ),
                 label="Download File"
             ),
-            rx.tooltip(
-                rx.button(
-                    rx.icon(
+            rx.chakra.tooltip(
+                rx.chakra.button(
+                    rx.chakra.icon(
                         tag="plus_square",
                         width="5vh"
                     ),
@@ -244,6 +254,7 @@ def file_card(file_obj):
         width="225px",
         spacing="0px"
     )
+)
 
 
 
@@ -272,31 +283,38 @@ def index():
                 width="98%",
                 height="8vh"
             ),
-            rx.cond(
-                State.user_files,
-                rx.chakra.wrap(
-                    rx.foreach(
-                        State.user_files,
-                        file_card
+            rx.chakra.hstack(
+                rx.chakra.box(
+                    width="5vh", 
+                    height="0vh"
                     ),
-                ),
-                rx.chakra.vstack(
-                    rx.chakra.spacer(),
-                    rx.chakra.alert(
-                        rx.chakra.alert_icon(),
-                        rx.chakra.alert(
-                            "Drag and drop files here, of click the 'Upload' button on the top right", 
-                            bg="#000033", 
-                            color="WHITE"
+                rx.cond(
+                    State.user_files,
+                    rx.chakra.wrap(
+                        rx.foreach(
+                            State.user_files,
+                            file_card
                         ),
-                        border_radius="2vh",
-                        bg="#000033",
-                        border_color="#0000aa",
-                        border_width="0.2vh"
                     ),
-                    rx.chakra.spacer(),
-                    height="50vh",
-                )
+                    rx.chakra.vstack(
+                        rx.chakra.spacer(),
+                        rx.chakra.alert(
+                            rx.chakra.alert_icon(),
+                            rx.chakra.alert(
+                                "Drag and drop files here, of click the 'Upload' button on the top right", 
+                                bg="#000033", 
+                                color="WHITE"
+                            ),
+                            border_radius="2vh",
+                            bg="#000033",
+                            border_color="#0000aa",
+                            border_width="0.2vh"
+                        ),
+                        rx.chakra.spacer(),
+                        height="50vh",
+                    )
+                ),
+                spacing="0vh",
             ),
             bg="#0f0f0f",
             width="100%"
