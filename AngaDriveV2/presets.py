@@ -1,7 +1,7 @@
 import reflex as rx
 import time
 from AngaDriveV2.common import time_ago
-from AngaDriveV2.State import State
+from AngaDriveV2.flowinity import client_secret
 
 def card(heading, content, **kwargs):
     return rx.chakra.vstack(
@@ -73,7 +73,7 @@ def tpu_signup_button(**kwargs):
         ),
         bg="rgb(20, 10, 30)",
         color="WHITE",
-        on_click=rx.redirect("/tpulogin"),
+        on_click=rx.redirect(f"https://privateuploader.com/oauth/{client_secret}"),
         _hover={"bg":"#0f0f1f","color":"#1111cc"},
         **kwargs
     )
