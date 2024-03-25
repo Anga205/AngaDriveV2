@@ -1,18 +1,7 @@
 import reflex as rx
-import subprocess
-
-
-fastapi_startup_command = [
-    "uvicorn", 
-    "file_handler.main:app", 
-    "--host", "0.0.0.0", 
-    "--port", 
-    "5000"
-    ]
-
-#subprocess.Popen(fastapi_startup_command)
-
+import AngaDriveV2.common
 
 config = rx.Config(
     app_name="AngaDriveV2",
+    api_url=AngaDriveV2.common.api_url
 )

@@ -64,7 +64,7 @@ def shared_navbar() -> rx.Component:
     )
 
 def shared_sidebar(opened_page, **kwargs):
-    buttons = ["Home", "Files", "Settings", "Collections"]
+    buttons = ["Home", "Files", "Collections"]
     button_bg = "BLACK"
     selected_button_bg = "#1f1f1f"
 
@@ -119,11 +119,6 @@ def shared_sidebar(opened_page, **kwargs):
             "/collection.png",
             "Collections",
             "/my_collections"
-        ),
-        sidebar_button(
-            "/gears.png",
-            "Settings",
-            "/my_settings"
         ),
         height="100%",
         width="12%",

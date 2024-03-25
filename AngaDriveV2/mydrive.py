@@ -111,8 +111,8 @@ def file_card(file_obj):
         rx.chakra.hstack(
             rx.chakra.spacer(),
             rx.chakra.text(
-                file_obj[0], # original file name like sample.png
-                font_size="23px",
+                file_obj[4], # original file name like sample.png
+                font_size="20px",
                 color="WHITE"
                 ),
             rx.chakra.spacer(),
@@ -120,7 +120,8 @@ def file_card(file_obj):
             border_radius = "1vh 1vh 0vh 0vh",
             border_color="#1c1c1c",
             border_width="1vh",
-            width="100%"
+            width="100%",
+            height="55px"
         ),
         rx.chakra.vstack(
             rx.chakra.box(
@@ -245,13 +246,13 @@ def file_card(file_obj):
             justify_content="center",
             align_items="center",
             height="42px",
-            spacing="15px",
+            spacing="20px",
             width="100%",
             border_color="#1c1c1c",
             border_width="0vh 0.2vh 0.2vh 0.2vh",
             border_radius="0vh 0vh 1vh 1vh"
         ),
-        width="225px",
+        width="290px",
         spacing="0px"
     )
 )

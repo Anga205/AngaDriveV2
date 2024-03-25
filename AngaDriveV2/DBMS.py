@@ -154,12 +154,14 @@ def add_file_to_database(original_file_name, file_directory, account_token, file
 
 def get_all_user_files_for_display(account_token):
 
+    truncate_string = lambda string: string if len(string)<=len('mmmmmmmmmmmmmmmmmmm') else string[0:len('mmmmmmmmmmmmmmmmmmm')]+"..."
+
     con = sqlite3.connect(database_directory)
     cur = con.cursor()
 
     cur.execute(f"SELECT original_file_name, file_directory, file_size, timestamp FROM file_data WHERE account_token = ?", (account_token,))
 
-    rows = [[x[0], x[1], format_bytes(x[2]), time.ctime(x[3])] for x in cur]
+    rows = [[x[0], x[1], format_bytes(x[2]), time.ctime(x[3]), truncate_string(x[0])] for x in cur]
 
     con.close()
 
@@ -350,3 +352,29 @@ def flowinity_user_signup(flowinity_data):
 
 def token_exists(token):
     return is_valid_token(token)
+
+def count_files():
+
+    con = sqlite3.connect(database_directory)
+    cur = con.cursor()
+
+    cur.execute("SELECT COUNT(*) FROM file_data")
+    file_count = cur.fetchone()[0]
+
+    cur.close()
+    con.close()
+
+    return file_count
+
+def get_all_files_size():
+
+    con = sqlite3.connect(database_directory)
+    cur = con.cursor()
+
+    cur.execute(f"SELECT SUM(file_size) FROM file_data")
+    result = format_bytes(cur.fetchone()[0])
+
+    cur.close()
+    con.close()
+
+    return result

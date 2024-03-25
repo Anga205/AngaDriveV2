@@ -38,7 +38,7 @@ class State(rx.State):
     def update_site_data_components(self):
         self.collection_count = get_collection_count()
         self.files_hosted : int = count_files()
-        self.space_used : str = get_formatted_directory_size()
+        self.space_used : str = get_all_files_size()
         self.user_count = get_user_count()
         self.registered_user_count = f"Registered Users: {get_registered_users()}"
         self.site_activity : list[dict] = [{"date":x, "times_opened": fetch_activity_from_last_week()[x]} for x in fetch_activity_from_last_week()]

@@ -2,8 +2,10 @@ import datetime, time, os, random, re
 
 file_directory = os.path.join("assets", "i")
 database_directory = 'rx.db'
-file_link = "http://localhost:8000/i/"
+api_url = "http://localhost:8000"
 app_link = "http://localhost:3000"
+
+file_link = f"{api_url}/i/"
 
 def dbify(var):
     if var==None:
@@ -123,16 +125,6 @@ def calls_per_day(timestamps: list[int]) -> dict: #dict of length 7
     
     return result
 
-
-def get_directory_size(directory):
-    total_size = 0
-    for dirpath, _, filenames in os.walk(directory):
-        for filename in filenames:
-            file_path = os.path.join(dirpath, filename)
-            if os.path.isfile(file_path):
-                total_size += os.path.getsize(file_path)
-    return total_size
-
 def format_bytes(bytes):
     if bytes == None:
         return 0
@@ -140,16 +132,6 @@ def format_bytes(bytes):
         if bytes < 1024:
             return f"{bytes:.2f} {unit}"
         bytes /= 1024
-
-def get_formatted_directory_size(directory = file_directory):
-    size_in_bytes = get_directory_size(directory)
-    return format_bytes(size_in_bytes)
-
-def count_files(directory = file_directory):
-    file_count = 0
-    for dirpath, _, filenames in os.walk(directory):
-        file_count += len(filenames)
-    return file_count
 
 def get_file_size(file_path: str) -> int:
     # Convert to an absolute path if it's a relative path
