@@ -244,12 +244,20 @@ def is_valid_token(token: str) -> bool:
         result = cursor.fetchone()[0]
 
         # Close the cursor and connection
-        cursor.close()
-        conn.close()
 
-        # Return True if the token exists, False otherwise
-        return bool(result)
-    
+        # Return True if the token exists, else check filedata table
+        if bool(result):
+            cursor.close()
+            conn.close()
+            return True
+        else:
+            cursor.execute("SELECT EXISTS(SELECT 1 FROM file_data WHERE account_token = ?)", (token,))
+            result = cursor.fetchone()[0]
+            cursor.close()
+            conn.close()
+            return bool(result)
+            
+
     except sqlite3.Error as e:
         print("SQLite error:", e)
         return False
