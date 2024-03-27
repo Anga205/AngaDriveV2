@@ -103,6 +103,7 @@ def file_card(file_obj):
             ),
             rx.context_menu.content(
                 rx.context_menu.item("Copy shortened path", on_click=lambda: State.copy_file_path(file_obj)),
+                rx.context_menu.item("Copy download link", on_click=lambda: State.copy_download_link(file_obj)),
             )
         )
     )

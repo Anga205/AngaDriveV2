@@ -6,6 +6,7 @@ api_url = "http://localhost:8000"
 app_link = "http://localhost:3000"
 
 file_link = f"{api_url}/i/"
+download_link = f"{api_url}/download/"
 
 def dbify(var):
     if var==None:

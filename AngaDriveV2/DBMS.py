@@ -1,4 +1,5 @@
 import sqlite3, os, time, bcrypt
+from functools import lru_cache
 from AngaDriveV2.common import *
 
 def create_database():
@@ -378,3 +379,16 @@ def get_all_files_size():
     con.close()
 
     return result
+
+@lru_cache(maxsize=100)
+def get_file_name(file_path):
+
+    con = sqlite3.connect(database_directory)
+    cur = con.cursor()
+
+    cur.execute(f"SELECT original_file_name FROM file_data WHERE file_directory = ?", (file_path, ))
+    filename = cur.fetchone()[0]
+    
+    cur.close()
+    con.close()
+    return filename

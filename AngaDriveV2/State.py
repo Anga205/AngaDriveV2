@@ -142,6 +142,9 @@ class State(rx.State):
     
     def copy_file_path(self, file_obj):
         return rx.set_clipboard(file_link+file_obj[1])
+
+    def copy_download_link(self, file_obj):
+        return rx.set_clipboard(download_link+file_obj[1])
     
     def download_file(self, file_obj):
         add_timestamp_to_activity()

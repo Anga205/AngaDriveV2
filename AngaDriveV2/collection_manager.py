@@ -14,6 +14,14 @@ class CollectionState(rx.State):
         if (len(new_name)>=2 and new_name.replace(" ","").replace("-","").replace("+","").replace(".","").replace("&","").isalnum()):
             self.new_collection_name = new_name
             self.is_valid_collection_name = True
+    
+    open_new_collection_dialog:bool = False
+
+    def open_dialog(self):
+        self.open_new_collection_dialog = True
+    
+    def close_dialog(self, junk_value=False):
+        self.open_new_collection_dialog = False
 
 
 def create_new_collection_dialog(button):
@@ -22,16 +30,24 @@ def create_new_collection_dialog(button):
             button
         ),
         rx.dialog.content(
-            rx.dialog.title("Create new Collection"),
+            rx.dialog.title(
+                "Create new Collection",
+                color="WHITE"
+                ),
             rx.dialog.description(
-                rx.input(
+                rx.chakra.input(
                     placeholder="Enter collection name...",
-                    max_length="32",
-                    on_blur=CollectionState.set_new_collection_name,
+                    max_length="128",
+                    color="WHITE",
+                    on_change=CollectionState.set_new_collection_name,
                     width="85%"
                 ),
-            )
-        )
+            ),
+            bg="#0f0f0f",
+            on_pointer_down_outside = CollectionState.close_dialog,
+            on_escape_key_down = CollectionState.close_dialog
+        ),
+        open = CollectionState.open_new_collection_dialog
     )
 
 
@@ -172,15 +188,17 @@ def collection_accordian():
     )
 
 def context_menu_wrapper(*components):
-    return rx.context_menu.root(
-        rx.context_menu.trigger(
-            *components
-        ),
-        rx.context_menu.content(
-            rx.context_menu.item(
-                "New Collection",
-                on_click=rx.redirect("/new-collection")
+    return create_new_collection_dialog(
+        rx.context_menu.root(
+            rx.context_menu.trigger(
+                *components
+            ),
+            rx.context_menu.content(
+                rx.context_menu.item(
+                    "New Collection",
+                    on_click=CollectionState.open_dialog
                 )
+            )
         )
     )
 
