@@ -1,19 +1,35 @@
 import reflex as rx
 from AngaDriveV2.State import State
 from AngaDriveV2.shared_components import *
+from AngaDriveV2.DBMS import *
 
-class CollectionState(rx.State):
+class CollectionState(State):
     new_collection_name:str = ""
-    is_valid_collection_name:bool = False
+    is_invalid_collection_name:bool = False
+    new_collection_input_border_color:str="#3182ce"
+    show_create_button:bool = False
+
+    def check_if_show_button(self):
+        if ("" != self.new_collection_name) or (not self.is_invalid_collection_name):
+            self.show_create_button = True
+        if self.is_invalid_collection_name or (""==self.new_collection_name):
+            self.show_create_button = False
 
     def set_new_collection_name(self, new_name:str):
-        self.is_valid_collection_name = False
-        if new_name.replace(" ", "") == "":
-            self.is_valid_collection_name = False
-            return
-        if (len(new_name)>=2 and new_name.replace(" ","").replace("-","").replace("+","").replace(".","").replace("&","").isalnum()):
-            self.new_collection_name = new_name
-            self.is_valid_collection_name = True
+        new_name = new_name.strip()
+        self.new_collection_name = new_name
+        if (new_name == "") or len(new_name)>2:
+            self.is_invalid_collection_name = False
+            self.new_collection_input_border_color ="#3182ce"
+        elif len(new_name)<=2:
+            self.is_invalid_collection_name = True
+            self.new_collection_input_border_color = "#880000"
+        self.check_if_show_button()
+        
+    def create_new_collection_button_click(self):
+        create_new_collection(token=self.token ,collection_name=self.new_collection_name)
+        self.close_dialog()
+        
     
     open_new_collection_dialog:bool = False
 
@@ -21,7 +37,12 @@ class CollectionState(rx.State):
         self.open_new_collection_dialog = True
     
     def close_dialog(self, junk_value=False):
+        self.new_collection_name=""
+        self.show_create_button = False
         self.open_new_collection_dialog = False
+
+    def close_dialog_no_inputs(self):
+        self.close_dialog()
 
 
 def create_new_collection_dialog(button):
@@ -35,13 +56,37 @@ def create_new_collection_dialog(button):
                 color="WHITE"
                 ),
             rx.dialog.description(
-                rx.chakra.input(
-                    placeholder="Enter collection name...",
-                    max_length="128",
-                    color="WHITE",
-                    on_change=CollectionState.set_new_collection_name,
-                    width="85%"
-                ),
+                rx.chakra.vstack(
+                    rx.chakra.input(
+                        placeholder="Enter collection name...",
+                        max_length="128",
+                        color="WHITE",
+                        on_change=CollectionState.set_new_collection_name,
+                        is_invalid=CollectionState.is_invalid_collection_name,
+                        focus_border_color=CollectionState.new_collection_input_border_color,
+                        width="85%"
+                    ),
+                    rx.box(height="10px"),
+                    rx.cond(
+                        CollectionState.show_create_button,
+                        rx.chakra.hstack(
+                            rx.chakra.spacer(),
+                            rx.chakra.button(
+                                "Create",
+                                color_scheme="facebook",
+                                border_radius="10px",
+                                variant="outline",
+                                on_click = CollectionState.create_new_collection_button_click
+                            ),
+                            width="100%"
+                        ),
+                        rx.box(
+                            width="0px", 
+                            height="0px"
+                        )
+                    ),
+                    width="100%"
+                )
             ),
             bg="#0f0f0f",
             on_pointer_down_outside = CollectionState.close_dialog,

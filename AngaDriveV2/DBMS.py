@@ -51,7 +51,6 @@ def create_database():
             cur.execute('''
                 CREATE TABLE collections(
                         id TEXT PRIMARY KEY,
-                        timestamp INTEGER,
                         name TEXT,
                         editors TEXT,
                         data TEXT
@@ -218,11 +217,30 @@ def get_all_collection_ids():
     con.close()
     return ids
 
+def get_collection_ids_by_account_token(account_token):
+    con = sqlite3.connect(database_directory)
+    cur = con.cursor()
+    cur.execute(f"SELECT id FROM collections WHERE editors LIKE ?", (f'{account_token}%',))
+    ids = [x[0] for x in cur]
+    con.close()
+    return ids
+
+def collection_info_for_display(collection_id):
+    con = sqlite3.connect(database_directory)
+    cur = con.cursor()
+    
+    cur.execute(f"SELECT name, data, editors FROM collections WHERE id = ?", (collection_id,))
+    data:list[str] = list(cur.fetchone())
+    data[1] = eval(data[1])
+    con.close()
+    return [collection_id, data[0], data[1]["File Count"], format_bytes(data[1]["Size"]), len(data[2].split(","))]
+
+
 def gen_collection_id():
     
     generated_id = "".join([random.choice(list("1234567890qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM")) for x in range(15)])
-
-    if generated_id in get_all_collection_ids():
+    all_collection_ids = get_all_collection_ids()
+    if generated_id in all_collection_ids:
         return gen_collection_id()
     else:
         return generated_id
@@ -231,7 +249,7 @@ def create_new_collection(token, collection_name):
     con = sqlite3.connect(database_directory)
     cur = con.cursor()
 
-    cur.execute(f"INSERT INTO collections (id, timestamp, name, editors, data) VALUES ({dbify(gen_collection_id())}, {dbify(time.time())}, {dbify(collection_name)}, {dbify(token)}, {dbify(str([]))})")
+    cur.execute(f"INSERT INTO collections (id, name, editors, data) VALUES (?, ?, ?, ?)", (gen_collection_id(), collection_name, token, str({"Collections":[], "Files":[], "Size": 0, "File Count": 0})))
     con.commit()
 
 def is_valid_token(token: str) -> bool:
@@ -256,9 +274,17 @@ def is_valid_token(token: str) -> bool:
         else:
             cursor.execute("SELECT EXISTS(SELECT 1 FROM file_data WHERE account_token = ?)", (token,))
             result = cursor.fetchone()[0]
-            cursor.close()
-            conn.close()
-            return bool(result)
+
+            # Return True if the account exists in file data, else check collections
+            if bool(result):
+                cursor.close()
+                conn.close()
+                return True
+            
+            else:
+                cursor.execute("SELECT EXISTS(SELECT 1 FROM collections WHERE editors LIKE ?)", ('%' + token + '%',))
+                result = cursor.fetchone()[0]
+                return bool(result)
             
 
     except sqlite3.Error as e:
