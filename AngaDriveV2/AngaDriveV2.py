@@ -39,7 +39,7 @@ async def download_file(file_path: str, response: Response):
 
 app = rx.App()
 app.add_page(AngaDriveV2.dashboard.index, on_load=State.load_index_page, title="Homepage | DriveV2", route="/")
-app.add_page(AngaDriveV2.collection_manager.index, on_load=State.load_any_page, title="My Collections | DriveV2", route="/my_collections")
+app.add_page(AngaDriveV2.collection_manager.index, on_load=AngaDriveV2.collection_manager.CollectionState.load_collections_page, title="My Collections | DriveV2", route="/my_collections")
 app.add_page(AngaDriveV2.mydrive.index, on_load=State.load_files_page, title="My Files | DriveV2", route="/my_drive")
 app.add_custom_404_page(page_not_found.index, title="404 | AngaDrive", on_load=State.load_any_page)
 app.api.add_api_route("/i/{file_path}",get_file)

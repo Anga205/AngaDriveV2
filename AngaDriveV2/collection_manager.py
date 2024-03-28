@@ -27,7 +27,9 @@ class CollectionState(State):
         self.check_if_show_button()
         
     def create_new_collection_button_click(self):
-        create_new_collection(token=self.token ,collection_name=self.new_collection_name)
+        new_collection_id = create_new_collection(token=self.token ,collection_name=self.new_collection_name)
+        self.collection_ids.append(new_collection_id)
+        self.display_my_collections.append(collection_info_for_display(new_collection_id))
         self.close_dialog()
         
     
@@ -43,6 +45,17 @@ class CollectionState(State):
 
     def close_dialog_no_inputs(self):
         self.close_dialog()
+
+    collection_ids: list[int] = []
+    display_my_collections: list[list[str]]=[]
+    def update_collections(self):
+        self.collection_ids = get_collection_ids_by_account_token(self.token)
+        self.display_my_collections = [collection_info_for_display(collection_id) for collection_id in self.collection_ids]
+
+    def load_collections_page(self):
+        self.load_any_page()
+        self.update_collections()
+
 
 
 def create_new_collection_dialog(button):
@@ -96,46 +109,62 @@ def create_new_collection_dialog(button):
     )
 
 
-def confirm_delete_collection_dialog(button):
+def confirm_delete_collection_dialog(button, collection_name):
     return rx.dialog.root(
         rx.dialog.trigger(
             button
         ),
         rx.dialog.content(
-            rx.dialog.title("Confirm delete"),
+            rx.dialog.title(
+                "Confirm delete",
+                color="WHITE"
+                ),
             rx.dialog.description(
                 rx.chakra.vstack(
                     rx.chakra.text(
                         rx.chakra.span("Are you SURE you want to delete "),
                         rx.chakra.span("'", font_weight="bold"),
-                        rx.chakra.span("Collection1 name", font_weight="bold"),
+                        rx.chakra.span(collection_name, font_weight="bold"),
                         rx.chakra.span("' ", font_weight="bold"),
                         rx.chakra.span("permanently?"),
-                        align_items="start"
+                        align_items="start",
+                        color="WHITE"
                     ),
                     rx.chakra.text(
                         "Warning: this action cannot be undone.",
                         align_items="start",
                         color="RED",
                     ),
+                    rx.chakra.box(width="0px", height="10px"),
+                    rx.chakra.hstack(
+                        rx.chakra.spacer(),
+                        rx.button(
+                            "Delete",
+                            variant="soft",
+                            color_scheme="red",
+                        ),
+                        width="100%"
+                    ),
                     width="100%",
                     align_items="start"
-                )
-            )
+                ),
+            ),
+            color="#0f0f0f"
         )
     )
 
 
-def collection_accordian():
+def collection_accordian(collection_obj):   # collection_obj consists of [collection_id, collection_name, file_count, file_size, editor_count]
     card_color="#1c1c1c"
     return rx.chakra.box(
         rx.chakra.accordion(
             rx.chakra.accordion_item(
                 rx.chakra.accordion_button(
                     rx.chakra.vstack(
+                        rx.chakra.box(height="0px", width="170px"),
                         rx.chakra.hstack(
                             rx.chakra.text(
-                                "Collection1 name",
+                                collection_obj[1], # collection name
                                 font_size="30px"
                             ),
                             rx.chakra.accordion_icon(),
@@ -155,9 +184,9 @@ def collection_accordian():
                                 align_items="start"
                             ),
                             rx.chakra.vstack(
-                                rx.chakra.text("72"),
-                                rx.chakra.text("1.2 GB"),
-                                rx.chakra.text("12"),
+                                rx.chakra.text(collection_obj[2]),
+                                rx.chakra.text(collection_obj[3]),
+                                rx.chakra.text(collection_obj[4]),
                                 spacing="5px",
                                 align_items="start",
                             ),
@@ -199,7 +228,8 @@ def collection_accordian():
                                     bg="rgb(75, 0, 0)",
                                     color="rgb(200, 0, 0)",
                                     _hover={"bg":"rgb(100, 0, 0)", "color": "rgb(255, 0, 0)"}
-                                )
+                                ),
+                                collection_name=collection_obj[1]
                             ),
                             label="Delete Collection"
                         ),
@@ -220,7 +250,7 @@ def collection_accordian():
                             label="Share Collection"
                         ),
                         width="100%"
-                    )
+                    ),
                 )
             ),
             allow_toggle=True,
@@ -264,7 +294,10 @@ def index():
                                     height="2vh"
                                     ),
                                 rx.chakra.wrap(
-                                    collection_accordian(),
+                                    rx.foreach(
+                                        CollectionState.display_my_collections,
+                                        collection_accordian
+                                    ),
                                     width="100%"
                                 ),
                                 spacing="0vh"

@@ -248,9 +248,12 @@ def gen_collection_id():
 def create_new_collection(token, collection_name):
     con = sqlite3.connect(database_directory)
     cur = con.cursor()
+    collection_id = gen_collection_id()
 
-    cur.execute(f"INSERT INTO collections (id, name, editors, data) VALUES (?, ?, ?, ?)", (gen_collection_id(), collection_name, token, str({"Collections":[], "Files":[], "Size": 0, "File Count": 0})))
+    cur.execute(f"INSERT INTO collections (id, name, editors, data) VALUES (?, ?, ?, ?)", (collection_id, collection_name, token, str({"Collections":[], "Files":[], "Size": 0, "File Count": 0})))
     con.commit()
+
+    return collection_id
 
 def is_valid_token(token: str) -> bool:
     try:
