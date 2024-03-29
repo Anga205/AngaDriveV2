@@ -154,14 +154,15 @@ def add_file_to_database(original_file_name, file_directory, account_token, file
 
 def get_all_user_files_for_display(account_token):
 
-    truncate_string = lambda string: string if len(string)<=len('mmmmmmmmmmmmmmmmmmm') else string[0:len('mmmmmmmmmmmmmmmmmmm')]+"..."
-
     con = sqlite3.connect(database_directory)
     cur = con.cursor()
 
     cur.execute(f"SELECT original_file_name, file_directory, file_size, timestamp FROM file_data WHERE account_token = ?", (account_token,))
 
-    rows = [[x[0], x[1], format_bytes(x[2]), time.ctime(x[3]), truncate_string(x[0])] for x in cur]
+    rows = [[x[0], x[1], format_bytes(x[2]), time.ctime(x[3]), truncate_string(x[0]), file_link+x[1], can_be_previewed(x[1])] for x in cur]
+
+    # so a sample of one element would look like this:
+    # ["unchangedfilename.png", "pgfubcid.png", time.time(), "unchanged...", "http://localhost:8000/i/pgfubcid.png", True]
 
     con.close()
 
@@ -205,6 +206,16 @@ def get_collection_count():
 
     return count
 
+def delete_collection_from_db(collection_id):
+    con = sqlite3.connect(database_directory)
+    cur = con.cursor()
+
+    cur.execute(f"DELETE FROM collections WHERE id = ?", (collection_id,))
+    con.commit()
+
+    con.close()
+
+
 def get_all_collection_ids():
     
     con = sqlite3.connect(database_directory)
@@ -233,7 +244,7 @@ def collection_info_for_display(collection_id):
     data:list[str] = list(cur.fetchone())
     data[1] = eval(data[1])
     con.close()
-    return [collection_id, data[0], data[1]["File Count"], format_bytes(data[1]["Size"]), len(data[2].split(","))]
+    return [collection_id, truncate_string(data[0]), data[1]["File Count"], format_bytes(data[1]["Size"]), len(data[2].split(","))]
 
 
 def gen_collection_id():
@@ -266,7 +277,6 @@ def is_valid_token(token: str) -> bool:
         
         # Fetch the result
         result = cursor.fetchone()[0]
-
         # Close the cursor and connection
 
         # Return True if the token exists, else check filedata table
@@ -288,7 +298,6 @@ def is_valid_token(token: str) -> bool:
                 cursor.execute("SELECT EXISTS(SELECT 1 FROM collections WHERE editors LIKE ?)", ('%' + token + '%',))
                 result = cursor.fetchone()[0]
                 return bool(result)
-            
 
     except sqlite3.Error as e:
         print("SQLite error:", e)

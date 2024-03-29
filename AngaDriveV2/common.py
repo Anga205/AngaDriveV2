@@ -8,6 +8,8 @@ app_link = "http://localhost:3000"
 file_link = f"{api_url}/i/"
 download_link = f"{api_url}/download/"
 
+truncate_string = lambda string: string if len(string)<=len('mmmmmmmmmmmmmmmmmmm') else string[0:len('mmmmmmmmmmmmmmmmmmm')]+"..."
+
 def dbify(var):
     if var==None:
         return "NULL"
@@ -159,3 +161,13 @@ def is_valid_email(email: str) -> bool:
     email_pattern = r'^[\w\.-]+@[a-zA-Z\d\.-]+\.[a-zA-Z]{2,}$'
     
     return bool(re.match(email_pattern, email))
+
+def can_be_previewed(filename:str) -> bool:
+    # Get the file extension
+    file_extension = filename.split('.')[-1].lower()
+
+    # List of file extensions that can be previewed in most modern browsers
+    previewable_extensions = ['pdf', 'png', 'jpg', 'jpeg', 'gif', 'bmp', 'svg', 'txt', 'html', "webm"]
+
+    # Check if the file extension is in the list of previewable extensions
+    return file_extension in previewable_extensions

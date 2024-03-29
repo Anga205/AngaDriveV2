@@ -13,8 +13,8 @@ class State(rx.State):
     def increment_time(self, date):
         self.uptime = format_time(round(time.time() - self.local_start_time))
 
-    token:str = rx.Cookie(name="token")
-    is_logged_in = rx.Cookie(name="logged_in")
+    token:str = rx.LocalStorage(name="token")
+    is_logged_in = rx.LocalStorage(name="logged_in")
     username:str = "Sample Username"
     email:str = "anonymous@email.com"
     def add_token_if_not_present(self): # check if there is a token, if not, create one and then add it to database
@@ -63,7 +63,7 @@ class State(rx.State):
         self.update_account_data_components()
         self.update_account_info()
 
-    user_files: list[list] = []
+    user_files: list[list[str]] = []
     def load_files_page(self):
         self.load_any_page()
         self.user_files: list[list] = get_all_user_files_for_display(self.token)
@@ -92,7 +92,7 @@ class State(rx.State):
                 file_size=get_file_size(outfile),
                 original_file_name=file.filename
             )
-        self.user_files: list[list] = get_all_user_files_for_display(self.token)
+        self.user_files: list[list[str]] = get_all_user_files_for_display(self.token)
         yield rx.redirect("/my_drive")
     
     def upload_progressbar(self, prog):
@@ -131,7 +131,7 @@ class State(rx.State):
             )
         self.user_files = get_all_user_files_for_display(self.token)
         yield rx.clear_selected_files("file_page_upload")
-        yield rx.set_clipboard("\n".join(file_link_list))
+        yield rx.set_clipboard(", \n".join(file_link_list))
     
     def copy_file_link(self, file_obj):
         if "." in file_obj[0]:

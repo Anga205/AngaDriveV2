@@ -56,6 +56,10 @@ class CollectionState(State):
         self.load_any_page()
         self.update_collections()
 
+    def delete_collection(self, collection_id):
+        delete_collection_from_db(collection_id)
+        self.collection_ids.remove(collection_id)
+        self.display_my_collections = [x for x in self.display_my_collections if x[0] != collection_id]
 
 
 def create_new_collection_dialog(button):
@@ -109,7 +113,7 @@ def create_new_collection_dialog(button):
     )
 
 
-def confirm_delete_collection_dialog(button, collection_name):
+def confirm_delete_collection_dialog(button, collection_id, collection_name):
     return rx.dialog.root(
         rx.dialog.trigger(
             button
@@ -138,10 +142,12 @@ def confirm_delete_collection_dialog(button, collection_name):
                     rx.chakra.box(width="0px", height="10px"),
                     rx.chakra.hstack(
                         rx.chakra.spacer(),
-                        rx.button(
-                            "Delete",
-                            variant="soft",
-                            color_scheme="red",
+                        rx.dialog.close(
+                            rx.chakra.button(
+                                "Delete",
+                                color_scheme="red",
+                                on_click = lambda: CollectionState.delete_collection(collection_id)
+                            ),
                         ),
                         width="100%"
                     ),
@@ -149,10 +155,9 @@ def confirm_delete_collection_dialog(button, collection_name):
                     align_items="start"
                 ),
             ),
-            color="#0f0f0f"
+            bg="#0f0f0f"
         )
     )
-
 
 def collection_accordian(collection_obj):   # collection_obj consists of [collection_id, collection_name, file_count, file_size, editor_count]
     card_color="#1c1c1c"
@@ -229,6 +234,7 @@ def collection_accordian(collection_obj):   # collection_obj consists of [collec
                                     color="rgb(200, 0, 0)",
                                     _hover={"bg":"rgb(100, 0, 0)", "color": "rgb(255, 0, 0)"}
                                 ),
+                                collection_id=collection_obj[0],
                                 collection_name=collection_obj[1]
                             ),
                             label="Delete Collection"

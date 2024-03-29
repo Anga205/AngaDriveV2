@@ -126,12 +126,23 @@ def file_card(file_obj):
         ),
         rx.chakra.vstack(
             rx.chakra.box(
-                rx.chakra.image(
-                    src="/document.png",
-                    opacity="0.4",
-                    custom_attrs={"draggable":"false"},
-                    height="65%",
-                    width="auto"
+                rx.cond(
+                    file_obj[6],
+                    rx.el.object(
+                        data=file_obj[5],
+                        fallback=rx.text("failed to load"),
+                        opacity="0.7",
+                        custom_attrs={"draggable":"false"},
+                        height="65%",
+                        width="auto",
+                    ),
+                    rx.chakra.image(
+                        src="/document.png",
+                        opacity="0.4",
+                        custom_attrs={"draggable":"false"}, 
+                        height="65%",
+                        width="auto"
+                    )
                 ),
                 height="225px",
                 display="flex",
