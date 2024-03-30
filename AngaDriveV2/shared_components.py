@@ -21,20 +21,66 @@ def shared_navbar() -> rx.Component:
             rx.chakra.spacer(),
             rx.chakra.popover(
                 rx.chakra.popover_trigger(
-                    rx.chakra.icon(
-                        tag="bell", 
+                    rx.chakra.image(
+                        src="/health.png",
+                        custom_attrs={"draggable":"false"},
                         color="WHITE", 
-                        font_size="2.5vh"
+                        height="2vh"
                         )
                     ),
                 rx.chakra.popover_content(
                     rx.chakra.vstack(
                         rx.chakra.heading(
-                            "Notifications", 
-                            color="BLUE"
+                            "System Health", 
+                            color="RED",
+                            font_size="3.5vh"
                             ),
                         rx.chakra.divider(border_color="GRAY"),
-                        notification(),
+                        rx.chakra.box(
+                            rx.moment(
+                                interval=500, 
+                                on_change=State.tick_health
+                            ), 
+                            display="none"
+                        ),
+                        rx.chakra.box(
+                            rx.chakra.heading(
+                                rx.chakra.span(
+                                    "Uptime: ",
+                                    color="rgb(0, 100, 100)"
+                                ),
+                                rx.chakra.span(
+                                    State.uptime,
+                                    color="WHITE"
+                                ),
+                                font_size="2vh",
+                            ),
+                            rx.chakra.heading(
+                                rx.chakra.span(
+                                    "Temperature: ",
+                                    color="rgb(0, 100, 100)"
+                                ),
+                                rx.chakra.span(
+                                    State.temperature,
+                                    color="WHITE"
+                                ),
+                                font_size="2vh",
+                            ),
+                            rx.chakra.hstack(
+                                rx.chakra.circular_progress(
+                                    rx.chakra.circular_progress_label("RAM"),
+                                    value=State.ram_usage,
+                                    size="10vh"
+                                ),
+                                rx.chakra.circular_progress(
+                                    rx.chakra.circular_progress_label("CPU"),
+                                    value=State.cpu_usage,
+                                    size="10vh"
+                                )
+                            ),
+                            border_radius="0.5vh",
+                            width="100%"
+                        ),
                         color="WHITE",
                         bg="BLACK",
                         border_width="1vh",

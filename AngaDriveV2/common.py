@@ -1,4 +1,4 @@
-import datetime, time, os, random, re
+import datetime, time, os, random, re, psutil, subprocess
 
 file_directory = os.path.join("assets", "i")
 database_directory = 'rx.db'
@@ -171,3 +171,24 @@ def can_be_previewed(filename:str) -> bool:
 
     # Check if the file extension is in the list of previewable extensions
     return file_extension in previewable_extensions
+
+
+def get_cpu_temperature():
+    try:
+        output = subprocess.check_output(['vcgencmd', 'measure_temp']).decode('utf-8')
+        temperature = float(output.split('=')[1].split("'")[0])
+        return round(temperature,2)
+    except Exception as e:
+        return 0
+
+def get_system_info():
+    cpu_usage = psutil.cpu_percent(interval=1)
+    ram = psutil.virtual_memory()
+    ram_usage_percentage = ram.percent
+    system_info = {
+        "cpu_usage": cpu_usage,
+        "ram_usage_percentage": ram_usage_percentage,
+        "temperature": f"{get_cpu_temperature()}°C"
+    }
+    return system_info
+get_system_info()

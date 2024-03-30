@@ -9,9 +9,16 @@ start_time = time.time()
 class State(rx.State):
     local_start_time = float(start_time)
     uptime = format_time(round(time.time() - local_start_time))
+    temperature:str = "0°C"
+    ram_usage:int
+    cpu_usage:int
 
-    def increment_time(self, date):
+    def tick_health(self, date):
         self.uptime = format_time(round(time.time() - self.local_start_time))
+        system_info = get_system_info()
+        self.temperature = system_info["temperature"]
+        self.ram_usage = system_info["ram_usage_percentage"]
+        self.cpu_usage = system_info["cpu_usage"]
 
     token:str = rx.LocalStorage(name="token")
     is_logged_in = rx.LocalStorage(name="logged_in")

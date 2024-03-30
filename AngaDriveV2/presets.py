@@ -38,27 +38,6 @@ def user_data_card(heading = "Sample heading", content="Sample content", **kwarg
         **kwargs
     )
 
-def notification(heading = "New notification", description = "An error occured displaying this notification", timestamp = time.time()-3600, *content):
-    return rx.chakra.box(
-        rx.chakra.vstack(
-            rx.chakra.heading(heading, font_size="2vh", color="#eeeeff"),
-            rx.chakra.text(description, font_size="1.65vh", color="#bbbbcc"),
-            rx.chakra.hstack(
-                rx.chakra.spacer(),
-                rx.chakra.text(
-                    time_ago(timestamp), 
-                    color="GRAY", 
-                    font_size="1.4vh"
-                    ),
-                width="100%"
-            ),
-            border_width="0.3vh",
-            border_radius="0.3vh",
-            border_color="#101020",
-            bg="#101020"
-        ),
-    )
-
 def tpu_signup_button(**kwargs):
     return rx.chakra.button(
         rx.chakra.hstack(

@@ -61,13 +61,6 @@ def static_data_box() -> rx.Component:
             width = "100%",
             height="250%"
         ),
-        rx.chakra.box(
-            rx.moment(
-                interval=1000, 
-                on_change=State.increment_time
-                ), 
-            display="none"
-            ),
         rx.chakra.flex(
             site_data_card("Space Used", State.space_used, width="50%", height="100%"),
             rx.chakra.box(width="1vh"),
