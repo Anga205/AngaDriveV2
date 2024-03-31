@@ -12,6 +12,7 @@ class State(rx.State):
     temperature:str = "0°C"
     ram_usage:int
     cpu_usage:int
+    true:bool = True
 
 
     _n_tasks:int = 0
