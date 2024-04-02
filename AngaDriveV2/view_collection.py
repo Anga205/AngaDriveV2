@@ -1,6 +1,7 @@
 import reflex as rx
 from AngaDriveV2.shared_components import *
 from AngaDriveV2.State import State
+from AngaDriveV2.DBMS import *
 
 
 def file_card():
@@ -178,10 +179,38 @@ def file_card():
     )
 )
 
+class ViewCollectionState(State):
+
+    collection_id:str = ""
+    collection_name:str=""
+    collection_editors:list[str]=[]
+    collection_sounds:list[list[str]] = []
+    collection_images:list[list[str]] = []
+    collection_videos:list[list[str]] = []
+    collection_files:list[list[str]] = []
+    def load_collection_viewer(self):
+        self.load_any_page()
+        self.collection_id = self.router.page.params.get("id",None)
+        if self.collection_id==None:
+            return rx.redirect("/my_collections")
+        collection_data = get_collection_info_for_viewer(self.collection_id)
+        if collection_data==None:
+            return rx.redirect("/my_collections")
+        self.collection_name = collection_data["name"]
+        self.collection_editors = collection_data["editors"]
+        self.collection_sounds = [x for x in collection_data["data"] if x[0].split(".")[-1] in ["mp3","wav","ogg"]]
+        self.collection_videos = [x for x in collection_data["data"] if x[0].split(".")[-1] in ["mp4","webm","mkv","mov"]]
+        self.collection_images = [x for x in collection_data["data"] if x[0].split(".")[-1] in ["jpg","jpeg","png","gif","bmp","svg"]]
 
 def index():
     return rx.chakra.vstack(
         shared_navbar(),
+        rx.chakra.heading(
+            rx.chakra.span(
+                ViewCollectionState.collection_name, 
+                color="rgb(255,200,255)"
+                )
+        ),
         rx.chakra.hstack(
             rx.chakra.box(
                 width = "5px"

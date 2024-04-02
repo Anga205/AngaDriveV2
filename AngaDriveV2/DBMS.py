@@ -430,3 +430,19 @@ def get_file_name(file_path):
     cur.close()
     con.close()
     return filename
+
+def get_collection_info_for_viewer(collection_id):
+    con = sqlite3.connect(database_directory)
+    cur = con.cursor()
+
+    cur.execute(f"SELECT name, editors, data FROM collections WHERE id = ?", (collection_id,))
+    data:list[str] = cur.fetchone()
+    con.close()
+    name = data[0]
+    editors = data[1].split(",")
+    collection_data = eval(data[2])
+    return {
+        "name"      : name,
+        "editors"   : editors,
+        "data"      : collection_data
+    }

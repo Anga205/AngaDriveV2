@@ -8,7 +8,7 @@ app_link = "http://localhost:3000"
 file_link = f"{api_url}/i/"
 download_link = f"{api_url}/download/"
 
-truncate_string = lambda string: string if len(string)<=len('mmmmmmmmmmmmmmmmmmm') else string[0:len('mmmmmmmmmmmmmmmmmmm')]+"..."
+truncate_string = lambda string, length=19: string if len(string)<=length else string[0:length]+"..."
 
 def dbify(var):
     if var==None:
