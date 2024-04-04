@@ -14,22 +14,6 @@ class State(rx.State):
     cpu_usage:int
     true:bool = True
 
-
-    _n_tasks:int = 0
-    @rx.background
-    async def tick_health(self, date):
-        async with self:
-            if self._n_tasks>0:
-                return
-            self._n_tasks+=1
-        async with self:
-            self.uptime = format_time(round(time.time() - self.local_start_time))
-            system_info = get_system_info()
-            self.temperature = system_info["temperature"]
-            self.ram_usage = system_info["ram_usage_percentage"]
-            self.cpu_usage = system_info["cpu_usage"]
-            self._n_tasks-=1
-
     token:str = rx.LocalStorage(name="token")
     is_logged_in = rx.LocalStorage(name="logged_in")
     username:str = "Sample Username"

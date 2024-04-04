@@ -2,6 +2,7 @@ import reflex as rx
 from AngaDriveV2.State import State
 from AngaDriveV2.shared_components import *
 from AngaDriveV2.DBMS import *
+from AngaDriveV2.common import *
 
 class CollectionState(State):
     new_collection_name:str = ""
@@ -60,6 +61,9 @@ class CollectionState(State):
         delete_collection_from_db(collection_id)
         self.collection_ids.remove(collection_id)
         self.display_my_collections = [x for x in self.display_my_collections if x[0] != collection_id]
+    
+    def copy_collection(self, collection_id):
+        return rx.set_clipboard(f"{app_link}/collection?id={collection_id}")
 
 
 def create_new_collection_dialog(button):
@@ -251,7 +255,8 @@ def collection_accordian(collection_obj):   # collection_obj consists of [collec
                                 border_radius="15px",
                                 bg="rgb(75, 0, 75)",
                                 color="rgb(200, 0, 200)",
-                                _hover={"bg":"rgb(100, 100, 0)", "color": "rgb(255, 255, 0)"}
+                                _hover={"bg":"rgb(100, 100, 0)", "color": "rgb(255, 255, 0)"},
+                                on_click= lambda: CollectionState.copy_collection(collection_obj[0])
                             ),
                             label="Share Collection"
                         ),

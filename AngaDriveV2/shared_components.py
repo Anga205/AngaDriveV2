@@ -1,6 +1,38 @@
 import reflex as rx
 from AngaDriveV2.presets import *
 from AngaDriveV2.State import State
+from AngaDriveV2.DBMS import *
+from AngaDriveV2.common import *
+
+
+class SystemHealthState(State):
+    show_system_heath:bool = False
+
+    _n_tasks:int = 0
+    @rx.background
+    async def tick_health(self, date):
+        async with self:
+            if self._n_tasks>0:
+                return
+            if self.show_system_heath==False:
+                return
+            self._n_tasks+=1
+        async with self:
+            self.uptime = format_time(round(time.time() - self.local_start_time))
+            system_info = get_system_info()
+            self.temperature = system_info["temperature"]
+            self.ram_usage = system_info["ram_usage_percentage"]
+            self.cpu_usage = system_info["cpu_usage"]
+            self._n_tasks-=1
+
+    def open_system_health(self):
+        self.show_system_heath = True
+    
+    def close_system_health_no_params(self):
+        self.show_system_heath = False
+
+    def close_system_health(self, junk=False):
+        self.close_system_health_no_params()
 
 def shared_navbar() -> rx.Component:
     return rx.chakra.vstack(
@@ -12,23 +44,26 @@ def shared_navbar() -> rx.Component:
                 src="/logo.png", 
                 height="5vh", 
                 custom_attrs={"draggable":"false"},
-                width="auto"
+                width="auto",
+                on_click=rx.redirect("/")
                 ),
             rx.chakra.heading(
                 "DriveV2", 
-                font_size="2.5vh"
+                font_size="2.5vh",
+                on_click=rx.redirect("/")
                 ),
             rx.chakra.spacer(),
-            rx.chakra.popover(
-                rx.chakra.popover_trigger(
+            rx.popover.root(
+                rx.popover.trigger(
                     rx.chakra.image(
                         src="/health.png",
                         custom_attrs={"draggable":"false"},
                         color="WHITE", 
-                        height="2vh"
+                        height="2vh",
+                        on_click = SystemHealthState.open_system_health
                         )
                     ),
-                rx.chakra.popover_content(
+                rx.popover.content(
                     rx.chakra.vstack(
                         rx.chakra.heading(
                             "System Health", 
@@ -39,7 +74,7 @@ def shared_navbar() -> rx.Component:
                         rx.chakra.box(
                             rx.moment(
                                 interval=500, 
-                                on_change=State.tick_health
+                                on_change=SystemHealthState.tick_health
                             ), 
                             display="none"
                         ),
@@ -83,11 +118,19 @@ def shared_navbar() -> rx.Component:
                         ),
                         color="WHITE",
                         bg="BLACK",
-                        border_width="1vh",
+                        border_width="0px",
                         border_radius="0.5vh",
                         border_color="BLACK",
                     ),
+                    bg="BLACK",
+                    border_color="WHITE",
+                    border_width="1px",
+                    on_escape_key_down = SystemHealthState.close_system_health,
+                    on_pointer_down_outside= SystemHealthState.close_system_health,
+                    on_focus_outside= SystemHealthState.close_system_health,
+                    on_interact_outside=SystemHealthState.close_system_health,
                 ),
+                open = SystemHealthState.show_system_heath,
             ),
             rx.chakra.box(
                 width="0.5vh"

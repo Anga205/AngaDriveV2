@@ -438,6 +438,8 @@ def get_collection_info_for_viewer(collection_id):
     cur.execute(f"SELECT name, editors, data FROM collections WHERE id = ?", (collection_id,))
     data:list[str] = cur.fetchone()
     con.close()
+    if data==None:
+        return None
     name = data[0]
     editors = data[1].split(",")
     collection_data = eval(data[2])
