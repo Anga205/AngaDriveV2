@@ -36,6 +36,7 @@ class State(rx.State):
     user_count = 0
     collection_count = 0
     registered_user_count = "Registered Users: 0"
+    pulses:int = 0
     def update_site_data_components(self):
         self.collection_count = get_collection_count()
         self.files_hosted : int = count_files()
@@ -43,6 +44,7 @@ class State(rx.State):
         self.user_count = get_user_count()
         self.registered_user_count = f"Registered Users: {get_registered_users()}"
         self.site_activity : list[dict] = [{"date":x, "times_opened": fetch_activity_from_last_week()[x]} for x in fetch_activity_from_last_week()]
+        self.pulses = get_total_activity_pulses()
 
     user_file_count=0
     user_storage_amount="0 KB"

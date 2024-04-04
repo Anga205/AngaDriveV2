@@ -71,12 +71,24 @@ def account_info(token):
     con.close()
     return data
 
+def get_total_activity_pulses():
+    con = sqlite3.connect(database_directory)
+    cur = con.cursor()
+    cur.execute("SELECT COUNT(timestamps) FROM activity")
+    count = cur.fetchone()[0]
+    con.close()
+    return count
+
+pulse_count = get_total_activity_pulses()
+
 def add_timestamp_to_activity():
+    global pulse_count
     con = sqlite3.connect(database_directory)
     cur = con.cursor()
     cur.execute(f"INSERT INTO activity (timestamps) VALUES ({round(time.time())});")
     con.commit()
     con.close()
+    pulse_count += 1
 
 def get_user_count():
     con = sqlite3.connect(database_directory)

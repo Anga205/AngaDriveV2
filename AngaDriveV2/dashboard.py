@@ -64,7 +64,7 @@ def static_data_box() -> rx.Component:
         rx.chakra.flex(
             site_data_card("Space Used", State.space_used, width="50%", height="100%"),
             rx.chakra.box(width="1vh"),
-            site_data_card("Uptime",State.uptime, width = "50%", height="100%"),
+            site_data_card("Pulses",State.pulses, width = "50%", height="100%"),
             width="100%",
             height="100%",
         ),
