@@ -28,6 +28,8 @@ class CollectionState(State):
         self.check_if_show_button()
         
     def create_new_collection_button_click(self):
+        if self.new_collection_name == "":
+            return
         new_collection_id = create_new_collection(token=self.token ,collection_name=self.new_collection_name)
         self.collection_ids.append(new_collection_id)
         self.display_my_collections.append(collection_info_for_display(new_collection_id))

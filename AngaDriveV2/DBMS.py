@@ -460,3 +460,27 @@ def get_collection_info_for_viewer(collection_id):
         "editors"   : editors,
         "data"      : collection_data
     }
+
+def get_file_info_for_card(file_path:str):
+    con = sqlite3.connect(database_directory)
+    cur = con.cursor()
+
+    get_og_name = lambda file_directory_list: ".".join(file_directory_list[:-1]) if (len(file_directory_list)>1) else ".".join(file_directory_list)
+
+    cur.execute("SELECT original_file_name, file_size, timestamp FROM file_data WHERE file_directory = ?",(file_path,))
+    cur.fetchone()
+
+    file_data = list(cur)
+    cur.close()
+    con.close()
+
+    return [
+        file_path,                                  # like vb78duvhs6s.png
+        file_data[0],                               # like original_name.png
+        truncate_string(file_data[0] ,length=12),   # like origina....
+        format_bytes(file_data[1]),                 # like 75.1 KB
+        time.ctime(file_data[2]),                   # like wed 23 jun 2023
+        file_link+file_path,                        # like https://file.anga.pro/i/vb78duvhs6s.png
+        file_link+os.path.join(get_og_name(file_path.split(".")), file_data[0]),    # like https://file.anga.pro/i/vb78duvhs6s/original_name.png
+        download_link+file_path # link https://file.anga.pro/download/vb78duvhs6s.png
+    ]

@@ -188,6 +188,7 @@ class ViewCollectionState(State):
     collection_images:list[list[str]] = []
     collection_videos:list[list[str]] = []
     collection_files:list[list[str]] = []
+    is_collection_owner:bool = False
     def load_collection_viewer(self):
         self.load_any_page()
         self.collection_id = self.router.page.params.get("id",None)
@@ -198,6 +199,7 @@ class ViewCollectionState(State):
             return rx.redirect("/my_collections")
         self.collection_name = collection_data["name"]
         self.collection_editors = collection_data["editors"]
+        self.is_collection_owner = self.token in collection_data["editors"]
         self.collection_sounds = [x for x in collection_data["data"] if x[0].split(".")[-1] in ["mp3","wav","ogg"]]
         self.collection_videos = [x for x in collection_data["data"] if x[0].split(".")[-1] in ["mp4","webm","mkv","mov"]]
         self.collection_images = [x for x in collection_data["data"] if x[0].split(".")[-1] in ["jpg","jpeg","png","gif","bmp","svg"]]
@@ -205,24 +207,40 @@ class ViewCollectionState(State):
 def index():
     return rx.chakra.vstack(
         shared_navbar(),
-        rx.chakra.heading(
-            rx.chakra.span(
-                ViewCollectionState.collection_name, 
-                color="rgb(255,200,255)"
-                )
+        rx.chakra.hstack(
+            rx.chakra.spacer(),
+            rx.chakra.heading(
+                ViewCollectionState.collection_name,
+                color="WHITE"
+            ),
+            rx.cond(
+                ViewCollectionState.is_collection_owner,
+                rx.chakra.icon(
+                    tag="edit",
+                    color="WHITE",
+                ),
+                rx.chakra.box(height="0px", width="0px")
+            ),
+            rx.chakra.spacer(),
+            rx.chakra.tooltip(
+                rx.checkbox(),
+                label="Album View"
+            ),
+            width="95%"
         ),
         rx.chakra.hstack(
             rx.chakra.box(
-                width = "5px"
+                width = "20px"
             ),
-            file_card(),
+            rx.text("lorem ipsum", color="WHITE"),
             rx.chakra.box(
-                width = "5px"
+                width = "20px"
             ),
-            spacing="0px"
+            spacing="0px",
+            width="100%",
         ),
         rx.chakra.box(
-            height="0px"
+            height="20px"
         ),
         spacing="5px",
         bg = "#0f0f0f",
