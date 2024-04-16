@@ -174,7 +174,7 @@ def get_all_user_files_for_display(account_token):
     rows = [[x[0], x[1], format_bytes(x[2]), time.ctime(x[3]), truncate_string(x[0]), file_link+x[1], can_be_previewed(x[1])] for x in cur]
 
     # so a sample of one element would look like this:
-    # ["unchangedfilename.png", "pgfubcid.png", time.time(), "unchanged...", "http://localhost:8000/i/pgfubcid.png", True]
+    # ["unchangedfilename.png", "pgfubcid.png", "72.1KB", time.time(), "unchanged...", "http://localhost:8000/i/pgfubcid.png", True]
 
     con.close()
 
@@ -461,6 +461,8 @@ def get_collection_info_for_viewer(collection_id):
         "data"      : collection_data
     }
 
+
+@lru_cache(maxsize=200)
 def get_file_info_for_card(file_path:str):
     con = sqlite3.connect(database_directory)
     cur = con.cursor()
@@ -474,13 +476,14 @@ def get_file_info_for_card(file_path:str):
     cur.close()
     con.close()
 
+    # ["unchangedfilename.png", "pgfubcid.png", "72.1KB", time.time(), "unchanged...", "http://localhost:8000/i/pgfubcid.png", True]
+
     return [
-        file_path,                                  # like vb78duvhs6s.png
         file_data[0],                               # like original_name.png
-        truncate_string(file_data[0] ,length=12),   # like origina....
+        file_path,                                  # like vb78duvhs6s.png
         format_bytes(file_data[1]),                 # like 75.1 KB
         time.ctime(file_data[2]),                   # like wed 23 jun 2023
+        truncate_string(file_data[0], length=12),   # like origina....
         file_link+file_path,                        # like https://file.anga.pro/i/vb78duvhs6s.png
-        file_link+os.path.join(get_og_name(file_path.split(".")), file_data[0]),    # like https://file.anga.pro/i/vb78duvhs6s/original_name.png
-        download_link+file_path # link https://file.anga.pro/download/vb78duvhs6s.png
+        can_be_previewed(file_path)                 # like True
     ]
