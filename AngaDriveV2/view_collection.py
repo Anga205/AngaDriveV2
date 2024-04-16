@@ -36,14 +36,14 @@ class ViewCollectionState(State):
 class AddFileDialogState(ViewCollectionState):
     dialog_open_bool:bool = False
 
+    user_files_bool:bool = False
     def open_dialog(self):
         self.dialog_open_bool = True
-    
-    def close_dialog_no_inputs(self):
-        self.dialog_open_bool = False
+        self.user_files_bool = does_user_have_files(self.token)
     
     def close_dialog(self, arg=None):
-        self.close_dialog_no_inputs()
+        self.dialog_open_bool = False
+        rx.clear_selected_files("view_collection_upload")
 
 def add_file_to_collection_dialog(trigger, **kwargs):
     return rx.dialog.root(
@@ -52,10 +52,49 @@ def add_file_to_collection_dialog(trigger, **kwargs):
         ),
         rx.dialog.content(
             rx.dialog.title(
-                "Add file(s) to collection"
+                "Add file(s) to collection",
+                color="WHITE"
             ),
             rx.dialog.description(
-                rx.button("lorem ipsum dolor sit amet"),
+                rx.vstack(
+                    rx.upload(
+                        rx.cond(
+                            rx.selected_files("view_collection_upload"),
+                            rx.chakra.vstack(
+                                rx.chakra.box(
+                                    height="5vh"
+                                ),
+                                rx.foreach(
+                                    rx.selected_files("view_collection_upload"),
+                                    rx.chakra.text
+                                ),
+                                rx.chakra.box(
+                                    height="5vh"
+                                )
+                            ),
+                            rx.chakra.vstack(
+                                rx.spacer(),
+                                rx.chakra.text("Drag and drop files here or click to select files"),
+                                rx.spacer(),
+                                height="15vh"
+                            ),
+                        ),
+                        display='flex',
+                        width="100%",
+                        color="WHITE",
+                        justify_content= 'center',
+                        align_items= 'center',
+                        border="1px dotted #0000ff",
+                        id="view_collection_upload"
+                    ),
+                    rx.chakra.hstack(
+                        rx.chakra.divider(),
+                        rx.chakra.text("OR", color="GRAY"),
+                        rx.chakra.divider(),
+                        width="100%",
+                        border_color="GRAY"
+                    )
+                )
             ),
             on_interact_outside=AddFileDialogState.close_dialog,
             on_escape_key_down=AddFileDialogState.close_dialog,

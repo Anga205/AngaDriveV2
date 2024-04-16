@@ -12,7 +12,6 @@ class State(rx.State):
     temperature:str = "0°C"
     ram_usage:int
     cpu_usage:int
-    true:bool = True
 
     token:str = rx.LocalStorage(name="token")
     is_logged_in = rx.LocalStorage(name="logged_in")

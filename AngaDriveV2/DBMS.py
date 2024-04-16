@@ -467,8 +467,6 @@ def get_file_info_for_card(file_path:str):
     con = sqlite3.connect(database_directory)
     cur = con.cursor()
 
-    get_og_name = lambda file_directory_list: ".".join(file_directory_list[:-1]) if (len(file_directory_list)>1) else ".".join(file_directory_list)
-
     cur.execute("SELECT original_file_name, file_size, timestamp FROM file_data WHERE file_directory = ?",(file_path,))
     cur.fetchone()
 
