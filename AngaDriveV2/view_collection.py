@@ -39,11 +39,43 @@ class AddFileDialogState(ViewCollectionState):
     user_files_bool:bool = False
     def open_dialog(self):
         self.dialog_open_bool = True
+        if self.user_files==[]:
+            self.user_files = get_all_user_files_for_display(self.token)
         self.user_files_bool = does_user_have_files(self.token)
     
     def close_dialog(self, arg=None):
         self.dialog_open_bool = False
         rx.clear_selected_files("view_collection_upload")
+    
+    selected_files:list[str] = []
+
+def file_hovercard(file_obj):
+    return rx.chakra.vstack(
+        file_name_header(
+            file_obj,
+            border_radius="1vh 1vh 0vh 0vh"
+        ),
+        file_details(
+            file_obj,
+            border_radius="0vh 0vh 1vh 1vh"
+        ),
+        spacing="0px",
+        width="290px"
+    )
+
+def file_selection_checkbox(file_obj):
+    return rx.hstack(
+        rx.checkbox(),
+        rx.hover_card.root(
+            rx.hover_card.trigger(
+                rx.text(file_obj[0])
+            ),
+            rx.hover_card.content(
+                file_hovercard(file_obj),
+                bg="#000000"
+            )
+        )
+    )
 
 def add_file_to_collection_dialog(trigger, **kwargs):
     return rx.dialog.root(
@@ -93,6 +125,26 @@ def add_file_to_collection_dialog(trigger, **kwargs):
                         rx.chakra.divider(),
                         width="100%",
                         border_color="GRAY"
+                    ),
+                    rx.accordion.root(
+                        rx.accordion.item(
+                            header="Add existing files",
+                            content=rx.scroll_area(
+                                rx.vstack(
+                                    rx.foreach(
+                                        State.user_files,
+                                        file_selection_checkbox
+                                    ),
+                                    style={"height":200}
+                                ),
+                                bg="#111111",
+                                padding="10px",
+                                border_radius="5px"
+                            ),
+                        ),
+                        collapsible=True,
+                        color_scheme="indigo",
+                        width="100%",
                     )
                 )
             ),
