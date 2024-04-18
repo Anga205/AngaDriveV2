@@ -273,7 +273,7 @@ class LoginSwitchState(LoginState):
     login_switch_state:bool = False
     should_it_load_switch:bool = False
 
-    def mount_login_switch(self):
+    def update_login_switch(self):
         self.should_it_load_switch = does_user_have_files(self.token)
         self.login_switch_state = self.should_it_load_switch
 
@@ -304,13 +304,14 @@ def data_transfer_on_login_switch():
         rx.chakra.box(
             height="0px",
             width="0px",
-            on_mount=LoginSwitchState.mount_login_switch
+            on_mount=LoginSwitchState.update_login_switch
         )
     )
 
 class LoginButtonState(LoginSwitchState):
     def on_login_button_press(self):
         check_login = user_login(self.login_email_id, self.login_password)
+        self.update_login_switch()
         if False in check_login:
             return rx.window_alert(check_login[False])
         else:
@@ -322,7 +323,8 @@ class LoginButtonState(LoginSwitchState):
             self.is_logged_in = "True"
             self.update_account_info()
             if self.login_switch_state:
-                migrate_files(old_token=old_token, new_token=self.token)
+                migrate_files(old_token=old_token, new_token=check_login[True])
+            self.update_account_data_components()
 
 def login_form():
     return rx.chakra.vstack(

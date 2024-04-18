@@ -68,7 +68,7 @@ def file_selection_checkbox(file_obj):
         rx.checkbox(),
         rx.hover_card.root(
             rx.hover_card.trigger(
-                rx.text(file_obj[0])
+                rx.text(file_obj["original_name"])
             ),
             rx.hover_card.content(
                 file_hovercard(file_obj),
@@ -165,17 +165,22 @@ def index():
                 label="Album View"
             ),
             rx.chakra.spacer(),
-            rx.chakra.heading(
-                ViewCollectionState.collection_name,
-                color="WHITE"
-            ),
             rx.cond(
                 ViewCollectionState.is_collection_owner,
-                rx.chakra.icon(
-                    tag="edit",
+                rx.chakra.editable(
+                    rx.chakra.editable_preview(),
+                    rx.chakra.editable_input(),
+                    placeholder=ViewCollectionState.collection_name,
                     color="WHITE",
+                    font_size="3vh",
+                    style={"font-weight":"bold"},
                 ),
-                rx.chakra.box(height="0px", width="0px")
+                rx.chakra.text(
+                    ViewCollectionState.collection_name,
+                    color="WHITE",
+                    font_size="3vh",
+                    as_ = "b"
+                ),
             ),
             rx.chakra.spacer(),
             rx.cond(

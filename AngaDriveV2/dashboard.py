@@ -133,8 +133,9 @@ class AccountEditorState(State):
     def logout(self):
         self.token = gen_token()
         self.is_logged_in = ""
-        self.username:str = "Sample Username"
-        self.email:str = "anonymous@email.com"
+        self.username:str = "{username}"
+        self.email:str = "{email_id}"
+        self.update_account_data_components()
 
     account_deletion_dialog:bool = False
     account_deletion_password:str = ""

@@ -349,7 +349,7 @@ def migrate_files(old_token, new_token):
     con = sqlite3.connect(database_directory)
     cur = con.cursor()
 
-    cur.execute("UPDATE file_data SET account_token = ? WHERE account_token = ?", (old_token, new_token))
+    cur.execute("UPDATE file_data SET account_token = ? WHERE account_token = ?", (new_token, old_token))
 
     con.commit()
     con.close()
