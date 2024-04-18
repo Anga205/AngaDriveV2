@@ -164,18 +164,22 @@ def add_file_to_database(original_file_name, file_directory, account_token, file
     con.commit()
     con.close()
 
-def get_all_user_files_for_display(account_token):
+def get_all_user_files_for_display(account_token) -> list[dict[str, str]]:
 
     con = sqlite3.connect(database_directory)
     cur = con.cursor()
 
     cur.execute(f"SELECT original_file_name, file_directory, file_size, timestamp FROM file_data WHERE account_token = ?", (account_token,))
 
-    rows = [[x[0], x[1], format_bytes(x[2]), time.ctime(x[3]), truncate_string(x[0]), file_link+x[1], can_be_previewed(x[1])] for x in cur]
-
-    # so a sample of one element would look like this:
-    # ["unchangedfilename.png", "pgfubcid.png", "72.1KB", time.time(), "unchanged...", "http://localhost:8000/i/pgfubcid.png", True]
-
+    rows = [{
+        "original_name" : x[0],                                 # like original_name.png
+        "file_path"     : x[1],                                 # like vb78duvhs6s.png
+        "size"          : format_bytes(x[2]),                   # like 75.1 KB
+        "timestamp"     : time.ctime(x[3]),             # like wed 23 jun 2023
+        "truncated_name": truncate_string(x[0], length=12),     # like origina....
+        "file_link"     : file_link+x[1],                       # like https://file.anga.pro/i/vb78duvhs6s.png
+        "previewable"   : can_be_previewed(x[1])                # like True
+    } for x in cur]
     con.close()
 
     return rows
@@ -463,7 +467,7 @@ def get_collection_info_for_viewer(collection_id):
 
 
 @lru_cache(maxsize=200)
-def get_file_info_for_card(file_path:str):
+def get_file_info_for_card(file_path:str) -> dict[str,str]:
     con = sqlite3.connect(database_directory)
     cur = con.cursor()
 
@@ -476,12 +480,12 @@ def get_file_info_for_card(file_path:str):
 
     # ["unchangedfilename.png", "pgfubcid.png", "72.1KB", time.time(), "unchanged...", "http://localhost:8000/i/pgfubcid.png", True]
 
-    return [
-        file_data[0],                               # like original_name.png
-        file_path,                                  # like vb78duvhs6s.png
-        format_bytes(file_data[1]),                 # like 75.1 KB
-        time.ctime(file_data[2]),                   # like wed 23 jun 2023
-        truncate_string(file_data[0], length=12),   # like origina....
-        file_link+file_path,                        # like https://file.anga.pro/i/vb78duvhs6s.png
-        can_be_previewed(file_path)                 # like True
-    ]
+    return {
+        "original_name" : file_data[0],                               # like original_name.png
+        "file_path"     : file_path,                                  # like vb78duvhs6s.png
+        "size"          : format_bytes(file_data[1]),                 # like 75.1 KB
+        "timestamp"     : time.ctime(file_data[2]),                   # like wed 23 jun 2023
+        "truncated_name": truncate_string(file_data[0], length=12),   # like origina....
+        "file_link"     : file_link+file_path,                        # like https://file.anga.pro/i/vb78duvhs6s.png
+        "previewable"   : can_be_previewed(file_path)                 # like True
+    }

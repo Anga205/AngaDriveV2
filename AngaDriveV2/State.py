@@ -32,25 +32,25 @@ class State(rx.State):
     files_hosted : int = 0
     space_used : str = "0 KB"
     site_activity : list[dict] = [{"date":x, "times_opened": fetch_activity_from_last_week()[x]} for x in fetch_activity_from_last_week()]
-    user_count = 0
-    collection_count = 0
-    registered_user_count = "Registered Users: 0"
+    user_count: int = 0
+    collection_count: int = 0
+    registered_user_count: str = "Registered Users: 0"
     pulses:int = 0
     def update_site_data_components(self):
         self.collection_count = get_collection_count()
         self.files_hosted : int = count_files()
         self.space_used : str = get_all_files_size()
         self.user_count = get_user_count()
-        self.registered_user_count = f"Registered Users: {get_registered_users()}"
+        self.registered_user_count: str = f"Registered Users: {get_registered_users()}"
         self.site_activity : list[dict] = [{"date":x, "times_opened": fetch_activity_from_last_week()[x]} for x in fetch_activity_from_last_week()]
-        self.pulses = get_total_activity_pulses()
+        self.pulses: int = get_total_activity_pulses()
 
     user_file_count=0
     user_storage_amount="0 KB"
     def update_account_data_components(self):
-        data = get_all_user_files_for_display(self.token)
-        self.user_file_count = len(data)
-        self.user_storage_amount = get_sum_of_user_file_sizes(self.token)
+        data: list[dict[str, str]] = get_all_user_files_for_display(self.token)
+        self.user_file_count: int = len(data)
+        self.user_storage_amount: str = get_sum_of_user_file_sizes(self.token)
 
     state_initialized:bool = False
     def load_any_page(self):
@@ -65,10 +65,10 @@ class State(rx.State):
         self.update_account_data_components()
         self.update_account_info()
 
-    user_files: list[list[str]] = []
+    user_files: list[dict[str, str]] = []
     def load_files_page(self):
         self.load_any_page()
-        self.user_files: list[list] = get_all_user_files_for_display(self.token)
+        self.user_files: list[dict[str, str]] = get_all_user_files_for_display(self.token)
 
 
     async def page_not_found_redirect_back_to_home_page(self):
@@ -94,7 +94,7 @@ class State(rx.State):
                 file_size=get_file_size(outfile),
                 original_file_name=file.filename
             )
-        self.user_files: list[list[str]] = get_all_user_files_for_display(self.token)
+        self.user_files: list[dict[str, str]] = get_all_user_files_for_display(self.token)
         yield rx.redirect("/my_drive")
     
     def upload_progressbar(self, prog):
@@ -103,7 +103,7 @@ class State(rx.State):
             self.upload_progress=0
     
     def delete_file(self, file_obj):
-        filename = file_obj[1]
+        filename = file_obj["file_path"]
         try:
             os.remove(os.path.join(file_directory,filename))
             try:
@@ -112,7 +112,7 @@ class State(rx.State):
                 print(f"Error occured in execuring AngaDriveV2.State.delete_file.remove_file_from_database: {file_obj}")
         except Exception as e:
             print(f"Error occured in execuring AngaDriveV2.State.delete_file.os_remove: {file_obj}\nError was: {e}")
-        self.user_files = get_all_user_files_for_display(self.token)
+        self.user_files: list[dict[str, str]] = get_all_user_files_for_display(self.token)
 
     
     async def handle_file_page_upload(self, files: list[rx.UploadFile]):
@@ -131,23 +131,23 @@ class State(rx.State):
                 file_size=get_file_size(outfile),
                 original_file_name=file.filename
             )
-        self.user_files = get_all_user_files_for_display(self.token)
+        self.user_files: list[dict[str, str]] = get_all_user_files_for_display(self.token)
         yield rx.clear_selected_files("file_page_upload")
         yield rx.set_clipboard(", \n".join(file_link_list))
     
     def copy_file_link(self, file_obj):
-        if "." in file_obj[0]:
-            file_path = os.path.join(file_obj[1].split(".")[0], file_obj[0])
+        if "." in file_obj["original_name"]:
+            file_path = os.path.join(file_obj["file_path"].split(".")[0], file_obj["original_name"])
         else:
-            file_path = os.path.join(file_obj[1], file_obj[0])
+            file_path = os.path.join(file_obj["file_path"], file_obj["original_name"])
         return rx.set_clipboard(file_link+file_path)
     
     def copy_file_path(self, file_obj):
-        return rx.set_clipboard(file_link+file_obj[1])
+        return rx.set_clipboard(file_link+file_obj["file_path"])
 
     def copy_download_link(self, file_obj):
-        return rx.set_clipboard(download_link+file_obj[1])
+        return rx.set_clipboard(download_link+file_obj["file_path"])
     
     def download_file(self, file_obj):
         add_timestamp_to_activity()
-        return rx.download("/"+os.path.join("..",file_directory,file_obj[1]), filename=file_obj[0])
+        return rx.download("/"+os.path.join("..",file_directory,file_obj["file_path"]), filename=file_obj["original_name"])

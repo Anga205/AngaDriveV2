@@ -266,8 +266,8 @@ def site_template(page_opened, components=rx.spacer()):
 def file_name_header(file_obj, **kwargs):
     return rx.chakra.hstack(
         rx.chakra.spacer(),
-        rx.chakra.text(
-            file_obj[4], # truncated original file name like sample.png
+        rx.text(
+            file_obj["truncated_name"], # truncated original file name like sample.png
             font_size="20px",
             color="WHITE"
             ),
@@ -284,9 +284,9 @@ def file_details(file_obj, **kwargs):
     return rx.chakra.vstack(
         rx.chakra.box(
             rx.cond(
-                file_obj[6],
+                file_obj["previewable"],
                 rx.el.object(
-                    data=file_obj[5],
+                    data=file_obj["file_link"],
                     fallback=rx.text("failed to load"),
                     opacity="0.7",
                     custom_attrs={"draggable":"false"},
@@ -327,13 +327,13 @@ def file_details(file_obj, **kwargs):
             ),
             rx.chakra.vstack(
                 rx.chakra.text(
-                    file_obj[1] # file directory like 9487br483.png
+                    file_obj["file_path"] # file directory like 9487br483.png
                 ),
                 rx.chakra.text(
-                    file_obj[3] # timestamp like time.ctime
+                    file_obj["timestamp"] # timestamp like time.ctime
                 ),
                 rx.chakra.text(
-                    file_obj[2] # file size like 32KB
+                    file_obj["size"] # file size like 32KB
                 ),
                 spacing="0vh",
                 justify="start",
