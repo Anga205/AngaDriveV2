@@ -160,9 +160,16 @@ def index():
     return rx.chakra.vstack(
         shared_navbar(),
         rx.chakra.hstack(
-            rx.chakra.tooltip(
-                rx.checkbox(),
-                label="Album View"
+            rx.cond(
+                ViewCollectionState.collection_name,
+                rx.chakra.tooltip(
+                    rx.checkbox(),
+                    label="Album View"
+                ),
+                rx.box(
+                    width="0px",
+                    height="0px"
+                )
             ),
             rx.chakra.spacer(),
             rx.cond(

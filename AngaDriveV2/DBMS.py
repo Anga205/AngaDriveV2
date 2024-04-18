@@ -176,13 +176,13 @@ def get_all_user_files_for_display(account_token) -> list[dict[str, str]]:
         "file_path"     : x[1],                                 # like vb78duvhs6s.png
         "size"          : format_bytes(x[2]),                   # like 75.1 KB
         "timestamp"     : time.ctime(x[3]),             # like wed 23 jun 2023
-        "truncated_name": truncate_string(x[0], length=12),     # like origina....
+        "truncated_name": truncate_string(x[0], length=20),     # like origina....
         "file_link"     : file_link+x[1],                       # like https://file.anga.pro/i/vb78duvhs6s.png
         "previewable"   : can_be_previewed(x[1])                # like True
     } for x in cur]
     con.close()
 
-    return rows
+    return list(reversed(rows))       # reversed to put the most recently uploaded files at the top
 
 def remove_file_from_database(file_directory):
     
@@ -485,7 +485,7 @@ def get_file_info_for_card(file_path:str) -> dict[str,str]:
         "file_path"     : file_path,                                  # like vb78duvhs6s.png
         "size"          : format_bytes(file_data[1]),                 # like 75.1 KB
         "timestamp"     : time.ctime(file_data[2]),                   # like wed 23 jun 2023
-        "truncated_name": truncate_string(file_data[0], length=12),   # like origina....
+        "truncated_name": truncate_string(file_data[0], length=20),   # like origina....
         "file_link"     : file_link+file_path,                        # like https://file.anga.pro/i/vb78duvhs6s.png
         "previewable"   : can_be_previewed(file_path)                 # like True
     }

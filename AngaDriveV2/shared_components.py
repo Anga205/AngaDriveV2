@@ -266,11 +266,14 @@ def site_template(page_opened, components=rx.spacer()):
 def file_name_header(file_obj, **kwargs):
     return rx.chakra.hstack(
         rx.chakra.spacer(),
-        rx.text(
-            file_obj["truncated_name"], # truncated original file name like sample.png
-            font_size="20px",
-            color="WHITE"
+        rx.chakra.tooltip(
+            rx.text(
+                file_obj["truncated_name"], # truncated original file name like sample.png
+                font_size="20px",
+                color="WHITE"
             ),
+            label=file_obj["original_name"]
+        ),
         rx.chakra.spacer(),
         bg="#1c1c1c",
         border_color="#1c1c1c",
@@ -403,18 +406,21 @@ def file_editor_menu(file_obj, **kwargs):
         ),
         rx.chakra.tooltip(
             rx.chakra.button(
-                rx.chakra.icon(
-                    tag="plus_square",
-                    width="5vh"
+                rx.chakra.image(
+                    src="/eye.png",
+                    width="100%",
+                    height="auto",
+                    custom_attrs={"draggable":"false"}
                 ),
                 color="#ffb100",
                 bg = "#302400",
                 _hover = {"bg":"#413511","color":"#ffc200"},
                 border_radius="2vh",
                 height="30px",
-                width="15%",
+                width="17%",
+                on_click=rx.redirect(file_obj["file_link"], external=True)
             ),
-            label="Add to collection"
+            label="View file"
         ),
         justify_content="center",
         align_items="center",
