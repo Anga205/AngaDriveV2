@@ -466,29 +466,39 @@ def get_collection_info_for_viewer(collection_id):
     }
 
 
-@lru_cache(maxsize=200)
 def get_file_info_for_card(file_path:str) -> dict[str,str]:
-    con = sqlite3.connect(database_directory)
-    cur = con.cursor()
+    try:
+        con = sqlite3.connect(database_directory)
+        cur = con.cursor()
 
-    cur.execute("SELECT original_file_name, file_size, timestamp FROM file_data WHERE file_directory = ?",(file_path,))
-    cur.fetchone()
+        cur.execute("SELECT original_file_name, file_size, timestamp FROM file_data WHERE file_directory = ?",(file_path,))
 
-    file_data = list(cur)
-    cur.close()
-    con.close()
+        file_data = cur.fetchone()
+        cur.close()
+        con.close()
 
-    # ["unchangedfilename.png", "pgfubcid.png", "72.1KB", time.time(), "unchanged...", "http://localhost:8000/i/pgfubcid.png", True]
+        # ["unchangedfilename.png", "pgfubcid.png", "72.1KB", time.time(), "unchanged...", "http://localhost:8000/i/pgfubcid.png", True]
 
-    return {
-        "original_name" : file_data[0],                               # like original_name.png
-        "file_path"     : file_path,                                  # like vb78duvhs6s.png
-        "size"          : format_bytes(file_data[1]),                 # like 75.1 KB
-        "timestamp"     : time.ctime(file_data[2]),                   # like wed 23 jun 2023
-        "truncated_name": truncate_string(file_data[0], length=20),   # like origina....
-        "file_link"     : file_link+file_path,                        # like https://file.anga.pro/i/vb78duvhs6s.png
-        "previewable"   : can_be_previewed(file_path)                 # like True
-    }
+        return {
+            "original_name" : file_data[0],                               # like original_name.png
+            "file_path"     : file_path,                                  # like vb78duvhs6s.png
+            "size"          : format_bytes(file_data[1]),                 # like 75.1 KB
+            "timestamp"     : time.ctime(file_data[2]),                   # like wed 23 jun 2023
+            "truncated_name": truncate_string(file_data[0], length=20),   # like origina....
+            "file_link"     : file_link+file_path,                        # like https://file.anga.pro/i/vb78duvhs6s.png
+            "previewable"   : can_be_previewed(file_path)                 # like True
+        }
+    except Exception as e:
+        print(f"Error occured when running AngaDriveV2.DBMS.get_file_info_for_card\nVar Dump:\nfile_path: {file_path}\nfile_path_type: {type(file_path)}\nError: {e}")
+        return {
+            "original_name" : "Error",
+            "file_path"     : "Error",
+            "size"          : "Error",
+            "timestamp"     : "Error",
+            "truncated_name": "Error",
+            "file_link"     : "Error",
+            "previewable"   : False
+        }
 
 def add_file_to_collection(collection_id, file_path):
     con = sqlite3.connect(database_directory)

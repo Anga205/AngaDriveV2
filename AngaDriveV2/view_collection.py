@@ -9,10 +9,6 @@ class ViewCollectionState(State):
     collection_id:str = ""
     collection_name:str=""
     collection_editors:list[str]=[]
-    collection_sounds:list[dict[str,str]] = []
-    collection_images:list[dict[str,str]] = []
-    collection_videos:list[dict[str,str]] = []
-    collection_documents:list[dict[str,str]] = []
     collection_files:list[dict[str,str]] = []
     is_collection_owner:bool = False
     def load_collection_viewer(self):
@@ -27,11 +23,7 @@ class ViewCollectionState(State):
         self.collection_editors = collection_data["editors"]
         self.is_collection_owner = self.token in collection_data["editors"]
         collection_files = collection_data["data"]["Files"]
-        self.collection_sounds: list[dict[str,str]] = [get_file_info_for_card(x) for x in collection_files if x[0].split(".")[-1] in ["mp3","wav","ogg"]]
-        self.collection_videos: list[dict[str,str]] = [get_file_info_for_card(x) for x in collection_files if x[0].split(".")[-1] in ["mp4","webm","mkv","mov"]]
-        self.collection_images: list[dict[str,str]] = [get_file_info_for_card(x) for x in collection_files if x[0].split(".")[-1] in ["jpg","jpeg","png","gif","bmp","svg"]]
         self.collection_files: list[dict[str,str]] = [get_file_info_for_card(x) for x in collection_files]
-        self.collection_documents: list[dict[str,str]] = [get_file_info_for_card(x) for x in self.collection_files if x not in [*self.collection_sounds, *self.collection_videos, *self.collection_images]]
 
     def print_selected_files(self):
         print("hello!")
@@ -75,6 +67,12 @@ class AddFileDialogState(ViewCollectionState):
             outfile = os.path.join(file_directory,filename)
             with open(outfile, "wb") as f:
                 f.write(upload_data)
+            add_file_to_database(
+                account_token=self.token,
+                file_directory=filename,
+                file_size=get_file_size(outfile),
+                original_file_name=file.filename
+            )
             add_file_to_collection(collection_id=self.collection_id, file_path=filename)
         self.close_dialog()
         self.load_collection_viewer()
@@ -314,7 +312,6 @@ def index():
                 width = "20px"
             ),
             spacing="0px",
-            width="100%",
         ),
         rx.chakra.box(
             height="20px"
