@@ -18,7 +18,7 @@ class ViewCollectionState(State):
     def load_collection_viewer(self):
         self.load_any_page()
         self.collection_id = self.router.page.params.get("id",None)
-        if self.collection_id==None:
+        if self.collection_id==None: 
             return rx.redirect("/my_collections")
         collection_data = get_collection_info_for_viewer(self.collection_id)
         if collection_data==None:
@@ -33,21 +33,52 @@ class ViewCollectionState(State):
         self.collection_files: list[dict[str,str]] = [get_file_info_for_card(x) for x in collection_files]
         self.collection_documents: list[dict[str,str]] = [get_file_info_for_card(x) for x in self.collection_files if x not in [*self.collection_sounds, *self.collection_videos, *self.collection_images]]
 
+    def print_selected_files(self):
+        print("hello!")
+
 class AddFileDialogState(ViewCollectionState):
     dialog_open_bool:bool = False
+    user_files_in_collection: dict[str, bool] = []
 
-    user_files_bool:bool = False
+    user_has_files_bool:bool = False
     def open_dialog(self):
         self.dialog_open_bool = True
         if self.user_files==[]:
             self.user_files = get_all_user_files_for_display(self.token)
-        self.user_files_bool = does_user_have_files(self.token)
+        self.user_has_files_bool = does_user_have_files(self.token)
+        self.user_files_in_collection = {x["file_path"]:x in self.collection_files for x in self.user_files}
+        self.new_user_files_in_collection = self.user_files_in_collection.copy()
     
-    def close_dialog(self, arg=None):
+    def close_dialog(self):
         self.dialog_open_bool = False
-        rx.clear_selected_files("view_collection_upload")
+        self.display_add_files_button:bool = False
+        return rx.clear_selected_files("view_collection_upload")
+
+    new_user_files_in_collection: dict[str, bool] = {}
+    def change_file_status(self, file_path:str, status:bool):
+        self.new_user_files_in_collection[file_path] = status
+        self.update_add_files_button()
+
+    display_add_files_button:bool = False
+    def update_add_files_button(self):
+        if self.new_user_files_in_collection != self.user_files_in_collection:
+            self.display_add_files_button = True
+        else:
+            self.display_add_files_button = False
     
-    selected_files:list[str] = []
+    async def upload_file_to_collection(self, files: list[rx.UploadFile]):
+        filenames = []
+        for file in files:
+            upload_data = await file.read()
+            filename = gen_filename(file.filename)
+            filenames.append(filename)
+            outfile = os.path.join(file_directory,filename)
+            with open(outfile, "wb") as f:
+                f.write(upload_data)
+            add_file_to_collection(collection_id=self.collection_id, file_path=filename)
+        self.close_dialog()
+        self.load_collection_viewer()
+
 
 def file_hovercard(file_obj):
     return rx.chakra.vstack(
@@ -65,7 +96,11 @@ def file_hovercard(file_obj):
 
 def file_selection_checkbox(file_obj):
     return rx.hstack(
-        rx.checkbox(),
+        rx.checkbox(
+            checked=AddFileDialogState.new_user_files_in_collection[file_obj["file_path"]],
+            on_change=lambda update: AddFileDialogState.change_file_status(file_obj["file_path"],update),
+            disabled=~AddFileDialogState.user_files_in_collection[file_obj["file_path"]]
+        ),
         rx.hover_card.root(
             rx.hover_card.trigger(
                 rx.text(file_obj["original_name"])
@@ -117,44 +152,93 @@ def add_file_to_collection_dialog(trigger, **kwargs):
                         justify_content= 'center',
                         align_items= 'center',
                         border="1px dotted #0000ff",
-                        id="view_collection_upload"
+                        id="view_collection_upload",
                     ),
-                    rx.chakra.hstack(
-                        rx.chakra.divider(),
-                        rx.chakra.text("OR", color="GRAY"),
-                        rx.chakra.divider(),
-                        width="100%",
-                        border_color="GRAY"
-                    ),
-                    rx.accordion.root(
-                        rx.accordion.item(
-                            header="Add existing files",
-                            content=rx.scroll_area(
-                                rx.vstack(
-                                    rx.foreach(
-                                        State.user_files,
-                                        file_selection_checkbox
-                                    ),
-                                    style={"height":200}
-                                ),
-                                bg="#111111",
-                                padding="10px",
-                                border_radius="5px"
+                    rx.cond(
+                        rx.selected_files("view_collection_upload"),
+                        rx.hstack(
+                            rx.spacer(),
+                            rx.button(
+                                "Upload",
+                                color_scheme="green",
+                                variant="soft",
+                                on_click=AddFileDialogState.upload_file_to_collection(rx.upload_files(upload_id="view_collection_upload"))
                             ),
+                            width="100%"
                         ),
-                        collapsible=True,
-                        color_scheme="indigo",
-                        width="100%",
+                        rx.box(
+                            width="0px",
+                            height="0px"
+                        )
+                    ),
+                    rx.cond(
+                        AddFileDialogState.user_has_files_bool,
+                        add_files_accordion(),
+                        rx.box(
+                            width="0px",
+                            height="0px" 
+                        )
                     )
                 )
             ),
-            on_interact_outside=AddFileDialogState.close_dialog,
-            on_escape_key_down=AddFileDialogState.close_dialog,
-            on_pointer_down_outside=AddFileDialogState.close_dialog,
+            on_interact_outside=lambda x: AddFileDialogState.close_dialog(),
+            on_escape_key_down=lambda x: AddFileDialogState.close_dialog(),
+            on_pointer_down_outside=lambda x: AddFileDialogState.close_dialog(),
             bg="#0f0f0f"
         ),
         open=AddFileDialogState.dialog_open_bool
     )
+
+def add_files_accordion():
+    return rx.vstack(
+        rx.chakra.hstack(
+            rx.chakra.divider(),
+            rx.chakra.text("OR", color="GRAY"),
+            rx.chakra.divider(),
+            width="100%",
+            border_color="GRAY"
+        ),
+        rx.accordion.root(
+            rx.accordion.item(
+                header="Add existing files",
+                content=rx.scroll_area(
+                    rx.vstack(
+                        rx.foreach(
+                            State.user_files,
+                            file_selection_checkbox
+                        ),
+                        style={"height":200}
+                    ),
+                    bg="#111111",
+                    padding="10px",
+                    border_radius="5px"
+                ),
+                value="item1"
+            ),
+            collapsible=True,
+            color_scheme="indigo",
+            width="100%",
+        ),
+        rx.cond(
+            AddFileDialogState.display_add_files_button,
+            rx.hstack(
+                rx.spacer(),
+                rx.button(
+                    "Save Changes",
+                    color_scheme="blue",
+                    variant="soft",
+                    on_click = AddFileDialogState.close_dialog
+                ),
+                width="100%"
+            ),
+            rx.chakra.box(
+                width="0px",
+                height="0px"
+            )
+        ),
+        width="100%"
+    )
+
 
 def index():
     return rx.chakra.vstack(

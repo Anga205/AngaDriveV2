@@ -87,7 +87,6 @@ class State(rx.State):
             outfile = os.path.join(file_directory,filename)
             with open(outfile, "wb") as f:
                 f.write(upload_data)
-            self.image_relative_path = filename
             add_file_to_database(
                 account_token=self.token,
                 file_directory=filename,
@@ -123,7 +122,6 @@ class State(rx.State):
             outfile = os.path.join(file_directory,filename)
             with open(outfile, "wb") as f:
                 f.write(upload_data)
-            self.image_relative_path = filename
             file_link_list.append(file_link+os.path.join(filename.split(".")[0],file.filename))
             add_file_to_database(
                 account_token=self.token,

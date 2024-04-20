@@ -175,7 +175,7 @@ def get_all_user_files_for_display(account_token) -> list[dict[str, str]]:
         "original_name" : x[0],                                 # like original_name.png
         "file_path"     : x[1],                                 # like vb78duvhs6s.png
         "size"          : format_bytes(x[2]),                   # like 75.1 KB
-        "timestamp"     : time.ctime(x[3]),             # like wed 23 jun 2023
+        "timestamp"     : time.ctime(x[3]),                     # like wed 23 june 2023
         "truncated_name": truncate_string(x[0], length=20),     # like origina....
         "file_link"     : file_link+x[1],                       # like https://file.anga.pro/i/vb78duvhs6s.png
         "previewable"   : can_be_previewed(x[1])                # like True
@@ -489,3 +489,17 @@ def get_file_info_for_card(file_path:str) -> dict[str,str]:
         "file_link"     : file_link+file_path,                        # like https://file.anga.pro/i/vb78duvhs6s.png
         "previewable"   : can_be_previewed(file_path)                 # like True
     }
+
+def add_file_to_collection(collection_id, file_path):
+    con = sqlite3.connect(database_directory)
+    cur = con.cursor()
+
+    cur.execute(f"SELECT data FROM collections WHERE id = ?", (collection_id,))
+    data = cur.fetchone()[0]
+    data = eval(data)
+    data["Files"].append(file_path)
+    data["File Count"] += 1
+    data["Size"] += get_file_size(os.path.join(file_directory,file_path))
+    cur.execute(f"UPDATE collections SET data = ? WHERE id = ?", (str(data), collection_id))
+    con.commit()
+    con.close()
