@@ -97,7 +97,6 @@ def file_selection_checkbox(file_obj):
         rx.checkbox(
             checked=AddFileDialogState.new_user_files_in_collection[file_obj["file_path"]],
             on_change=lambda update: AddFileDialogState.change_file_status(file_obj["file_path"],update),
-            disabled=~AddFileDialogState.user_files_in_collection[file_obj["file_path"]]
         ),
         rx.hover_card.root(
             rx.hover_card.trigger(

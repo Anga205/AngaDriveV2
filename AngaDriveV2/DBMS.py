@@ -184,15 +184,36 @@ def get_all_user_files_for_display(account_token) -> list[dict[str, str]]:
 
     return list(reversed(rows))       # reversed to put the most recently uploaded files at the top
 
+def remove_file_from_all_collections(file_path):
+    try:
+        con = sqlite3.connect(database_directory)
+        cur = con.cursor()
+        cur.execute(f"SELECT id, data FROM collections WHERE data LIKE ?", (f'%{file_path}%',))
+        rows = cur.fetchall()
+        for row in rows:
+            data:dict[str, list] = eval(row[1])
+            data["Files"].remove(file_path)
+            cur.execute(f"UPDATE collections SET data = ? WHERE id = ?", (str(data), row[0]))
+        con.commit()
+        cur.close()
+        con.close()
+    except Exception as e:
+        print(f"Error occured when running AngaDriveV2.DBMS.remove_file_from_all_collections\nVar Dump:\nfile_path: {file_path}\nError: {e}")
+
+
 def remove_file_from_database(file_directory):
     
-    con = sqlite3.connect(database_directory)
-    cur = con.cursor()
+    try:
+        con = sqlite3.connect(database_directory)
+        cur = con.cursor()
 
-    cur.execute(f"DELETE FROM file_data WHERE file_directory = {dbify(file_directory)}")
-    con.commit()
+        cur.execute(f"DELETE FROM file_data WHERE file_directory = {dbify(file_directory)}")
+        con.commit()
 
-    con.close()
+        con.close()
+    except Exception as e:
+        print(f"Error occured when running AngaDriveV2.DBMS.remove_file_from_database\nVar Dump:\nfile_directory: {file_directory}\nError: {e}")
+    remove_file_from_all_collections(file_directory)
 
 def get_sum_of_user_file_sizes(token):
 
