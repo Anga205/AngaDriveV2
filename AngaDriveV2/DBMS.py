@@ -197,9 +197,9 @@ def remove_file_from_all_collections(file_path):
         for row in rows:
             files:list = row[2].split(", ")
             files.remove(file_path)
-            ", ".join(files)
+            files = ", ".join(files)
             new_size = row[1] - file_size
-            cur.execute(f"UPDATE collections SET files = ? WHERE id = ?", (str(files), row[0]))
+            cur.execute(f"UPDATE collections SET files = ? WHERE id = ?", (files, row[0]))
             cur.execute(f"UPDATE collections SET size = ? WHERE id = ?", (new_size, row[0]))
         con.commit()
         cur.close()
@@ -290,6 +290,21 @@ def collection_info_for_display(collection_id):
     con.close()
     return [collection_id, truncate_string(collection_name), collection_file_count, collection_size, collection_editors_count]
 
+
+def remove_file_from_collection(collection_id, file_path):
+    con = sqlite3.connect(database_directory)
+    cur = con.cursor()
+
+    cur.execute(f"SELECT size, files FROM collections WHERE id = ?", (collection_id,))
+    size, files = cur.fetchone()
+    size -= get_file_size(os.path.join(file_directory, file_path))
+    files = files.split(", ")
+    files.remove(file_path)
+    files = ", ".join(files)
+    cur.execute(f"UPDATE collections SET size = ? WHERE id = ?", (size, collection_id))
+    cur.execute(f"UPDATE collections SET files = ? WHERE id = ?", (files, collection_id))
+    con.commit()
+    con.close()
 
 def gen_collection_id():
     

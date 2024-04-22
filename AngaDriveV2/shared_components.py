@@ -431,9 +431,9 @@ def file_editor_menu(file_obj, **kwargs):
         **kwargs,
     ),
 
-def file_card(file_obj):
-    context_menu_wrapper = (
-        lambda component:
+
+file_card_context_menu_wrapper = (
+        lambda component, file_obj:
         rx.context_menu.root(
             rx.context_menu.trigger(
                 component
@@ -444,7 +444,9 @@ def file_card(file_obj):
             )
         )
     )
-    return context_menu_wrapper(
+
+def file_card(file_obj):
+    return file_card_context_menu_wrapper(
     rx.chakra.vstack(
         file_name_header(
             file_obj,
@@ -461,5 +463,6 @@ def file_card(file_obj):
         ),
         width="290px",
         spacing="0px"
-    )
+    ),
+    file_obj
 )

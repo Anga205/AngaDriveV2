@@ -25,8 +25,109 @@ class ViewCollectionState(State):
         collection_files = collection_data["data"]["Files"]
         self.collection_files: list[dict[str,str]] = [get_file_info_for_card(x) for x in collection_files]
 
+    def delete_file_from_collection(self, file_dict):
+        self.collection_files.remove(file_dict)
+        self.delete_file(file_obj=file_dict)
+
     def print_selected_files(self):
         print("hello!")
+
+
+def view_collection_file_editor_menu(file_obj, **kwargs):
+    return rx.chakra.hstack(
+        rx.chakra.tooltip(
+            rx.chakra.button(
+                rx.chakra.icon(
+                    tag="delete"
+                ),
+                color="#ee0000",
+                bg = "#260000",
+                _hover = {"bg":"#420000","color":"#ff0000"},
+                border_radius="2vh",
+                height="30px",
+                width="15%",
+                on_click=ViewCollectionState.delete_file_from_collection(file_obj)
+            ),
+            label = "Delete"
+        ),
+        rx.chakra.tooltip(
+            rx.chakra.button(
+                rx.chakra.icon(
+                    tag="copy"
+                ),
+                color="#00a799",
+                bg = "#002321",
+                _hover = {"bg":"#003432","color":"#11b8aa"},
+                border_radius="2vh",
+                height="30px",
+                width="15%",
+                on_click = lambda: State.copy_file_link(file_obj),
+            ),
+            label="Copy Link"
+        ),
+        rx.chakra.tooltip(
+            rx.chakra.button(
+                rx.chakra.icon(
+                    tag="download"
+                ),
+                color="#12a1fb",
+                bg = "#11222f",
+                _hover = {"bg":"#223340","color":"#22c9bb"},
+                border_radius="2vh",
+                height="30px",
+                width="15%",
+                on_click = State.download_file(file_obj),
+            ),
+            label="Download File"
+        ),
+        rx.chakra.tooltip(
+            rx.chakra.button(
+                rx.chakra.image(
+                    src="/eye.png",
+                    width="100%",
+                    height="auto",
+                    custom_attrs={"draggable":"false"}
+                ),
+                color="#ffb100",
+                bg = "#302400",
+                _hover = {"bg":"#413511","color":"#ffc200"},
+                border_radius="2vh",
+                height="30px",
+                width="17%",
+                on_click=rx.redirect(file_obj["file_link"], external=True)
+            ),
+            label="View file"
+        ),
+        justify_content="center",
+        align_items="center",
+        height="42px",
+        spacing="20px",
+        width="100%",
+        border_color="#1c1c1c",
+        **kwargs,
+    ),
+
+def view_collection_file_card(file_dict):
+    return file_card_context_menu_wrapper(
+        rx.chakra.vstack(
+            file_name_header(
+                file_dict,
+                border_radius="1vh 1vh 0vh 0vh"
+            ),
+            file_details(
+                file_dict,
+                border_radius="0vh 0vh 0vh 0vh"
+            ),
+            view_collection_file_editor_menu(
+                file_dict,
+                border_width="0vh 0.2vh 0.2vh 0.2vh",
+                border_radius= "0vh 0vh 1vh 1vh"
+            ),
+        width="290px",
+        spacing="0px"
+    ),
+    file_dict
+)
 
 class AddFileDialogState(ViewCollectionState):
     dialog_open_bool:bool = False
@@ -35,8 +136,7 @@ class AddFileDialogState(ViewCollectionState):
     user_has_files_bool:bool = False
     def open_dialog(self):
         self.dialog_open_bool = True
-        if self.user_files==[]:
-            self.user_files = get_all_user_files_for_display(self.token)
+        self.user_files = get_all_user_files_for_display(self.token)
         self.user_has_files_bool = does_user_have_files(self.token)
         self.user_files_in_collection = {x["file_path"]:x in self.collection_files for x in self.user_files}
         self.new_user_files_in_collection = self.user_files_in_collection.copy()
@@ -77,6 +177,17 @@ class AddFileDialogState(ViewCollectionState):
         self.close_dialog()
         self.load_collection_viewer()
 
+    def save_changes(self):
+        new_user_files_in_collection = self.new_user_files_in_collection
+        old_user_files_in_collection = self.user_files_in_collection
+        for i in new_user_files_in_collection:
+            if new_user_files_in_collection[i] and not old_user_files_in_collection[i]:
+                add_file_to_collection(collection_id=self.collection_id, file_path=i)
+                self.collection_files.append(get_file_info_for_card(i))
+            elif not new_user_files_in_collection[i] and old_user_files_in_collection[i]:
+                remove_file_from_collection(collection_id=self.collection_id, file_path=i)
+                self.collection_files.remove(get_file_info_for_card(i))
+        self.close_dialog()
 
 def file_hovercard(file_obj):
     return rx.chakra.vstack(
@@ -224,7 +335,7 @@ def add_files_accordion():
                     "Save Changes",
                     color_scheme="blue",
                     variant="soft",
-                    on_click = AddFileDialogState.close_dialog
+                    on_click = AddFileDialogState.save_changes
                 ),
                 width="100%"
             ),
@@ -304,7 +415,7 @@ def index():
             rx.chakra.wrap(
                 rx.foreach(
                     ViewCollectionState.collection_files,
-                    file_card
+                    view_collection_file_card
                 ),
             ),
             rx.chakra.box(
