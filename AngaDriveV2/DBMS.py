@@ -53,7 +53,9 @@ def create_database():
                         id TEXT PRIMARY KEY,
                         name TEXT,
                         editors TEXT,
-                        data TEXT
+                        size INTEGER,
+                        collections TEXT,
+                        files TEXT
                 )
                         ''')
             con.commit()
@@ -188,21 +190,25 @@ def remove_file_from_all_collections(file_path):
     try:
         con = sqlite3.connect(database_directory)
         cur = con.cursor()
-        cur.execute(f"SELECT id, data FROM collections WHERE data LIKE ?", (f'%{file_path}%',))
+        cur.execute(f"SELECT file_size FROM file_data WHERE file_directory = ?", (file_path,))
+        file_size = cur.fetchone()[0]
+        cur.execute(f"SELECT id, size, files FROM collections WHERE files LIKE ?", (f'%{file_path}%',))
         rows = cur.fetchall()
         for row in rows:
-            data:dict[str, list] = eval(row[1])
-            data["Files"].remove(file_path)
-            cur.execute(f"UPDATE collections SET data = ? WHERE id = ?", (str(data), row[0]))
+            files:list = row[2].split(", ")
+            files.remove(file_path)
+            ", ".join(files)
+            new_size = row[1] - file_size
+            cur.execute(f"UPDATE collections SET files = ? WHERE id = ?", (str(files), row[0]))
+            cur.execute(f"UPDATE collections SET size = ? WHERE id = ?", (new_size, row[0]))
         con.commit()
         cur.close()
         con.close()
     except Exception as e:
         print(f"Error occured when running AngaDriveV2.DBMS.remove_file_from_all_collections\nVar Dump:\nfile_path: {file_path}\nError: {e}")
 
-
 def remove_file_from_database(file_directory):
-    
+    remove_file_from_all_collections(file_directory)
     try:
         con = sqlite3.connect(database_directory)
         cur = con.cursor()
@@ -213,7 +219,6 @@ def remove_file_from_database(file_directory):
         con.close()
     except Exception as e:
         print(f"Error occured when running AngaDriveV2.DBMS.remove_file_from_database\nVar Dump:\nfile_directory: {file_directory}\nError: {e}")
-    remove_file_from_all_collections(file_directory)
 
 def get_sum_of_user_file_sizes(token):
 
@@ -252,7 +257,6 @@ def delete_collection_from_db(collection_id):
 
     con.close()
 
-
 def get_all_collection_ids():
     
     con = sqlite3.connect(database_directory)
@@ -277,11 +281,14 @@ def collection_info_for_display(collection_id):
     con = sqlite3.connect(database_directory)
     cur = con.cursor()
     
-    cur.execute(f"SELECT name, data, editors FROM collections WHERE id = ?", (collection_id,))
-    data:list[str] = list(cur.fetchone())
-    data[1] = eval(data[1])
+    cur.execute(f"SELECT name, size, collections, files, editors FROM collections WHERE id = ?", (collection_id,))
+    collection_info = cur.fetchone()
+    collection_name = collection_info[0]
+    collection_file_count = len(collection_info[3].split(","))
+    collection_size = format_bytes(collection_info[1])
+    collection_editors_count = len(collection_info[4].split(","))
     con.close()
-    return [collection_id, truncate_string(data[0]), data[1]["File Count"], format_bytes(data[1]["Size"]), len(data[2].split(","))]
+    return [collection_id, truncate_string(collection_name), collection_file_count, collection_size, collection_editors_count]
 
 
 def gen_collection_id():
@@ -298,7 +305,7 @@ def create_new_collection(token, collection_name):
     cur = con.cursor()
     collection_id = gen_collection_id()
 
-    cur.execute(f"INSERT INTO collections (id, name, editors, data) VALUES (?, ?, ?, ?)", (collection_id, collection_name, token, str({"Collections":[], "Files":[], "Size": 0, "File Count": 0})))
+    cur.execute(f"INSERT INTO collections (id, name, editors, size, collections, files) VALUES (?, ?, ?, ?, ?, ?)", (collection_id, collection_name, token, 0, "", ""))
     con.commit()
 
     return collection_id
@@ -472,14 +479,14 @@ def get_collection_info_for_viewer(collection_id):
     con = sqlite3.connect(database_directory)
     cur = con.cursor()
 
-    cur.execute(f"SELECT name, editors, data FROM collections WHERE id = ?", (collection_id,))
+    cur.execute(f"SELECT name, editors, size, files, collections FROM collections WHERE id = ?", (collection_id,))
     data:list[str] = cur.fetchone()
     con.close()
     if data==None:
         return None
     name = data[0]
     editors = data[1].split(",")
-    collection_data = eval(data[2])
+    collection_data = {"Size": format_bytes(data[2]), "Files": [] if data[3]=="" else data[3].split(", "), "Collections": [] if data[4]=="" else data[4].split(", ")}
     return {
         "name"      : name,
         "editors"   : editors,
@@ -525,12 +532,13 @@ def add_file_to_collection(collection_id, file_path):
     con = sqlite3.connect(database_directory)
     cur = con.cursor()
 
-    cur.execute(f"SELECT data FROM collections WHERE id = ?", (collection_id,))
-    data = cur.fetchone()[0]
-    data = eval(data)
-    data["Files"].append(file_path)
-    data["File Count"] += 1
-    data["Size"] += get_file_size(os.path.join(file_directory,file_path))
-    cur.execute(f"UPDATE collections SET data = ? WHERE id = ?", (str(data), collection_id))
+    cur.execute(f"SELECT size, files FROM collections WHERE id = ?", (collection_id,))
+    size, files = cur.fetchone()
+    size += get_file_size(os.path.join(file_directory,file_path))
+    files = [] if files=="" else files.split(", ")
+    files.append(file_path)
+    files = ", ".join(files)
+    cur.execute(f"UPDATE collections SET size = ? WHERE id = ?", (size, collection_id))
+    cur.execute(f"UPDATE collections SET files = ? WHERE id = ?", (files, collection_id))
     con.commit()
     con.close()
