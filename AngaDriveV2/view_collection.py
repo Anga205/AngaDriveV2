@@ -25,9 +25,9 @@ class ViewCollectionState(State):
         collection_files = collection_data["data"]["Files"]
         self.collection_files: list[dict[str,str]] = [get_file_info_for_card(x) for x in collection_files]
 
-    def delete_file_from_collection(self, file_dict):
+    def remove_file_from_collection(self, file_dict):
+        remove_file_from_collection_db(collection_id=self.collection_id, file_path=file_dict["file_path"])
         self.collection_files.remove(file_dict)
-        self.delete_file(file_obj=file_dict)
 
     def print_selected_files(self):
         print("hello!")
@@ -38,7 +38,7 @@ def view_collection_file_editor_menu(file_obj, **kwargs):
         rx.chakra.tooltip(
             rx.chakra.button(
                 rx.chakra.icon(
-                    tag="delete"
+                    tag="small_close"
                 ),
                 color="#ee0000",
                 bg = "#260000",
@@ -46,9 +46,9 @@ def view_collection_file_editor_menu(file_obj, **kwargs):
                 border_radius="2vh",
                 height="30px",
                 width="15%",
-                on_click=ViewCollectionState.delete_file_from_collection(file_obj)
+                on_click=ViewCollectionState.remove_file_from_collection(file_obj)
             ),
-            label = "Delete"
+            label = "Remove from collection"
         ),
         rx.chakra.tooltip(
             rx.chakra.button(
@@ -185,7 +185,7 @@ class AddFileDialogState(ViewCollectionState):
                 add_file_to_collection(collection_id=self.collection_id, file_path=i)
                 self.collection_files.append(get_file_info_for_card(i))
             elif not new_user_files_in_collection[i] and old_user_files_in_collection[i]:
-                remove_file_from_collection(collection_id=self.collection_id, file_path=i)
+                remove_file_from_collection_db(collection_id=self.collection_id, file_path=i)
                 self.collection_files.remove(get_file_info_for_card(i))
         self.close_dialog()
 

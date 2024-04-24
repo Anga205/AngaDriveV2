@@ -180,7 +180,8 @@ def get_all_user_files_for_display(account_token) -> list[dict[str, str]]:
         "timestamp"     : time.ctime(x[3]),                     # like wed 23 june 2023
         "truncated_name": truncate_string(x[0], length=20),     # like origina....
         "file_link"     : file_link+x[1],                       # like https://file.anga.pro/i/vb78duvhs6s.png
-        "previewable"   : can_be_previewed(x[1])                # like True
+        "previewable"   : can_be_previewed(x[1]),               # like True
+        "owner_token"   : account_token
     } for x in cur]
     con.close()
 
@@ -284,27 +285,11 @@ def collection_info_for_display(collection_id):
     cur.execute(f"SELECT name, size, collections, files, editors FROM collections WHERE id = ?", (collection_id,))
     collection_info = cur.fetchone()
     collection_name = collection_info[0]
-    collection_file_count = len(collection_info[3].split(","))
+    collection_file_count = 0 if collection_info[3]=="" else len(collection_info[3].split(","))
     collection_size = format_bytes(collection_info[1])
     collection_editors_count = len(collection_info[4].split(","))
     con.close()
     return [collection_id, truncate_string(collection_name), collection_file_count, collection_size, collection_editors_count]
-
-
-def remove_file_from_collection(collection_id, file_path):
-    con = sqlite3.connect(database_directory)
-    cur = con.cursor()
-
-    cur.execute(f"SELECT size, files FROM collections WHERE id = ?", (collection_id,))
-    size, files = cur.fetchone()
-    size -= get_file_size(os.path.join(file_directory, file_path))
-    files = files.split(", ")
-    files.remove(file_path)
-    files = ", ".join(files)
-    cur.execute(f"UPDATE collections SET size = ? WHERE id = ?", (size, collection_id))
-    cur.execute(f"UPDATE collections SET files = ? WHERE id = ?", (files, collection_id))
-    con.commit()
-    con.close()
 
 def gen_collection_id():
     
@@ -514,7 +499,7 @@ def get_file_info_for_card(file_path:str) -> dict[str,str]:
         con = sqlite3.connect(database_directory)
         cur = con.cursor()
 
-        cur.execute("SELECT original_file_name, file_size, timestamp FROM file_data WHERE file_directory = ?",(file_path,))
+        cur.execute("SELECT original_file_name, file_size, timestamp, account_token FROM file_data WHERE file_directory = ?",(file_path,))
 
         file_data = cur.fetchone()
         cur.close()
@@ -529,7 +514,8 @@ def get_file_info_for_card(file_path:str) -> dict[str,str]:
             "timestamp"     : time.ctime(file_data[2]),                   # like wed 23 jun 2023
             "truncated_name": truncate_string(file_data[0], length=20),   # like origina....
             "file_link"     : file_link+file_path,                        # like https://file.anga.pro/i/vb78duvhs6s.png
-            "previewable"   : can_be_previewed(file_path)                 # like True
+            "previewable"   : can_be_previewed(file_path),                 # like True
+            "owner_token"   : file_data[3]
         }
     except Exception as e:
         print(f"Error occured when running AngaDriveV2.DBMS.get_file_info_for_card\nVar Dump:\nfile_path: {file_path}\nfile_path_type: {type(file_path)}\nError: {e}")
@@ -540,7 +526,8 @@ def get_file_info_for_card(file_path:str) -> dict[str,str]:
             "timestamp"     : "Error",
             "truncated_name": "Error",
             "file_link"     : "Error",
-            "previewable"   : False
+            "previewable"   : False,
+            "owner_token"   : "Error"
         }
 
 def add_file_to_collection(collection_id, file_path):
@@ -552,6 +539,21 @@ def add_file_to_collection(collection_id, file_path):
     size += get_file_size(os.path.join(file_directory,file_path))
     files = [] if files=="" else files.split(", ")
     files.append(file_path)
+    files = ", ".join(files)
+    cur.execute(f"UPDATE collections SET size = ? WHERE id = ?", (size, collection_id))
+    cur.execute(f"UPDATE collections SET files = ? WHERE id = ?", (files, collection_id))
+    con.commit()
+    con.close()
+
+def remove_file_from_collection_db(collection_id, file_path):
+    con = sqlite3.connect(database_directory)
+    cur = con.cursor()
+
+    cur.execute(f"SELECT size, files FROM collections WHERE id = ?", (collection_id,))
+    size, files = cur.fetchone()
+    size -= get_file_size(os.path.join(file_directory, file_path))
+    files = files.split(", ")
+    files.remove(file_path)
     files = ", ".join(files)
     cur.execute(f"UPDATE collections SET size = ? WHERE id = ?", (size, collection_id))
     cur.execute(f"UPDATE collections SET files = ? WHERE id = ?", (files, collection_id))
