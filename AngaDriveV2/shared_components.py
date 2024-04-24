@@ -466,3 +466,14 @@ def file_card(file_obj):
     ),
     file_obj
 )
+
+def conditional_render(condition, true_component):
+    return rx.cond(
+        condition,
+        true_component,
+        rx.chakra.box(
+            display="none",
+            width="0px",
+            height="0px"
+        )
+    )

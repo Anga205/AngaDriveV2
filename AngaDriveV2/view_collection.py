@@ -23,10 +23,26 @@ class ViewCollectionState(State):
         self.collection_editors = collection_data["editors"]
         self.is_collection_owner = self.token in collection_data["editors"]
         collection_files = collection_data["data"]["Files"]
-        self.collection_files: list[dict[str,str]] = [get_file_info_for_card(x) for x in collection_files]
+        self.collection_files = []
+        for file in collection_files:
+            file_info = get_file_info_for_card(file)
+            file_info["is_owner"] = bool(self.token == file_info["owner_token"])
+            self.collection_files.append(file_info)
 
     def remove_file_from_collection(self, file_dict):
         remove_file_from_collection_db(collection_id=self.collection_id, file_path=file_dict["file_path"])
+        self.collection_files.remove(file_dict)
+
+    def delete_file_from_collection(self, file_dict):
+        filename = file_dict["file_path"]
+        try:
+            os.remove(os.path.join(file_directory,filename))
+            try:
+                remove_file_from_database(filename)
+            except Exception as e:
+                print(f"Error occured in execuring AngaDriveV2.view_collection.ViewCollectionState.delete_file_from_collection.remove_file_from_database: {file_dict}")
+        except Exception as e:
+            print(f"Error occured in execuring AngaDriveV2.view_collection.ViewCollectionState.delete_file_from_collection.os_remove: {file_dict}\nError was: {e}")
         self.collection_files.remove(file_dict)
 
     def print_selected_files(self):
@@ -35,21 +51,29 @@ class ViewCollectionState(State):
 
 def view_collection_file_editor_menu(file_obj, **kwargs):
     return rx.chakra.hstack(
-        rx.chakra.tooltip(
-            rx.chakra.button(
-                rx.chakra.icon(
-                    tag="small_close"
-                ),
-                color="#ee0000",
-                bg = "#260000",
-                _hover = {"bg":"#420000","color":"#ff0000"},
-                border_radius="2vh",
-                height="30px",
-                width="15%",
-                on_click=ViewCollectionState.remove_file_from_collection(file_obj)
-            ),
-            label = "Remove from collection"
+        conditional_render(
+            condition=ViewCollectionState.is_collection_owner,
+            true_component=rx.chakra.spacer()
         ),
+        conditional_render(
+            condition=ViewCollectionState.is_collection_owner,
+            true_component=rx.chakra.tooltip(
+                rx.chakra.button(
+                    rx.chakra.icon(
+                        tag="small_close"
+                    ),
+                    color="#ee0000",
+                    bg = "#260000",
+                    _hover = {"bg":"#420000","color":"#ff0000"},
+                    border_radius="2vh",
+                    height="30px",
+                    width="15%",
+                    on_click=ViewCollectionState.remove_file_from_collection(file_obj)
+                ),
+                label = "Remove from collection"
+            )
+        ),
+        rx.chakra.spacer(),
         rx.chakra.tooltip(
             rx.chakra.button(
                 rx.chakra.icon(
@@ -65,6 +89,7 @@ def view_collection_file_editor_menu(file_obj, **kwargs):
             ),
             label="Copy Link"
         ),
+        rx.chakra.spacer(),
         rx.chakra.tooltip(
             rx.chakra.button(
                 rx.chakra.icon(
@@ -80,6 +105,7 @@ def view_collection_file_editor_menu(file_obj, **kwargs):
             ),
             label="Download File"
         ),
+        rx.chakra.spacer(),
         rx.chakra.tooltip(
             rx.chakra.button(
                 rx.chakra.image(
@@ -98,14 +124,37 @@ def view_collection_file_editor_menu(file_obj, **kwargs):
             ),
             label="View file"
         ),
+        rx.chakra.spacer(),
         justify_content="center",
         align_items="center",
         height="42px",
-        spacing="20px",
         width="100%",
+        spacing="0px",
         border_color="#1c1c1c",
         **kwargs,
     ),
+
+file_card_context_menu_wrapper = (
+        lambda component, file_obj:
+        rx.context_menu.root(
+            rx.context_menu.trigger(
+                component
+            ),
+            rx.cond(
+                file_obj["is_owner"],
+                rx.context_menu.content(
+                    rx.context_menu.item("Copy shortened path", on_click=lambda: State.copy_file_path(file_obj)),
+                    rx.context_menu.item("Copy download link", on_click=lambda: State.copy_download_link(file_obj)),
+                    rx.context_menu.separator(),
+                    rx.context_menu.item("Delete file", on_click=ViewCollectionState.delete_file_from_collection(file_obj), color="red"),
+                ),
+                rx.context_menu.content(
+                    rx.context_menu.item("Copy shortened path", on_click=lambda: State.copy_file_path(file_obj)),
+                    rx.context_menu.item("Copy download link", on_click=lambda: State.copy_download_link(file_obj)),
+                )
+            )
+        )
+    )
 
 def view_collection_file_card(file_dict):
     return file_card_context_menu_wrapper(
