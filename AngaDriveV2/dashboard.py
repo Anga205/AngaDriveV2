@@ -589,7 +589,7 @@ def github_widget():
         border_width="1vh"
     )
 
-def index():
+def desktop_index():
     return site_template(
         "Home",
         rx.chakra.hstack(
@@ -620,3 +620,14 @@ def index():
             height="93.25vh"
             ),
         )
+
+def index():
+    return rx.box(
+        rx.desktop_only(
+            desktop_index()
+        ),
+        rx.mobile_and_tablet(
+            view_under_construction()
+        ),
+        width="100%",
+    )

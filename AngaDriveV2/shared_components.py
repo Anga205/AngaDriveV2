@@ -469,3 +469,12 @@ def conditional_render(condition, true_component):
             height="0px"
         )
     )
+
+def view_under_construction():
+    return rx.vstack(
+        rx.spacer(),
+        rx.heading("Mobile view is not supported (yet)", size="9"),
+        rx.spacer(),
+        height="100vh",
+        width="100%"
+    )

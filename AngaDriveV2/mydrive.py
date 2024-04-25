@@ -96,7 +96,7 @@ def upload_button():
 
 
 
-def index():
+def desktop_index():
     return site_template(
         "Files",
         rx.chakra.vstack(
@@ -157,4 +157,15 @@ def index():
             bg="#0f0f0f",
             width="100%"
         )
+    )
+
+def index():
+    return rx.box(
+        rx.desktop_only(
+            desktop_index()
+        ),
+        rx.mobile_and_tablet(
+            view_under_construction()
+        ),
+        width="100%",
     )
