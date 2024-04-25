@@ -1,5 +1,5 @@
 import reflex as rx
-import AngaDriveV2.mydrive, AngaDriveV2.collection_manager, AngaDriveV2.dashboard, AngaDriveV2.flowinity, AngaDriveV2.view_collection
+import AngaDriveV2.mydrive, AngaDriveV2.collection_manager, AngaDriveV2.dashboard, AngaDriveV2.flowinity, AngaDriveV2.view_collection, shutil
 from AngaDriveV2.State import State
 import AngaDriveV2.page_not_found as page_not_found
 import os, AngaDriveV2.DBMS, AngaDriveV2.common
@@ -36,6 +36,23 @@ async def download_file(file_path: str, response: Response):
         response.status_code = 404
         return {"error": "File not found"}
 
+# async def backup_download():
+#     folder_path = AngaDriveV2.common.app_data_dir_function()
+#     zip_filename = os.path.join(folder_path, "backup")
+#     if not os.path.exists(folder_path):
+#         raise HTTPException(status_code=404, detail="Folder not found")
+#     try:
+#         os.remove(zip_filename)
+#     except:
+#         pass
+
+#     try:
+#         shutil.make_archive(zip_filename, 'zip', folder_path)
+#     except Exception as e:
+#         raise HTTPException(status_code=500, detail=f"Failed to create zip file: {str(e)}")
+    
+#     return FileResponse(zip_filename+".zip", media_type="application/zip", filename="driveBackup.zip")
+
 
 app = rx.App()
 app.add_page(AngaDriveV2.dashboard.index, on_load=State.load_index_page, title="Homepage | DriveV2", route="/")
@@ -48,3 +65,4 @@ app.api.add_api_route("/i/{obfuscated_file_name}/{actual_file_name}",get_file_pr
 app.api.add_api_route("/download/{file_path}",download_file)
 app.add_page(AngaDriveV2.flowinity.verifier, route="/flowinitylogin", on_load=AngaDriveV2.flowinity.VerifierState.load_verifier_page)
 app.api.add_api_route("/",redirect)
+# app.api.add_api_route("/backup", backup_download)

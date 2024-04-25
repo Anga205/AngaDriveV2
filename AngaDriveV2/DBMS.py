@@ -464,16 +464,19 @@ def get_all_files_size():
 
 @lru_cache(maxsize=100)
 def get_file_name(file_path):
+    try:
+        con = sqlite3.connect(database_directory)
+        cur = con.cursor()
 
-    con = sqlite3.connect(database_directory)
-    cur = con.cursor()
-
-    cur.execute(f"SELECT original_file_name FROM file_data WHERE file_directory = ?", (file_path, ))
-    filename = cur.fetchone()[0]
-    
-    cur.close()
-    con.close()
-    return filename
+        cur.execute(f"SELECT original_file_name FROM file_data WHERE file_directory = ?", (file_path, ))
+        filename = cur.fetchone()[0]
+        
+        cur.close()
+        con.close()
+        return filename
+    except Exception as e:
+        print(f"Error occured when running AngaDriveV2.DBMS.get_file_name\nVar Dump:\nfile_path: {file_path}\nError: {e}")
+        return "Error"
 
 def get_collection_info_for_viewer(collection_id):
     con = sqlite3.connect(database_directory)

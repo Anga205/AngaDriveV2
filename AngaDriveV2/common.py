@@ -1,7 +1,10 @@
 import datetime, time, os, random, re, psutil, subprocess
 
-file_directory = os.path.join("assets", "i")
-database_directory = 'rx.db'
+app_data_dir = "drive_data"
+def app_data_dir_function():
+    return app_data_dir
+file_directory = os.path.join(app_data_dir,"i")
+database_directory = os.path.join(app_data_dir,'rx.db')
 api_url = "http://localhost:8000"
 app_link = "http://localhost:3000"
 
