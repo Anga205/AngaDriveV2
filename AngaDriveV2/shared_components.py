@@ -226,15 +226,7 @@ def upload_container(component):
     )
     return rx.upload(
         component,
-        rx.moment(
-            interval=rx.cond(
-                rx.selected_files("upload1") & ~State.is_uploading,
-                500,
-                0,
-            ),
-            on_change=lambda _: upload_handler_spec,
-            display="none",
-        ),
+        on_drop=upload_handler_spec,
         width="100%",
         spacing="0vh",
         id="upload1",

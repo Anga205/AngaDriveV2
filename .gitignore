@@ -4,6 +4,6 @@
 .web
 .web/
 __pycache__/
+drive_data/
 uploaded_files/
 venv/
-drive_data/
