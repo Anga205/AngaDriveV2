@@ -33,13 +33,16 @@ class VerifierState(State):
                 yield rx.redirect(f"https://privateuploader.com/oauth/{client_secret}")
             else:
                 user_data["token"] = flowinity_code
-                if self.is_logged_in or not does_user_have_files(self.token):
-                    if not token_exists(flowinity_code):
-                        flowinity_user_signup(user_data)
-                    self.is_logged_in = "True"
-                    self.token = flowinity_code
-                    self.username = user_data["username"]
-                    self.email = user_data["email"]
+                print("self.is_logged_in",self.is_logged_in)
+                print("not does_user_have_files",not does_user_have_files(self.token))
+                if (not self.is_logged_in) and does_user_have_files(self.token):    # if the user is not logged in but still has files then transfer them
+                    migrate_files(old_token=self.token, new_token=flowinity_code)
+                if not token_exists(flowinity_code):
+                    flowinity_user_signup(user_data)
+                self.is_logged_in = "True"
+                self.token = flowinity_code
+                self.username = user_data["username"]
+                self.email = user_data["email"]
                 return rx.redirect("/")
 
 def verifier():

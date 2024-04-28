@@ -5,8 +5,8 @@ def app_data_dir_function():
     return app_data_dir
 file_directory = os.path.join(app_data_dir,"i")
 database_directory = os.path.join(app_data_dir,'rx.db')
-api_url = "https://testapi.angadbhalla.com"
-app_link = "https://testdrive.angadbhalla.com"
+api_url = "http://localhost:8000"
+app_link = "http://localhost:3000"
 
 file_link = f"{api_url}/i/"
 download_link = f"{api_url}/download/"
