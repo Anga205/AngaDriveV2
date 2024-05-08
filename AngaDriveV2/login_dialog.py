@@ -186,12 +186,12 @@ class SignUpPopupState(LoginState):
 class SignUpButtonState(SignUpPopupState):
     def on_click_signup_button(self):
         if email_already_exists(self.signup_email):
-            rx.window_alert("Email ID already exists!")
+            return rx.window_alert("Email ID already exists!")
         else:
             user_signup(token=self.token, display_name=self.signup_display_name,email=self.signup_email, password=self.signup_password)
             self.is_logged_in = "True"
             self.update_account_info()
-            self.open_login_dialog_var = False
+            self.close_dialog(None)
 
 def signup_form():
     return rx.chakra.vstack(

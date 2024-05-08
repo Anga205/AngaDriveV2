@@ -5,7 +5,7 @@ from AngaDriveV2.shared_components import *
 from AngaDriveV2.login_dialog import *
 
 
-def static_data_box() -> rx.Component:
+def static_data_box(**kwargs) -> rx.Component:
     return rx.chakra.vstack(
         rx.chakra.heading(
             "DriveV2 - Site Data",
@@ -73,8 +73,7 @@ def static_data_box() -> rx.Component:
         border_radius = "1vh",
         border_color="#0f0f1f",
         spacing="0.75vh",
-        width="100%",
-        height="250%",
+        **kwargs
     )
 
 def login_button_group() -> rx.Component:
@@ -599,7 +598,10 @@ def desktop_index():
             ),
             rx.chakra.vstack(
                 static_account_info(),
-                static_data_box(),
+                static_data_box(
+                    height="250%",
+                    width="100%",
+                ),
                 height="100%",
                 spacing="0.75vh",
                 width="50%"
@@ -621,12 +623,138 @@ def desktop_index():
             ),
         )
 
+
+class TabletIndexState(SystemHealthState):
+    show_system_health_for_tablet:bool = False
+
+    def open_system_health_for_tablet(self):
+        self.show_system_health_for_tablet = True
+        self.load_system_health_checker = True
+    
+    def close_system_health_no_params_for_tablet(self):
+        self.show_system_health_for_tablet = False
+        self.load_system_health_checker = False
+    
+    def close_system_health_for_tablet(self, discard_var=None):
+        self.close_system_health_no_params_for_tablet()
+
+
+def tablet_index():
+    return rx.vstack(
+        rx.hstack(
+            empty_component(),
+            rx.icon(
+                tag="menu",
+                color="#ffffff",
+                _active={"color":"#777777"},
+            ),
+            rx.spacer(),
+            rx.popover.root(
+                rx.popover.trigger(
+                    rx.chakra.image(
+                        src="/health.png",
+                        custom_attrs={"draggable":"false"},
+                        color="WHITE", 
+                        height="2vh",
+                        on_click = TabletIndexState.open_system_health_for_tablet
+                    )
+                ),
+                rx.popover.content(
+                    rx.chakra.vstack(
+                        rx.chakra.heading(
+                            "System Health", 
+                            color="RED",
+                            font_size="3.5vh"
+                            ),
+                        rx.chakra.divider(border_color="GRAY"),
+                        rx.chakra.box(
+                            rx.moment(
+                                interval=500, 
+                                on_change=SystemHealthState.tick_health
+                            ), 
+                            display="none"
+                        ),
+                        rx.chakra.box(
+                            rx.chakra.heading(
+                                rx.chakra.span(
+                                    "Server Uptime: ",
+                                    color="rgb(0, 100, 100)"
+                                ),
+                                rx.chakra.span(
+                                    State.uptime,
+                                    color="WHITE"
+                                ),
+                                font_size="2vh",
+                            ),
+                            rx.chakra.hstack(
+                                rx.chakra.circular_progress(
+                                    rx.chakra.circular_progress_label("RAM"),
+                                    value=State.ram_usage,
+                                    size="10vh"
+                                ),
+                                rx.chakra.circular_progress(
+                                    rx.chakra.circular_progress_label("CPU"),
+                                    value=State.cpu_usage,
+                                    size="10vh"
+                                )
+                            ),
+                            border_radius="0.5vh",
+                            width="100%"
+                        ),
+                        color="WHITE",
+                        bg="BLACK",
+                        border_width="0px",
+                        border_radius="0.5vh",
+                        border_color="BLACK",
+                    ),
+
+                    bg="BLACK",
+                    border_color="WHITE",
+                    border_width="1px",
+                    on_escape_key_down=TabletIndexState.close_system_health_for_tablet,
+                    on_pointer_down_outside=TabletIndexState.close_system_health_for_tablet,
+                    on_focus_outside=TabletIndexState.close_system_health_for_tablet,
+                    on_interact_outside=TabletIndexState.close_system_health_for_tablet
+                ),
+                open = TabletIndexState.show_system_health_for_tablet
+            ),
+            empty_component(
+                width="10px"
+            ),
+            spacing="2",
+            align="center",
+            bg="BLACK",
+            height="50px",
+            width="100%"
+        ),
+        rx.vstack(
+            rx.spacer(),
+            rx.cond(
+                State.is_logged_in,
+                rx.text(State.username),
+                rx.text("Anonymous")
+            ),
+            rx.spacer(),
+            spacing="2",
+            bg="rgb(16, 16, 16)",
+            width="100%",
+            height="80vh",
+            align="center",
+            color="WHITE",
+        ),
+        spacing="0",
+        width="100%"
+    )
+
 def index():
     return rx.box(
         rx.desktop_only(
             desktop_index()
         ),
-        rx.mobile_and_tablet(
+        rx.tablet_only(
+            tablet_index()
+        ),
+        rx.mobile_only(
             view_under_construction()
         ),
         width="100%",

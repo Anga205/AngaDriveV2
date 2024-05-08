@@ -1,12 +1,13 @@
 import datetime, time, os, random, re, psutil, subprocess
+from rxconfig import config
 
 app_data_dir = "uploaded_files"
 def app_data_dir_function():
     return app_data_dir
 file_directory = os.path.join(app_data_dir,"i")
 database_directory = os.path.join(app_data_dir,'rx.db')
-api_url = "http://localhost:8000"
-app_link = "http://localhost:3000"
+api_url = config.api_url
+app_link = config.deploy_url
 
 file_link = f"{api_url}/i/"
 download_link = f"{api_url}/download/"
@@ -175,15 +176,6 @@ def can_be_previewed(filename:str) -> bool:
     # Check if the file extension is in the list of previewable extensions
     return file_extension in previewable_extensions
 
-
-def get_cpu_temperature():
-    try:
-        output = subprocess.check_output(['vcgencmd', 'measure_temp']).decode('utf-8')
-        temperature = float(output.split('=')[1].split("'")[0])
-        return round(temperature,2)
-    except Exception as e:
-        return 0
-
 def get_system_info():
     cpu_usage = psutil.cpu_percent(interval=1)
     ram = psutil.virtual_memory()
@@ -191,7 +183,5 @@ def get_system_info():
     system_info = {
         "cpu_usage": cpu_usage,
         "ram_usage_percentage": ram_usage_percentage,
-        "temperature": f"{get_cpu_temperature()}°C"
     }
     return system_info
-get_system_info()

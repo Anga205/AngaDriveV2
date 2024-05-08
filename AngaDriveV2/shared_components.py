@@ -6,7 +6,7 @@ from AngaDriveV2.common import *
 
 
 class SystemHealthState(State):
-    show_system_heath:bool = False
+    show_system_health:bool = False
 
     _n_tasks:int = 0
     @rx.background
@@ -14,22 +14,24 @@ class SystemHealthState(State):
         async with self:
             if self._n_tasks>0:
                 return
-            if self.show_system_heath==False:
+            if self.load_system_health_checker==False:
                 return
             self._n_tasks+=1
         async with self:
             self.uptime = format_time(round(time.time() - self.local_start_time))
             system_info = get_system_info()
-            self.temperature = system_info["temperature"]
             self.ram_usage = system_info["ram_usage_percentage"]
             self.cpu_usage = system_info["cpu_usage"]
             self._n_tasks-=1
 
+    load_system_health_checker:bool =False
     def open_system_health(self):
-        self.show_system_heath = True
+        self.show_system_health = True
+        self.load_system_health_checker = True
     
     def close_system_health_no_params(self):
-        self.show_system_heath = False
+        self.show_system_health = False
+        self.load_system_health_checker = False
 
     def close_system_health(self, junk=False):
         self.close_system_health_no_params()
@@ -90,17 +92,6 @@ def shared_navbar() -> rx.Component:
                                 ),
                                 font_size="2vh",
                             ),
-                            rx.chakra.heading(
-                                rx.chakra.span(
-                                    "Temperature: ",
-                                    color="rgb(0, 100, 100)"
-                                ),
-                                rx.chakra.span(
-                                    State.temperature,
-                                    color="WHITE"
-                                ),
-                                font_size="2vh",
-                            ),
                             rx.chakra.hstack(
                                 rx.chakra.circular_progress(
                                     rx.chakra.circular_progress_label("RAM"),
@@ -130,7 +121,7 @@ def shared_navbar() -> rx.Component:
                     on_focus_outside= SystemHealthState.close_system_health,
                     on_interact_outside=SystemHealthState.close_system_health,
                 ),
-                open = SystemHealthState.show_system_heath,
+                open = SystemHealthState.show_system_health,
             ),
             rx.chakra.box(
                 width="0.5vh"
@@ -477,4 +468,10 @@ def view_under_construction():
         rx.spacer(),
         height="100vh",
         width="100%"
+    )
+
+def empty_component(width="0px"):
+    return rx.box(
+        width=width,
+        height="0px",
     )
