@@ -725,14 +725,35 @@ def tablet_index():
             align="center",
             bg="BLACK",
             height="50px",
-            width="100%"
+            width="100%",
+            position="fixed",
         ),
         rx.vstack(
             rx.spacer(),
             rx.cond(
                 State.is_logged_in,
-                rx.text(State.username),
-                rx.text("Anonymous")
+                rx.vstack(
+                    rx.heading("Welcome back, ",State.username),
+                    rx.hstack(
+                        rx.button(rx.icon(tag="external_link")," Panel"),
+                        rx.button("Upload files", color_scheme="green")
+                    ),
+                    font_size="40px",
+                    align="center"
+                ),
+                rx.vstack(
+                    rx.heading(
+                        rx.text.span("Anga", color="BLUE"),
+                        rx.text.span("Drive", color="PURPLE"),
+                        rx.text.span("V2", color="CYAN"), 
+                        font_size="40px"
+                    ),
+                    rx.hstack(
+                        rx.button("Sign Up"),
+                        rx.button("Upload files", color_scheme="green")
+                    ),
+                    align="center"
+                ),
             ),
             rx.spacer(),
             spacing="2",
