@@ -639,6 +639,19 @@ class TabletIndexState(SystemHealthState):
         self.close_system_health_no_params_for_tablet()
 
 
+def why_use_angadrive_tablet():
+    return rx.vstack(
+        rx.spacer(),
+        rx.heading("Why use AngaDrive?", color="WHITE"),
+        rx.spacer(),
+        rx.spacer(),
+        bg="#001015",
+        height="60vh",
+        width="100%",
+        align="center"
+    )
+
+
 def tablet_index():
     return rx.vstack(
         rx.hstack(
@@ -685,6 +698,21 @@ def tablet_index():
                                     color="WHITE"
                                 ),
                                 font_size="2vh",
+                            ),
+                            rx.cond(
+                                State.temperature_available,
+                                rx.chakra.heading(
+                                    rx.chakra.span(
+                                        "Temperature: ",
+                                        color="rgb(0, 100, 100)"
+                                    ),
+                                    rx.chakra.span(
+                                        State.temperature,
+                                        color="WHITE"
+                                    ),
+                                    font_size="2vh",
+                                ),
+                                empty_component()
                             ),
                             rx.chakra.hstack(
                                 rx.chakra.circular_progress(
@@ -749,8 +777,8 @@ def tablet_index():
                         font_size="40px"
                     ),
                     rx.hstack(
-                        rx.button("Sign Up"),
-                        rx.button("Upload files", color_scheme="green")
+                        rx.button("Sign Up", variant="soft", color_scheme="red"),
+                        rx.button("Upload files", color_scheme="green", variant="soft")
                     ),
                     align="center"
                 ),
@@ -763,6 +791,7 @@ def tablet_index():
             align="center",
             color="WHITE",
         ),
+        why_use_angadrive_tablet(),
         spacing="0",
         width="100%"
     )

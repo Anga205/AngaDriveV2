@@ -11,6 +11,8 @@ class State(rx.State):
     uptime = format_time(round(time.time() - local_start_time))
     ram_usage:int
     cpu_usage:int
+    temperature:str
+    temperature_available:bool
 
     token:str = rx.LocalStorage(name="token")
     is_logged_in = rx.LocalStorage(name="logged_in")

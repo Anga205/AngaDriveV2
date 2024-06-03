@@ -22,6 +22,8 @@ class SystemHealthState(State):
             system_info = get_system_info()
             self.ram_usage = system_info["ram_usage_percentage"]
             self.cpu_usage = system_info["cpu_usage"]
+            self.temperature_available = on_rpi
+            self.temperature = system_info["temperature"]
             self._n_tasks-=1
 
     load_system_health_checker:bool =False
@@ -91,6 +93,21 @@ def shared_navbar() -> rx.Component:
                                     color="WHITE"
                                 ),
                                 font_size="2vh",
+                            ),
+                            rx.cond(
+                                State.temperature_available,
+                                rx.chakra.heading(
+                                    rx.chakra.span(
+                                        "Temperature: ",
+                                        color="rgb(0, 100, 100)"
+                                    ),
+                                    rx.chakra.span(
+                                        State.temperature,
+                                        color="WHITE"
+                                    ),
+                                    font_size="2vh",
+                                ),
+                                empty_component()
                             ),
                             rx.chakra.hstack(
                                 rx.chakra.circular_progress(
@@ -220,6 +237,8 @@ def upload_container(component):
         on_drop=upload_handler_spec,
         width="100%",
         spacing="0vh",
+        padding="0px",
+        border="solid 0px #000000",
         id="upload1",
         no_click=True,
         no_keyboard=True

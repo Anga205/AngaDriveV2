@@ -180,8 +180,23 @@ def get_system_info():
     cpu_usage = psutil.cpu_percent(interval=1)
     ram = psutil.virtual_memory()
     ram_usage_percentage = ram.percent
+    if on_rpi:
+        temp = get_cpu_temperature()
+    else:
+        temp = 0.0
     system_info = {
         "cpu_usage": cpu_usage,
         "ram_usage_percentage": ram_usage_percentage,
+        "temperature": f"{temp}°C"
     }
     return system_info
+
+def get_cpu_temperature():
+    try:
+        output = subprocess.check_output(['vcgencmd', 'measure_temp']).decode('utf-8')
+        temperature = float(output.split('=')[1].split("'")[0])
+        return round(temperature,2)
+    except Exception as e:
+        return 0.0
+    
+on_rpi=bool(get_cpu_temperature())
