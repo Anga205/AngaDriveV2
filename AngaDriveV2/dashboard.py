@@ -19,14 +19,14 @@ def static_data_box(**kwargs) -> rx.Component:
             site_data_card(
                 "Files hosted", 
                 State.files_hosted,
-                height="100%",
+#                height="100%",
                 width="140%"
                 ),
             rx.chakra.tooltip(
                 site_data_card(
                     "Users", 
                     State.user_count,
-                    height="100%",
+#                    height="100%",
                     width="100%"
                     ),
                     label=State.registered_user_count
@@ -34,11 +34,11 @@ def static_data_box(**kwargs) -> rx.Component:
             site_data_card(
                 "Collections", 
                 State.collection_count,
-                height="100%",
+#                height="100%",
                 width="130%"
                 ),
             width="100%",
-            height="100%",
+#            height="100%",
             spacing="0.75vh",
         ),
         card(
@@ -62,11 +62,21 @@ def static_data_box(**kwargs) -> rx.Component:
             height="250%"
         ),
         rx.chakra.flex(
-            site_data_card("Space Used", State.space_used, width="50%", height="100%"),
+            site_data_card(
+                "Space Used", 
+                State.space_used, 
+                width="50%", 
+#                height="100%"
+            ),
             rx.chakra.box(width="1vh"),
-            site_data_card("Pulses",State.pulses, width = "50%", height="100%"),
+            site_data_card(
+                "Pulses",
+                State.pulses, 
+                width = "50%", 
+#                height="100%"
+            ),
             width="100%",
-            height="100%",
+#            height="100%",
         ),
         bg="#0f0f1f",
         border_width="1vh",
@@ -467,7 +477,7 @@ def static_account_info():
         border_width="1vh"
     )
 
-def feature_card(image_path, heading, description):
+def feature_card(image_path, heading, description, **kwargs):
     return rx.chakra.vstack(
         rx.chakra.image(
             src=image_path,
@@ -493,7 +503,8 @@ def feature_card(image_path, heading, description):
         border_width="1vh",
         border_color="BLACK",
         width="33%",
-        height="100%"
+        height="100%",
+        **kwargs
     )
 
 
@@ -643,7 +654,48 @@ def why_use_angadrive_tablet():
     return rx.vstack(
         rx.spacer(),
         rx.heading("Why use AngaDrive?", color="WHITE"),
-        rx.spacer(),
+        rx.box(
+            rx.scroll_area(
+                rx.hstack(
+                    feature_card(
+                        "/incognito.png",
+                        "Anonymous Uploads",
+                        "You no longer need an account to make full use of the core features provided by AngaDrive, you can just open the website and start uploading!"
+                    ),
+                    feature_card(
+                        "/rush.png",
+                        "Improved Speed",
+                        "Thanks to V2  making use of FastAPI as opposed to the reflex framework, along with countless minor optimizations, V2 should be upto 200% faster"
+                    ),
+                    feature_card(
+                        "/add-to-database.png",
+                        "Improved Capacity",
+                        "This website now runs on the raspberry pi 5, using a 1 terabyte disk, this should address a few more performance issues and file-size related bugs"
+                    ),
+                    feature_card(
+                        "file_collection.png",
+                        "Galleries",
+                        "Now you can bundle a set of uploaded files into a single previewable gallery to share with friends!"
+                    ),
+                    feature_card(
+                        "/drag-and-drop.png",
+                        "Drop Anywhere",
+                        "You can now drag and drop your files anywhee on the webapp to upload it to AngaDrive cloud"
+                    ),
+                    feature_card(
+                        "/preview.png",
+                        "File Previews",
+                        "For select file types (like mp4, png, jpg etc.) you can preview the file from within the dashboard/gallery itself"
+                    ),
+                    spacing='5',
+                    width=1600
+                ),
+                type="always",
+                scrollbars="horizontal",
+                style={"height":450}
+            ),
+            width="80%",
+        ),
         rx.spacer(),
         bg="#001015",
         height="60vh",
@@ -651,6 +703,17 @@ def why_use_angadrive_tablet():
         align="center"
     )
 
+def tablet_site_data():
+    return rx.vstack(
+        rx.spacer(),
+        rx.heading("Here's some numbers:", color="WHITE"),
+        static_data_box(width="90%", height="90%"),
+        rx.spacer(),
+        align="center",
+        width="100%",   
+        height="60vh",
+        bg="#001510",
+    )
 
 def tablet_index():
     return rx.vstack(
@@ -792,6 +855,7 @@ def tablet_index():
             color="WHITE",
         ),
         why_use_angadrive_tablet(),
+        tablet_site_data(),
         spacing="0",
         width="100%"
     )

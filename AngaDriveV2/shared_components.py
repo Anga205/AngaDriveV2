@@ -489,8 +489,8 @@ def view_under_construction():
         width="100%"
     )
 
-def empty_component(width="0px"):
+def empty_component(width="0px", height="0px"):
     return rx.box(
         width=width,
-        height="0px",
+        height=height,
     )
