@@ -692,7 +692,7 @@ def why_use_angadrive_tablet():
                 ),
                 type="always",
                 scrollbars="horizontal",
-                style={"height":450}
+                style={"height":400}
             ),
             width="80%",
         ),
@@ -711,19 +711,48 @@ def tablet_site_data():
         rx.spacer(),
         align="center",
         width="100%",   
-        height="60vh",
+        height="80vh",
         bg="#001510",
     )
+
+
+def tablet_drawer(button):
+    return rx.drawer.root(
+    rx.drawer.trigger(button),
+    rx.drawer.overlay(z_index="5"),
+    rx.drawer.portal(
+        rx.drawer.content(
+            rx.flex(
+                rx.chakra.button("Home", bg = "#0f0f0f", color="WHITE", width="100%"),
+                rx.chakra.button("Files", bg = "#0f0f0f", color="WHITE", width="100%"),
+                rx.chakra.button("Collections", bg = "#0f0f0f", color="WHITE", width="100%"),
+                rx.spacer(),
+#                rx.drawer.close(rx.box(rx.button("Close"))),
+                align_items="start",
+                direction="column",
+            ),
+            top="auto",
+            right="auto",
+            height="100%",
+            width="20em",
+            padding="2em",
+            background_color="#0f0f0f"
+        ),
+    ),
+    direction="left",
+)
 
 def tablet_index():
     return rx.vstack(
         rx.hstack(
             empty_component(),
-            rx.icon(
-                tag="menu",
-                color="#ffffff",
-                _active={"color":"#777777"},
-            ),
+#            tablet_drawer(
+                rx.icon(
+                    tag="menu",
+                    color="#ffffff",
+                    _active={"color":"#777777"},
+                ),
+#            ),
             rx.spacer(),
             rx.popover.root(
                 rx.popover.trigger(
