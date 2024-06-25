@@ -531,7 +531,8 @@ def tablet_drawer(button, current_page):
                     bg = "#202020" if (current_page=="home") else "#0f0f0f", 
                     color="WHITE", 
                     width="100%", 
-                    _hover={"bg": "#202020"}
+                    _hover={"bg": "#202020"},
+                    **{"on_click":rx.redirect("/")} if current_page!="home" else {}
                 ),
                 rx.chakra.button(
                     rx.chakra.image(
@@ -546,7 +547,8 @@ def tablet_drawer(button, current_page):
                     bg = "#202020" if (current_page=="files") else "#0f0f0f", 
                     color="WHITE", 
                     width="100%", 
-                    _hover={"bg": "#202020"}
+                    _hover={"bg": "#202020"},
+                    **{"on_click":rx.redirect("/my_drive")} if current_page!="files" else {}
                 ),
                 rx.chakra.button(
                     rx.chakra.image(
@@ -561,7 +563,8 @@ def tablet_drawer(button, current_page):
                     bg = "#202020" if (current_page=="collections") else "#0f0f0f", 
                     color="WHITE", 
                     width="100%", 
-                    _hover={"bg": "#202020"}
+                    _hover={"bg": "#202020"},
+                    **{"on_click":rx.redirect("/my_collections")} if current_page!="collections" else {}
                 ),
                 rx.spacer(),
                 align_items="start",

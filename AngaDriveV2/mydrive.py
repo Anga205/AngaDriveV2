@@ -79,7 +79,7 @@ def upload_button():
                             bg="#113322",
                             color="WHITE",
                             _hover={"bg":"#224433"},
-                            on_click=State.handle_file_page_upload(rx.upload_files(upload_id="file_page_upload"))
+                            on_click=State.handle_file_page_upload(rx.upload_files(upload_id="file_page_upload", on_upload_progress=State.upload_progressbar))
                         )
                     ),
                     rx.box(
