@@ -11,34 +11,31 @@ def static_data_box(**kwargs) -> rx.Component:
             "DriveV2 - Site Data",
             color="WHITE",
             font_size="3.5vh"
-            ),
+        ),
         rx.chakra.divider(
             border_color="GRAY"
-            ),
+        ),
         rx.chakra.hstack(
             site_data_card(
-                "Files hosted", 
-                State.files_hosted,
-#                height="100%",
-                width="140%"
-                ),
+                "Pulses",
+                State.pulses,
+                width = "100%",
+            ),
             rx.chakra.tooltip(
                 site_data_card(
                     "Users", 
                     State.user_count,
-#                    height="100%",
                     width="100%"
-                    ),
-                    label=State.registered_user_count
                 ),
+                    label=State.registered_user_count
+            ),
             site_data_card(
                 "Collections", 
                 State.collection_count,
-#                height="100%",
+                height="100%",
                 width="130%"
-                ),
+            ),
             width="100%",
-#            height="100%",
             spacing="0.75vh",
         ),
         card(
@@ -66,17 +63,15 @@ def static_data_box(**kwargs) -> rx.Component:
                 "Space Used", 
                 State.space_used, 
                 width="50%", 
-#                height="100%"
             ),
             rx.chakra.box(width="1vh"),
             site_data_card(
-                "Pulses",
-                State.pulses, 
-                width = "50%", 
-#                height="100%"
+                "Files hosted", 
+                State.files_hosted,
+                height="100%",
+                width="50%"
             ),
             width="100%",
-#            height="100%",
         ),
         bg="#0f0f1f",
         border_width="1vh",
@@ -479,16 +474,27 @@ def static_account_info():
 
 def feature_card(image_path, heading, description, **kwargs):
     return rx.chakra.vstack(
-        rx.chakra.image(
-            src=image_path,
-            custom_attrs={"draggable":"false"},
-            height="50%",
-            width="auto",
+        rx.desktop_only(
+            rx.chakra.image(
+                src=image_path,
+                custom_attrs={"draggable":"false"},
+                height="100%",
+                width="auto",
+            ),
+            height="50%"
+        ),
+        rx.mobile_and_tablet(
+            rx.chakra.image(
+                src=image_path,
+                custom_attrs={"draggable":"false"},
+                height="auto",
+                width="90%",
+            )
         ),
         rx.chakra.heading(
             heading,
             font_size="2.2vh"
-            ),
+        ),
         rx.chakra.divider(
             border_color="GRAY"
         ),
@@ -678,13 +684,13 @@ def why_use_angadrive_tablet():
                 ),
                 type="always",
                 scrollbars="horizontal",
-                style={"height":400}
+#                style={"height":400}
             ),
             width="80%",
         ),
-        rx.spacer(),
+        rx.box(height="1vh"),
         bg="#001015",
-        height="60vh",
+#        height="60vh",
         width="100%",
         align="center"
     )
@@ -693,7 +699,7 @@ def tablet_site_data():
     return rx.vstack(
         rx.spacer(),
         rx.heading("Here's some numbers:", color="WHITE"),
-        static_data_box(width="90%", height="90%"),
+        static_data_box(width="98%", height="90%"),
         rx.spacer(),
         align="center",
         width="100%",   
@@ -753,11 +759,11 @@ def index():
         rx.desktop_only(
             desktop_index()
         ),
-        rx.tablet_only(
+        rx.mobile_and_tablet(
             tablet_index()
         ),
-        rx.mobile_only(
-            view_under_construction()
-        ),
+#        rx.mobile_only(
+#            view_under_construction()
+#        ),
         width="100%",
     )

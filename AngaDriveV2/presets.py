@@ -6,6 +6,7 @@ from AngaDriveV2.flowinity import client_secret
 def card(heading, content, **kwargs):
     return rx.chakra.vstack(
         rx.chakra.heading(heading, color="BLUE", font_size="3vh"),
+        rx.spacer(),
         content,
         border_color="black",
         border_width="1.5vh",
@@ -19,7 +20,7 @@ def card(heading, content, **kwargs):
 
 def site_data_card(heading = "Sample heading", content="Sample content", **kwargs):
     return card(
-        heading, 
+        heading,
         rx.chakra.text(content, font_size="2.5vh", _as="b"),
         **kwargs
     )

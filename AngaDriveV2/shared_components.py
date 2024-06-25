@@ -518,6 +518,19 @@ def tablet_drawer(button, current_page):
     rx.drawer.portal(
         rx.drawer.content(
             rx.flex(
+                rx.chakra.hstack(
+                    rx.chakra.image(
+                        src="/logo.png", 
+                        height="5vh", 
+                        custom_attrs={"draggable":"false"},
+                        width="auto",
+                    ),
+                    rx.chakra.heading(
+                        "DriveV2", 
+                        font_size="2.5vh",
+                    ),
+                ),
+                rx.chakra.box(height="1vh"),
                 rx.chakra.button(
                     rx.chakra.image(
                         src="/home.png",
