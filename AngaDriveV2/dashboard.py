@@ -716,6 +716,111 @@ def tablet_site_data():
     )
 
 
+def tablet_navbar(current_page):
+    return rx.hstack(
+    empty_component(),
+    tablet_drawer(
+        rx.icon(
+            tag="menu",
+            color="#ffffff",
+            _active={"color":"#777777"},
+        )
+    ),
+    rx.spacer(),
+    rx.popover.root(
+        rx.popover.trigger(
+            rx.chakra.image(
+                src="/health.png",
+                custom_attrs={"draggable":"false"},
+                color="WHITE", 
+                height="2vh",
+                on_click = TabletIndexState.open_system_health_for_tablet
+            )
+        ),
+        rx.popover.content(
+            rx.chakra.vstack(
+                rx.chakra.heading(
+                    "System Health", 
+                    color="RED",
+                    font_size="3.5vh"
+                    ),
+                rx.chakra.divider(border_color="GRAY"),
+                rx.chakra.box(
+                    rx.moment(
+                        interval=500, 
+                        on_change=SystemHealthState.tick_health
+                    ), 
+                    display="none"
+                ),
+                rx.chakra.box(
+                    rx.chakra.heading(
+                        rx.chakra.span(
+                            "Server Uptime: ",
+                            color="rgb(0, 100, 100)"
+                        ),
+                        rx.chakra.span(
+                            State.uptime,
+                            color="WHITE"
+                        ),
+                        font_size="2vh",
+                    ),
+                    rx.cond(
+                        State.temperature_available,
+                        rx.chakra.heading(
+                            rx.chakra.span(
+                                "Temperature: ",
+                                color="rgb(0, 100, 100)"
+                            ),
+                            rx.chakra.span(
+                                State.temperature,
+                                color="WHITE"
+                            ),
+                            font_size="2vh",
+                        ),
+                        empty_component()
+                    ),
+                    rx.chakra.hstack(
+                        rx.chakra.circular_progress(
+                            rx.chakra.circular_progress_label("RAM"),
+                            value=State.ram_usage,
+                            size="10vh"
+                        ),
+                        rx.chakra.circular_progress(
+                            rx.chakra.circular_progress_label("CPU"),
+                            value=State.cpu_usage,
+                            size="10vh"
+                        )
+                    ),
+                    border_radius="0.5vh",
+                    width="100%"
+                ),
+                color="WHITE",
+                bg="BLACK",
+                border_width="0px",
+                border_radius="0.5vh",
+                border_color="BLACK",
+            ),
+            bg="BLACK",
+            border_color="WHITE",
+            border_width="1px",
+            on_escape_key_down=TabletIndexState.close_system_health_for_tablet,
+            on_pointer_down_outside=TabletIndexState.close_system_health_for_tablet,
+            on_focus_outside=TabletIndexState.close_system_health_for_tablet,
+            on_interact_outside=TabletIndexState.close_system_health_for_tablet
+        ),
+        open = TabletIndexState.show_system_health_for_tablet
+    ),
+    empty_component(
+        width="10px"
+    ),
+    spacing="2",
+    align="center",
+    bg="BLACK",
+    height="50px",
+    width="100%",
+    position="fixed",
+)
+
 def tablet_drawer(button):
     return rx.drawer.root(
     rx.drawer.trigger(button),
@@ -723,18 +828,60 @@ def tablet_drawer(button):
     rx.drawer.portal(
         rx.drawer.content(
             rx.flex(
-                rx.chakra.button("Home", bg = "#0f0f0f", color="WHITE", width="100%"),
-                rx.chakra.button("Files", bg = "#0f0f0f", color="WHITE", width="100%"),
-                rx.chakra.button("Collections", bg = "#0f0f0f", color="WHITE", width="100%"),
+                rx.chakra.button(
+                    rx.chakra.image(
+                        src="/home.png",
+                        height="50%",
+                        custom_attrs={"draggable":"false"},
+                        width="auto"
+                    ), 
+                    rx.chakra.spacer(), 
+                    "Home",
+                    rx.chakra.spacer(),
+                    bg = "#0f0f0f", 
+                    color="WHITE", 
+                    width="100%", 
+                    _hover={"bg": "#202020"}
+                ),
+                rx.chakra.button(
+                    rx.chakra.image(
+                        src="/folders.png",
+                        height="50%",
+                        custom_attrs={"draggable":"false"},
+                        width="auto"
+                    ),
+                    rx.chakra.spacer(),
+                    "Files",  
+                    rx.chakra.spacer(),
+                    bg = "#0f0f0f", 
+                    color="WHITE", 
+                    width="100%", 
+                    _hover={"bg": "#202020"}
+                ),
+                rx.chakra.button(
+                    rx.chakra.image(
+                        src="/collection.png",
+                        height="50%",
+                        custom_attrs={"draggable":"false"},
+                        width="auto"
+                    ),
+                    rx.chakra.spacer(),
+                    "Collections", 
+                    rx.chakra.spacer(), 
+                    bg = "#0f0f0f", 
+                    color="WHITE", 
+                    width="100%", 
+                    _hover={"bg": "#202020"}
+                ),
                 rx.spacer(),
-#                rx.drawer.close(rx.box(rx.button("Close"))),
                 align_items="start",
                 direction="column",
+                width="100%"
             ),
             top="auto",
             right="auto",
             height="100%",
-            width="20em",
+            width="15em",
             padding="2em",
             background_color="#0f0f0f"
         ),
@@ -742,147 +889,47 @@ def tablet_drawer(button):
     direction="left",
 )
 
-def tablet_index():
+def tablet_top_widget():
     return rx.vstack(
-        rx.hstack(
-            empty_component(),
-#            tablet_drawer(
-                rx.icon(
-                    tag="menu",
-                    color="#ffffff",
-                    _active={"color":"#777777"},
-                ),
-#            ),
-            rx.spacer(),
-            rx.popover.root(
-                rx.popover.trigger(
-                    rx.chakra.image(
-                        src="/health.png",
-                        custom_attrs={"draggable":"false"},
-                        color="WHITE", 
-                        height="2vh",
-                        on_click = TabletIndexState.open_system_health_for_tablet
-                    )
-                ),
-                rx.popover.content(
-                    rx.chakra.vstack(
-                        rx.chakra.heading(
-                            "System Health", 
-                            color="RED",
-                            font_size="3.5vh"
-                            ),
-                        rx.chakra.divider(border_color="GRAY"),
-                        rx.chakra.box(
-                            rx.moment(
-                                interval=500, 
-                                on_change=SystemHealthState.tick_health
-                            ), 
-                            display="none"
-                        ),
-                        rx.chakra.box(
-                            rx.chakra.heading(
-                                rx.chakra.span(
-                                    "Server Uptime: ",
-                                    color="rgb(0, 100, 100)"
-                                ),
-                                rx.chakra.span(
-                                    State.uptime,
-                                    color="WHITE"
-                                ),
-                                font_size="2vh",
-                            ),
-                            rx.cond(
-                                State.temperature_available,
-                                rx.chakra.heading(
-                                    rx.chakra.span(
-                                        "Temperature: ",
-                                        color="rgb(0, 100, 100)"
-                                    ),
-                                    rx.chakra.span(
-                                        State.temperature,
-                                        color="WHITE"
-                                    ),
-                                    font_size="2vh",
-                                ),
-                                empty_component()
-                            ),
-                            rx.chakra.hstack(
-                                rx.chakra.circular_progress(
-                                    rx.chakra.circular_progress_label("RAM"),
-                                    value=State.ram_usage,
-                                    size="10vh"
-                                ),
-                                rx.chakra.circular_progress(
-                                    rx.chakra.circular_progress_label("CPU"),
-                                    value=State.cpu_usage,
-                                    size="10vh"
-                                )
-                            ),
-                            border_radius="0.5vh",
-                            width="100%"
-                        ),
-                        color="WHITE",
-                        bg="BLACK",
-                        border_width="0px",
-                        border_radius="0.5vh",
-                        border_color="BLACK",
-                    ),
-
-                    bg="BLACK",
-                    border_color="WHITE",
-                    border_width="1px",
-                    on_escape_key_down=TabletIndexState.close_system_health_for_tablet,
-                    on_pointer_down_outside=TabletIndexState.close_system_health_for_tablet,
-                    on_focus_outside=TabletIndexState.close_system_health_for_tablet,
-                    on_interact_outside=TabletIndexState.close_system_health_for_tablet
-                ),
-                open = TabletIndexState.show_system_health_for_tablet
+    rx.spacer(),
+    rx.cond(
+        State.is_logged_in,
+        rx.vstack(
+            rx.heading("Welcome back, ",State.username),
+            rx.hstack(
+                rx.button(rx.icon(tag="external_link")," Panel"),
+                rx.button("Upload files", color_scheme="green")
             ),
-            empty_component(
-                width="10px"
-            ),
-            spacing="2",
-            align="center",
-            bg="BLACK",
-            height="50px",
-            width="100%",
-            position="fixed",
+            font_size="40px",
+            align="center"
         ),
         rx.vstack(
-            rx.spacer(),
-            rx.cond(
-                State.is_logged_in,
-                rx.vstack(
-                    rx.heading("Welcome back, ",State.username),
-                    rx.hstack(
-                        rx.button(rx.icon(tag="external_link")," Panel"),
-                        rx.button("Upload files", color_scheme="green")
-                    ),
-                    font_size="40px",
-                    align="center"
-                ),
-                rx.vstack(
-                    rx.heading(
-                        rx.text.span("Anga", color="BLUE"),
-                        rx.text.span("Drive", color="PURPLE"),
-                        rx.text.span("V2", color="CYAN"), 
-                        font_size="40px"
-                    ),
-                    rx.hstack(
-                        rx.button("Sign Up", variant="soft", color_scheme="red"),
-                        rx.button("Upload files", color_scheme="green", variant="soft")
-                    ),
-                    align="center"
-                ),
+            rx.heading(
+                rx.text.span("Anga", color="BLUE"),
+                rx.text.span("Drive", color="PURPLE"),
+                rx.text.span("V2", color="CYAN"), 
+                font_size="40px"
             ),
-            rx.spacer(),
-            spacing="2",
-            bg="rgb(16, 16, 16)",
-            width="100%",
-            height="80vh",
-            align="center",
-            color="WHITE",
+            rx.hstack(
+                rx.button("Sign Up", variant="soft", color_scheme="red"),
+                rx.button("Upload files", color_scheme="green", variant="soft")
+            ),
+            align="center"
         ),
+    ),
+    rx.spacer(),
+    spacing="2",
+    bg="rgb(16, 16, 16)",
+    width="100%",
+    height="80vh",
+    align="center",
+    color="WHITE",
+),
+
+def tablet_index():
+    return rx.vstack(
+        tablet_navbar("home"),
+        tablet_top_widget(),
         why_use_angadrive_tablet(),
         tablet_site_data(),
         spacing="0",
