@@ -159,13 +159,69 @@ def desktop_index():
         )
     )
 
+class TabletMyDriveState(State):
+    def ondropaction(self):
+        print("hello!")
+
+def no_files():
+    return rx.upload(
+    rx.vstack(
+        rx.spacer(),
+        rx.callout(
+            "uploaded files will show up here",
+            icon="info"
+        ),
+        rx.spacer(),
+        height="100vh",
+        align="center",
+        width="100%"
+    ),
+    id="tablet_page_upload",
+    border="0px",
+    width="100%",
+    height="95vh",
+    padding="0px",
+    on_drop=State.handle_file_page_upload(rx.upload_files(upload_id="tablet_page_upload", on_upload_progress=State.upload_progressbar))
+)
+
+def tablet_show_files():
+    return rx.grid(
+        rx.foreach(
+            State.user_files,
+            file_card
+        ),
+        columns='2',
+        width="100%",
+        spacing="3",
+        bg="#0f0f0f",
+        wrap="wrap",
+    )
+
+def tablet_header():
+    return rx.cond(
+        State.user_files,
+        tablet_show_files(),
+        no_files()
+    )
+
+def tablet_index():
+    return rx.vstack(
+        tablet_navbar("files"),
+        tablet_header(),
+        spacing='0',
+        width="100%",
+        bg="#0f0f0f",
+        height="100vh"
+    )
+
 def index():
     return rx.box(
         rx.desktop_only(
             desktop_index()
         ),
         rx.mobile_and_tablet(
-            view_under_construction()
+            tablet_index()
         ),
         width="100%",
+        bg="#0f0f0f"
     )

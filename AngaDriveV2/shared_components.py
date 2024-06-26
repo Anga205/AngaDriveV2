@@ -527,6 +527,7 @@ def tablet_drawer(button, current_page):
                     ),
                     rx.chakra.heading(
                         "DriveV2", 
+                        color="WHITE",
                         font_size="2.5vh",
                     ),
                 ),
@@ -595,108 +596,123 @@ def tablet_drawer(button, current_page):
     direction="left",
 )
 
-def tablet_navbar(current_page):
-    return rx.hstack(
-    empty_component(),
-    tablet_drawer(
-        rx.icon(
-            tag="menu",
-            color="#ffffff",
-            _active={"color":"#777777"},
-        ),
-        current_page
-    ),
-    rx.spacer(),
-    rx.popover.root(
-        rx.popover.trigger(
-            rx.chakra.image(
-                src="/health.png",
-                custom_attrs={"draggable":"false"},
-                color="WHITE", 
-                height="2vh",
-                on_click = TabletNavbarState.open_system_health_for_tablet
-            )
-        ),
-        rx.popover.content(
-            rx.chakra.vstack(
-                rx.chakra.heading(
-                    "System Health", 
-                    color="RED",
-                    font_size="3.5vh"
-                    ),
-                rx.chakra.divider(border_color="GRAY"),
-                rx.chakra.box(
-                    rx.moment(
-                        interval=500, 
-                        on_change=SystemHealthState.tick_health
-                    ), 
-                    display="none"
+def tablet_navbar(current_page):            # has a height of 50px
+    return rx.box(
+    rx.vstack(
+        rx.hstack(
+            empty_component(),
+            tablet_drawer(
+                rx.icon(
+                    tag="menu",
+                    color="#ffffff",
+                    _active={"color":"#777777"},
                 ),
-                rx.chakra.box(
-                    rx.chakra.heading(
-                        rx.chakra.span(
-                            "Server Uptime: ",
-                            color="rgb(0, 100, 100)"
-                        ),
-                        rx.chakra.span(
-                            State.uptime,
-                            color="WHITE"
-                        ),
-                        font_size="2vh",
-                    ),
-                    rx.cond(
-                        State.temperature_available,
-                        rx.chakra.heading(
-                            rx.chakra.span(
-                                "Temperature: ",
-                                color="rgb(0, 100, 100)"
-                            ),
-                            rx.chakra.span(
-                                State.temperature,
-                                color="WHITE"
-                            ),
-                            font_size="2vh",
-                        ),
-                        empty_component()
-                    ),
-                    rx.chakra.hstack(
-                        rx.chakra.circular_progress(
-                            rx.chakra.circular_progress_label("RAM"),
-                            value=State.ram_usage,
-                            size="10vh"
-                        ),
-                        rx.chakra.circular_progress(
-                            rx.chakra.circular_progress_label("CPU"),
-                            value=State.cpu_usage,
-                            size="10vh"
-                        )
-                    ),
-                    border_radius="0.5vh",
-                    width="100%"
-                ),
-                color="WHITE",
-                bg="BLACK",
-                border_width="0px",
-                border_radius="0.5vh",
-                border_color="BLACK",
+                current_page
             ),
+            rx.spacer(),
+            rx.popover.root(
+                rx.popover.trigger(
+                    rx.chakra.image(
+                        src="/health.png",
+                        custom_attrs={"draggable":"false"},
+                        color="WHITE", 
+                        height="2vh",
+                        on_click = TabletNavbarState.open_system_health_for_tablet
+                    )
+                ),
+                rx.popover.content(
+                    rx.chakra.vstack(
+                        rx.chakra.heading(
+                            "System Health", 
+                            color="RED",
+                            font_size="3.5vh"
+                            ),
+                        rx.chakra.divider(border_color="GRAY"),
+                        rx.chakra.box(
+                            rx.moment(
+                                interval=500, 
+                                on_change=SystemHealthState.tick_health
+                            ), 
+                            display="none"
+                        ),
+                        rx.chakra.box(
+                            rx.chakra.heading(
+                                rx.chakra.span(
+                                    "Server Uptime: ",
+                                    color="rgb(0, 100, 100)"
+                                ),
+                                rx.chakra.span(
+                                    State.uptime,
+                                    color="WHITE"
+                                ),
+                                font_size="2vh",
+                            ),
+                            rx.cond(
+                                State.temperature_available,
+                                rx.chakra.heading(
+                                    rx.chakra.span(
+                                        "Temperature: ",
+                                        color="rgb(0, 100, 100)"
+                                    ),
+                                    rx.chakra.span(
+                                        State.temperature,
+                                        color="WHITE"
+                                    ),
+                                    font_size="2vh",
+                                ),
+                                empty_component()
+                            ),
+                            rx.chakra.hstack(
+                                rx.chakra.circular_progress(
+                                    rx.chakra.circular_progress_label("RAM"),
+                                    value=State.ram_usage,
+                                    size="10vh"
+                                ),
+                                rx.chakra.circular_progress(
+                                    rx.chakra.circular_progress_label("CPU"),
+                                    value=State.cpu_usage,
+                                    size="10vh"
+                                )
+                            ),
+                            border_radius="0.5vh",
+                            width="100%"
+                        ),
+                        color="WHITE",
+                        bg="BLACK",
+                        border_width="0px",
+                        border_radius="0.5vh",
+                        border_color="BLACK",
+                    ),
+                    bg="BLACK",
+                    border_color="WHITE",
+                    border_width="1px",
+                    on_escape_key_down=TabletNavbarState.close_system_health_for_tablet,
+                    on_pointer_down_outside=TabletNavbarState.close_system_health_for_tablet,
+                    on_focus_outside=TabletNavbarState.close_system_health_for_tablet,
+                    on_interact_outside=TabletNavbarState.close_system_health_for_tablet
+                ),
+                open = TabletNavbarState.show_system_health_for_tablet
+            ),
+            empty_component(
+                width="10px"
+            ),
+            spacing="2",
+            align="center",
             bg="BLACK",
-            border_color="WHITE",
-            border_width="1px",
-            on_escape_key_down=TabletNavbarState.close_system_health_for_tablet,
-            on_pointer_down_outside=TabletNavbarState.close_system_health_for_tablet,
-            on_focus_outside=TabletNavbarState.close_system_health_for_tablet,
-            on_interact_outside=TabletNavbarState.close_system_health_for_tablet
+            height="4.9vh",
+            width="100%",
         ),
-        open = TabletNavbarState.show_system_health_for_tablet
+        rx.chakra.progress(
+            value = State.upload_progress,
+            width="100%",
+            bg="BLACK",
+            height="0.1vh",
+        ),
+        spacing="0",
+        position="fixed",
+        height="5vh",
+        width="100%",
     ),
-    empty_component(
-        width="10px"
-    ),
-    spacing="2",
-    align="center",
-    bg="BLACK",
-    height="50px",
-    width="100%",
-    position="fixed",
+    height="5vh",
+    width="100%"
 )
