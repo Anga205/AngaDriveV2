@@ -185,19 +185,35 @@ def no_files():
 )
 
 def tablet_show_files():
-    return rx.grid(
+    return rx.vstack(
+    empty_component(height="1vh"),
+    rx.hstack(
+        rx.heading("My Files", color="WHITE"),
+        rx.spacer(),
+        rx.upload(
+            rx.button("Upload"),
+            id="tablet_page_upload",
+            border="0px",
+            padding="0px",
+            on_drop=State.handle_file_page_upload(rx.upload_files(upload_id="tablet_page_upload", on_upload_progress=State.upload_progressbar))
+        ),
+        width="90%"
+    ),
+    rx.vstack(
         rx.foreach(
             State.user_files,
-            file_card
+            mobile_file_card
         ),
-        columns='2',
         width="100%",
         spacing="3",
-        bg="#0f0f0f",
-        wrap="wrap",
-    )
+        align="center",
+        bg="#0f0f0f"
+    ),
+    width="100%",
+    align="center"
+)
 
-def tablet_header():
+def tablet_page():
     return rx.cond(
         State.user_files,
         tablet_show_files(),
@@ -207,7 +223,7 @@ def tablet_header():
 def tablet_index():
     return rx.vstack(
         tablet_navbar("files"),
-        tablet_header(),
+        tablet_page(),
         spacing='0',
         width="100%",
         bg="#0f0f0f",

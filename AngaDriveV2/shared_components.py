@@ -716,3 +716,22 @@ def tablet_navbar(current_page):            # has a height of 50px
     height="5vh",
     width="100%"
 )
+
+def mobile_file_card(file_obj):
+    return rx.chakra.vstack(
+    file_name_header(
+        file_obj,
+        border_radius="1vh 1vh 0vh 0vh"
+    ),
+    file_details(
+        file_obj,
+        border_radius="0vh 0vh 0vh 0vh"
+    ),
+    file_editor_menu(
+        file_obj,
+        border_width="0vh 0.2vh 0.2vh 0.2vh",
+        border_radius= "0vh 0vh 1vh 1vh"
+    ),
+    width="90%",
+    spacing="0px"
+)

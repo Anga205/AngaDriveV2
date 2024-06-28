@@ -716,7 +716,11 @@ def tablet_top_widget():
             rx.heading("Welcome back, ",State.username),
             rx.hstack(
                 rx.button(rx.icon(tag="external_link")," Panel"),
-                rx.button("Upload files", color_scheme="green")
+                rx.link(
+                    rx.button("Upload files", color_scheme="green"),
+                    href="https://github.com/Anga205/AngaDriveV2",
+                    target="_blank"
+                ),
             ),
             font_size="40px",
             align="center"
@@ -730,7 +734,11 @@ def tablet_top_widget():
             ),
             rx.hstack(
                 rx.button("Sign Up", variant="soft", color_scheme="red"),
-                rx.button("Upload files", color_scheme="green", variant="soft")
+                rx.link(
+                    rx.button("Upload files", color_scheme="green", variant="soft"),
+                    href="https://github.com/Anga205/AngaDriveV2",
+                    target="_blank"
+                )
             ),
             align="center"
         ),

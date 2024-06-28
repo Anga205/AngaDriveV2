@@ -290,7 +290,7 @@ def context_menu_wrapper(*components):
         )
     )
 
-def index():
+def desktop_index():
     return site_template(
         "Collections",
         context_menu_wrapper(
@@ -333,4 +333,23 @@ def index():
                 height="100%"
             )
         )
+    )
+
+def tablet_index():
+    return rx.vstack(
+        tablet_navbar("collections"),
+        bg="#0f0f0f",
+        width="100%"
+    )
+
+def index():
+    return rx.box(
+        rx.desktop_only(
+            desktop_index()
+        ),
+        rx.mobile_and_tablet(
+            tablet_index(),
+        ),
+        width="100%",
+        bg="#0f0f0f"
     )
