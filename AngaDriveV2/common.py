@@ -1,16 +1,33 @@
-import datetime, time, os, random, re, psutil, subprocess
-from rxconfig import config
+import datetime, time, os, random, re, psutil, subprocess, json
 
 app_data_dir = "uploaded_files"
 def app_data_dir_function():
     return app_data_dir
 file_directory = os.path.join(app_data_dir,"i")
 database_directory = os.path.join(app_data_dir,'rx.db')
-api_url = config.api_url
-app_link = config.deploy_url
 
-file_link = f"{api_url}/i/"
-download_link = f"{api_url}/download/"
+server_config_directory = os.path.join(app_data_dir, "server_config.json")
+try:
+    with open(server_config_directory, "r") as f:
+        server_config = json.load(f)
+except FileNotFoundError:
+    server_config = {
+        "api_url": input("Enter API url (or press enter to use http://localhost:8000): ").strip() or "http://localhost:8000",
+    }
+    if server_config["api_url"]=="http://localhost:8000":
+        server_config['file_visible_api'] = f"{server_config['api_url']}"
+        server_config["deploy_url"] = "http://localhost:3000"
+    else:
+        server_config['deploy_url'] = input("Enter Deploy url: (or press enter to use http://localhost:3000): ").strip() or "http://localhost:3000"
+        server_config['file_visible_api'] = input(f"Enter file visible api (or press enter to use {server_config['api_url']}): ") or f"{server_config['api_url']}"
+    with open(server_config_directory, "w") as f:
+        json.dump(server_config, f)
+    
+
+app_link = server_config['deploy_url']
+
+file_link = f"{server_config['file_visible_api']}/i/"
+download_link = f"{server_config['file_visible_api']}/download/"
 
 truncate_string = lambda string, length=19: string if len(string)<=length else string[0:length]+"..."
 
