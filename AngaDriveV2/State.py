@@ -96,6 +96,7 @@ class State(rx.State):
             )
         self.user_files: list[dict[str, str]] = get_all_user_files_for_display(self.token)
         yield rx.redirect("/my_drive")
+        yield rx.toast.success("Files successfully uploaded")
     
     def upload_progressbar(self, prog):
         self.upload_progress = prog["progress"]*100
@@ -133,19 +134,23 @@ class State(rx.State):
         self.user_files: list[dict[str, str]] = get_all_user_files_for_display(self.token)
         yield rx.clear_selected_files()
         yield rx.set_clipboard(", \n".join(file_link_list))
+        yield rx.toast.success("Files uploaded and copied to clipboard")
     
     def copy_file_link(self, file_obj):
         if "." in file_obj["original_name"]:
             file_path = os.path.join(file_obj["file_path"].split(".")[0], file_obj["original_name"])
         else:
             file_path = os.path.join(file_obj["file_path"], file_obj["original_name"])
-        return rx.set_clipboard(file_link+file_path)
+        yield rx.set_clipboard(file_link+file_path)
+        yield rx.toast.success("File link copied to clipboard")
     
     def copy_file_path(self, file_obj):
-        return rx.set_clipboard(file_link+file_obj["file_path"])
+        yield rx.set_clipboard(file_link+file_obj["file_path"])
+        yield rx.toast.success("File path copied to clipboard")
 
     def copy_download_link(self, file_obj):
-        return rx.set_clipboard(download_link+file_obj["file_path"])
+        yield rx.set_clipboard(download_link+file_obj["file_path"])
+        yield rx.toast.success("Download link copied to clipboard")
     
     def download_file(self, file_obj):
         add_timestamp_to_activity()

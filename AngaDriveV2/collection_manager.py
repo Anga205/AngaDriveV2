@@ -176,7 +176,8 @@ def collection_accordian(collection_obj):   # collection_obj consists of [collec
                         rx.chakra.hstack(
                             rx.chakra.text(
                                 collection_obj[1], # collection name
-                                font_size="30px"
+                                font_size="30px",
+                                color="WHITE"
                             ),
                             rx.chakra.accordion_icon(),
                         ),
@@ -338,8 +339,45 @@ def desktop_index():
 def tablet_index():
     return rx.vstack(
         tablet_navbar("collections"),
+        rx.vstack(
+            rx.heading(
+                "My Collections",
+                color="White"
+            ),
+            rx.hstack(
+                rx.spacer(),
+                create_new_collection_dialog(
+                    rx.button("Create New Collection", on_click=CollectionState.open_dialog)
+                ),
+                width="100%"
+            ),
+            rx.cond(
+                CollectionState.collection_ids,
+                rx.flex(
+                    rx.foreach(
+                        CollectionState.display_my_collections,
+                        collection_accordian
+                    ),
+                    wrap='wrap',
+                    spacing="1",
+                ),
+                rx.vstack(
+                    rx.spacer(),
+                    rx.callout(
+                        "You have no collections yet. Create a new collection to get started.",
+                        icon="info"
+                    ),
+                    rx.spacer(),
+                    rx.spacer(),
+                    height="100vh"
+                ),
+            ),
+            width="95%",
+            height="100vh"
+        ),
         bg="#0f0f0f",
-        width="100%"
+        width="100%",
+        align='center'
     )
 
 def index():

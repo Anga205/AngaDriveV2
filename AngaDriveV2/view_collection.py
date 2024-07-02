@@ -485,7 +485,7 @@ def desktop_index():
 def index():
     return rx.box(
         rx.desktop_only(
-            desktop_index()
+            desktop_index(),
         ),
         rx.mobile_and_tablet(
             view_under_construction()
