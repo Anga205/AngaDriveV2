@@ -66,6 +66,9 @@ class CollectionState(State):
     
     def copy_collection(self, collection_id):
         return rx.set_clipboard(f"{app_link}/collection?id={collection_id}")
+    
+    def event_verify(self):
+        print("accordian clicked")
 
 
 def create_new_collection_dialog(button):
@@ -117,7 +120,6 @@ def create_new_collection_dialog(button):
         ),
         open = CollectionState.open_new_collection_dialog
     )
-
 
 def confirm_delete_collection_dialog(button, collection_id, collection_name):
     return rx.dialog.root(
@@ -336,6 +338,19 @@ def desktop_index():
         )
     )
 
+def tablet_collection_display_accordian(collection_obj):  # collection_obj consists of [collection_id, collection_name, file_count, file_size, editor_count]
+    return rx.accordion.item(
+        header = collection_obj[1],
+        content= rx.box(
+            rx.spinner(),
+            width="100%",
+            bg="BLACK"
+        ),
+        bg="#120f1e",
+        color="WHITE",
+        on_click = CollectionState.event_verify
+    )
+
 def tablet_index():
     return rx.vstack(
         tablet_navbar("collections"),
@@ -353,13 +368,17 @@ def tablet_index():
             ),
             rx.cond(
                 CollectionState.collection_ids,
-                rx.flex(
+                rx.accordion.root(
                     rx.foreach(
                         CollectionState.display_my_collections,
-                        collection_accordian
+                        tablet_collection_display_accordian
                     ),
-                    wrap='wrap',
-                    spacing="1",
+                    width="100%",
+                    collapsible=True,
+                    color_scheme="gray",
+                    border_color="gray",
+                    border_width="1px",
+                    radius='none'
                 ),
                 rx.vstack(
                     rx.spacer(),
@@ -373,7 +392,8 @@ def tablet_index():
                 ),
             ),
             width="95%",
-            height="100vh"
+            height="100vh",
+            align="center"
         ),
         bg="#0f0f0f",
         width="100%",

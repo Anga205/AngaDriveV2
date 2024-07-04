@@ -2,6 +2,7 @@ import reflex as rx
 from AngaDriveV2.shared_components import *
 from AngaDriveV2.State import State
 from AngaDriveV2.DBMS import *
+import copy
 
 
 class ViewCollectionState(State):
@@ -23,11 +24,7 @@ class ViewCollectionState(State):
         self.collection_editors = collection_data["editors"]
         self.is_collection_owner = self.token in collection_data["editors"]
         collection_files = collection_data["data"]["Files"]
-        self.collection_files = []
-        for file in collection_files:
-            file_info = get_file_info_for_card(file)
-            file_info["is_owner"] = bool(self.token == file_info["owner_token"])
-            self.collection_files.append(file_info)
+        self.collection_files = [get_file_info_for_card(file) for file in collection_files]
 
     def remove_file_from_collection(self, file_dict):
         remove_file_from_collection_db(collection_id=self.collection_id, file_path=file_dict["file_path"])
@@ -141,7 +138,7 @@ file_card_context_menu_wrapper = (
                 component
             ),
             rx.cond(
-                file_obj["is_owner"],
+                file_obj["owner_token"]==State.token,
                 rx.context_menu.content(
                     rx.context_menu.item("Copy shortened path", on_click=lambda: State.copy_file_path(file_obj)),
                     rx.context_menu.item("Copy download link", on_click=lambda: State.copy_download_link(file_obj)),
@@ -187,8 +184,8 @@ class AddFileDialogState(ViewCollectionState):
         self.dialog_open_bool = True
         self.user_files = get_all_user_files_for_display(self.token)
         self.user_has_files_bool = does_user_have_files(self.token)
-        self.user_files_in_collection = {x["file_path"]:x in self.collection_files for x in self.user_files}
-        self.new_user_files_in_collection = self.user_files_in_collection.copy()
+        self.user_files_in_collection = {x["file_path"]:(x in self.collection_files) for x in self.user_files}
+        self.new_user_files_in_collection = copy.deepcopy(self.user_files_in_collection)
     
     def close_dialog(self):
         self.dialog_open_bool = False
