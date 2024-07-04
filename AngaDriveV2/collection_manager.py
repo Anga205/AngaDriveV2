@@ -66,9 +66,6 @@ class CollectionState(State):
     
     def copy_collection(self, collection_id):
         return rx.set_clipboard(f"{app_link}/collection?id={collection_id}")
-    
-    def event_verify(self):
-        print("accordian clicked")
 
 
 def create_new_collection_dialog(button):
@@ -341,14 +338,54 @@ def desktop_index():
 def tablet_collection_display_accordian(collection_obj):  # collection_obj consists of [collection_id, collection_name, file_count, file_size, editor_count]
     return rx.accordion.item(
         header = collection_obj[1],
-        content= rx.box(
-            rx.spinner(),
+        content= rx.vstack(
+            rx.hstack(
+                rx.vstack(
+                    rx.text("File Count: "),
+                    rx.text("Total Size: "),
+                    rx.text("Editors: "),
+                    align="start"
+                ),
+                rx.vstack(
+                    rx.text(collection_obj[2]),
+                    rx.text(collection_obj[3]),
+                    rx.text(collection_obj[4]),
+                    align="start"
+                ),
+            ),
+            rx.hstack(
+                rx.spacer(),
+                rx.button(
+                    rx.icon("copy"),
+                    on_click= lambda: CollectionState.copy_collection(collection_obj[0]),
+                    color_scheme="grass",
+                    variant="soft",
+                    radius="large"
+                ),
+                rx.spacer(),
+                rx.button(
+                    rx.icon("notebook-pen"),
+                    color_scheme="teal",
+                    variant="soft",
+                    radius="large"
+                ),
+                rx.spacer(),
+                rx.button(
+                    rx.icon("trash-2"),
+                    on_click= lambda: CollectionState.delete_collection(collection_obj[0]),
+                    color_scheme="tomato",
+                    variant="soft",
+                    radius="large"
+                ),
+                rx.spacer()
+            ),
+            align="center",
             width="100%",
-            bg="BLACK"
+            bg="BLACK",
+            padding="10px",
         ),
         bg="#120f1e",
-        color="WHITE",
-        on_click = CollectionState.event_verify
+        color="WHITE"
     )
 
 def tablet_index():
