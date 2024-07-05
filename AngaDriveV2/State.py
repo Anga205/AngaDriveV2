@@ -117,6 +117,7 @@ class State(rx.State):
 
     
     async def handle_file_page_upload(self, files: list[rx.UploadFile]):
+        yield rx.clear_selected_files("file_page_upload")
         file_link_list = []
         for file in files:
             upload_data = await file.read()
@@ -132,7 +133,6 @@ class State(rx.State):
                 original_file_name=file.filename
             )
         self.user_files: list[dict[str, str]] = get_all_user_files_for_display(self.token)
-        yield rx.clear_selected_files(files)
         yield rx.set_clipboard(", \n".join(file_link_list))
         yield rx.toast.success("Files uploaded and copied to clipboard")
     
