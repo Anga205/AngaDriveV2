@@ -196,7 +196,7 @@ def can_be_previewed(filename:str) -> bool:
     return file_extension in previewable_extensions
 
 def get_system_info():
-    cpu_usage = psutil.cpu_percent(interval=1)
+    cpu_usage = psutil.cpu_percent(percpu=True)
     ram = psutil.virtual_memory()
     ram_usage_percentage = ram.percent
     if on_rpi:
@@ -216,6 +216,11 @@ def get_cpu_temperature():
         temperature = float(output.split('=')[1].split("'")[0])
         return round(temperature,2)
     except Exception as e:
-        return 0.0
+        result = subprocess.run(['sensors'], stdout=subprocess.PIPE, text=True)
+        for line in result.stdout.split('\n'):
+            if 'Core 0' in line:  # Adjust 'Core 0' as needed for your specific CPU
+                temp_str = line.split()[2]
+                return temp_str[1:-2]
+        return None
     
 on_rpi=bool(get_cpu_temperature())

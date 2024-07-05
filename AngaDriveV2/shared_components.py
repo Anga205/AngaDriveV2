@@ -21,7 +21,7 @@ class SystemHealthState(State):
             self.uptime = format_time(round(time.time() - self.local_start_time))
             system_info = get_system_info()
             self.ram_usage = system_info["ram_usage_percentage"]
-            self.cpu_usage = system_info["cpu_usage"]
+            self.cpu_usage = round(sum(system_info["cpu_usage"])/len(system_info["cpu_usage"]))
             self.temperature_available = on_rpi
             self.temperature = system_info["temperature"]
             self._n_tasks-=1
@@ -77,7 +77,7 @@ def shared_navbar() -> rx.Component:
                         rx.chakra.divider(border_color="GRAY"),
                         rx.chakra.box(
                             rx.moment(
-                                interval=500, 
+                                interval=200, 
                                 on_change=SystemHealthState.tick_health
                             ), 
                             display="none"
@@ -629,7 +629,7 @@ def tablet_navbar(current_page):            # has a height of 50px
                         rx.chakra.divider(border_color="GRAY"),
                         rx.chakra.box(
                             rx.moment(
-                                interval=500, 
+                                interval=250, 
                                 on_change=SystemHealthState.tick_health
                             ), 
                             display="none"
