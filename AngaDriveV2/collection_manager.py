@@ -429,7 +429,6 @@ def tablet_index():
                 ),
             ),
             width="95%",
-            height="100vh",
             align="center"
         ),
         bg="#0f0f0f",
@@ -446,5 +445,6 @@ def index():
             tablet_index(),
         ),
         width="100%",
-        bg="#0f0f0f"
+        bg="#0f0f0f",
+        style={"min-height":"100vh"}
     )

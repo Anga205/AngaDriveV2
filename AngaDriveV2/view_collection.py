@@ -474,10 +474,23 @@ def desktop_index():
         ),
         spacing="5px",
         bg = "#0f0f0f",
-        height="100vh",
+        style={"min-height":"100vh"},
         width="100%"
     )
 
+
+def mobile_view():
+    return rx.vstack(
+        tablet_navbar("collection-viewer"),
+        rx.heading(
+            ViewCollectionState.collection_name,
+            color="WHITE",
+            style={"font-weight":"bold"}
+        ),
+        bg="#0f0f0f",
+        style={"min-height":"100vh"},
+        align="center"
+    )
 
 def index():
     return rx.box(
@@ -485,7 +498,8 @@ def index():
             desktop_index(),
         ),
         rx.mobile_and_tablet(
-            view_under_construction()
+            mobile_view()
         ),
         width="100%",
+        bg="#0f0f0f"
     )

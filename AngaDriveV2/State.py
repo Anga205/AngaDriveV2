@@ -132,7 +132,7 @@ class State(rx.State):
                 original_file_name=file.filename
             )
         self.user_files: list[dict[str, str]] = get_all_user_files_for_display(self.token)
-        yield rx.clear_selected_files()
+        yield rx.clear_selected_files(files)
         yield rx.set_clipboard(", \n".join(file_link_list))
         yield rx.toast.success("Files uploaded and copied to clipboard")
     
