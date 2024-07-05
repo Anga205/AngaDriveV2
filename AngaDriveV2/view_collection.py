@@ -483,15 +483,31 @@ def mobile_view():
             color="WHITE",
             style={"font-weight":"bold"}
         ),
-        rx.button(
-            "Add Files",
-            color_scheme="green",
-            variant="solid",
-            on_click=AddFileDialogState.open_dialog
+        rx.hstack(
+            rx.spacer(),
+            rx.button(
+                "Add Files",
+                color_scheme="grass",
+                variant="solid",
+                radius="large",
+                on_click=AddFileDialogState.open_dialog
+            ),
+            width="95%"
+        ),
+        rx.flex(
+            rx.foreach(
+                ViewCollectionState.collection_files,
+                view_collection_file_card
+            ),
+            style={"max-width":"95%"},
+            wrap='wrap',
+            align="center",
+            spacing='2'
         ),
         bg="#0f0f0f",
         style={"min-height":"100vh"},
-        align="center"
+        align="center",
+        spacing='0'
     )
 
 def index():
