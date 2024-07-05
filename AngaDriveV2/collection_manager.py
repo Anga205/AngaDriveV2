@@ -64,9 +64,9 @@ class CollectionState(State):
         self.collection_ids.remove(collection_id)
         self.display_my_collections = [x for x in self.display_my_collections if x[0] != collection_id]
     
-    def copy_collection(self, collection_id):
-        return rx.set_clipboard(f"{app_link}/collection?id={collection_id}")
-
+    def copy_collection(self, collection_obj):
+        yield rx.set_clipboard(f"{app_link}/collection?id={collection_obj[0]}")
+        yield rx.toast.success(f"Collection link to {collection_obj[1]} copied to clipboard")
 
 def create_new_collection_dialog(button):
     return rx.dialog.root(
@@ -258,7 +258,7 @@ def collection_accordian(collection_obj):   # collection_obj consists of [collec
                                 bg="rgb(75, 0, 75)",
                                 color="rgb(200, 0, 200)",
                                 _hover={"bg":"rgb(100, 100, 0)", "color": "rgb(255, 255, 0)"},
-                                on_click= lambda: CollectionState.copy_collection(collection_obj[0])
+                                on_click= lambda: CollectionState.copy_collection(collection_obj)
                             ),
                             label="Share Collection"
                         ),
@@ -355,10 +355,23 @@ def tablet_collection_display_accordian(collection_obj):  # collection_obj consi
             ),
             rx.hstack(
                 rx.spacer(),
+                rx.link(
+                    rx.button(
+                        rx.icon("eye"),
+                        bg = "#302400",
+                        color="#ffb100",
+                        _hover = {"bg":"#413511","color":"#ffc200"},
+                        variant="soft",
+                        radius="large"
+                    ),
+                    href=f"{app_link}/collection?id={collection_obj[0]}",
+                    target="_blank"
+                ),
+                rx.spacer(),
                 rx.button(
                     rx.icon("copy"),
-                    on_click= lambda: CollectionState.copy_collection(collection_obj[0]),
-                    color_scheme="grass",
+                    on_click= lambda: CollectionState.copy_collection(collection_obj),
+                    color_scheme="lime",
                     variant="soft",
                     radius="large"
                 ),

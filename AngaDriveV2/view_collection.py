@@ -105,11 +105,10 @@ def view_collection_file_editor_menu(file_obj, **kwargs):
         rx.chakra.spacer(),
         rx.chakra.tooltip(
             rx.chakra.button(
-                rx.chakra.image(
-                    src="/eye.png",
+                rx.icon(
+                    "eye",
                     width="100%",
                     height="auto",
-                    custom_attrs={"draggable":"false"}
                 ),
                 color="#ffb100",
                 bg = "#302400",
@@ -486,6 +485,12 @@ def mobile_view():
             ViewCollectionState.collection_name,
             color="WHITE",
             style={"font-weight":"bold"}
+        ),
+        rx.button(
+            "Add Files",
+            color_scheme="green",
+            variant="solid",
+            on_click=AddFileDialogState.open_dialog
         ),
         bg="#0f0f0f",
         style={"min-height":"100vh"},

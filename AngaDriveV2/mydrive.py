@@ -31,35 +31,32 @@ def upload_button():
                 rx.upload(
                     rx.cond(
                         rx.selected_files("file_page_upload"),
-                        rx.chakra.vstack(
-                            rx.chakra.box(
-                                height="5vh"
-                                ),
+                        rx.vstack(
                             rx.foreach(
                                 rx.selected_files("file_page_upload"),
-                                rx.chakra.text
-                                ),
-                            rx.chakra.box(
-                                height="5vh"
-                                )
-                            ),
-                        rx.chakra.vstack(
+                                rx.text
+                            ),                     
+                            style={"min-height":"10vh"},
+                            align="center"
+                        ),
+                        rx.vstack(
                             rx.spacer(),
-                            rx.chakra.text("Drag and drop files here or click to select files"),
+                            rx.text("Drag and drop files here or click to select files"),
                             rx.spacer(),
-                            height="15vh"
-                            ),
+                            style={"min-height":"15vh"}
+                        ),
                     ),
                     display='flex',
                     justify_content= 'center',
                     align_items= 'center',
+                    padding="1vh",
                     border="1px dotted #0000ff",
                     id="file_page_upload"
-                    )
-                ),
+                )
+            ),
             rx.chakra.box(
                 height="1vh"
-                ),
+            ),
             rx.chakra.hstack(
                 rx.alert_dialog.cancel(
                     rx.chakra.button(

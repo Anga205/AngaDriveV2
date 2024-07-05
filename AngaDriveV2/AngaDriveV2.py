@@ -1,5 +1,5 @@
 import reflex as rx
-import AngaDriveV2.mydrive, AngaDriveV2.collection_manager, AngaDriveV2.dashboard, AngaDriveV2.flowinity, AngaDriveV2.view_collection, shutil
+import AngaDriveV2.mydrive, AngaDriveV2.collection_manager, AngaDriveV2.dashboard, AngaDriveV2.flowinity, AngaDriveV2.view_collection
 from AngaDriveV2.State import State
 import AngaDriveV2.page_not_found as page_not_found
 import os, AngaDriveV2.DBMS, AngaDriveV2.common
@@ -16,9 +16,7 @@ async def get_file(file_path: str):
 async def get_file_preserve_name(obfuscated_file_name: str, actual_file_name:str):
     AngaDriveV2.DBMS.add_timestamp_to_activity() # add to the homepage graph every time a file is viewed
     file_path = obfuscated_file_name + (("."+actual_file_name.split(".")[-1]) if "." in actual_file_name else "")   # add back file extension if it was there in the original name
-    if not os.path.exists(os.path.join(AngaDriveV2.common.file_directory, file_path)):
-        raise HTTPException(status_code=404, detail="File not found")
-    return FileResponse(os.path.join(AngaDriveV2.common.file_directory, file_path))
+    return get_file(file_path)
 
 
 async def redirect():

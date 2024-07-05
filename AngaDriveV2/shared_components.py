@@ -287,7 +287,7 @@ def file_name_header(file_obj, **kwargs):
 
 def file_details(file_obj, **kwargs):
     return rx.chakra.vstack(
-        rx.chakra.box(
+        rx.box(
             rx.cond(
                 file_obj["previewable"],
                 rx.el.object(
@@ -295,10 +295,9 @@ def file_details(file_obj, **kwargs):
                     fallback=rx.text("failed to load"),
                     opacity="0.7",
                     custom_attrs={"draggable":"false"},
-                    height="65%",
-                    width="auto",
+                    style={"max-height":"65%","max-width":"100%"}
                 ),
-                rx.chakra.image(
+                rx.image(
                     src="/document.png",
                     opacity="0.4",
                     custom_attrs={"draggable":"false"}, 
@@ -407,20 +406,20 @@ def file_editor_menu(file_obj, **kwargs):
             label="Download File"
         ),
         rx.chakra.tooltip(
-            rx.chakra.button(
-                rx.chakra.image(
-                    src="/eye.png",
-                    width="100%",
-                    height="auto",
-                    custom_attrs={"draggable":"false"}
+            rx.link(
+                rx.chakra.button(
+                    rx.icon(
+                        "eye",
+                    ),
+                    color="#ffb100",
+                    bg = "#302400",
+                    _hover = {"bg":"#413511","color":"#ffc200"},
+                    border_radius="2vh",
+                    height="30px",
                 ),
-                color="#ffb100",
-                bg = "#302400",
-                _hover = {"bg":"#413511","color":"#ffc200"},
-                border_radius="2vh",
-                height="30px",
-                width="17%",
-                on_click=rx.redirect(file_obj["file_link"], external=True)
+                href=file_obj["file_link"],
+                target="_blank",
+                width="17%"
             ),
             label="View file"
         ),
@@ -718,7 +717,7 @@ def tablet_navbar(current_page):            # has a height of 50px
 )
 
 def mobile_file_card(file_obj):
-    return rx.chakra.vstack(
+    return rx.vstack(
     file_name_header(
         file_obj,
         border_radius="1vh 1vh 0vh 0vh"
@@ -733,5 +732,5 @@ def mobile_file_card(file_obj):
         border_radius= "0vh 0vh 1vh 1vh"
     ),
     width="90%",
-    spacing="0px"
+    spacing='0'
 )

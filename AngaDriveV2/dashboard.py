@@ -717,7 +717,7 @@ def tablet_top_widget():
             rx.hstack(
                 rx.button(rx.icon(tag="external_link")," Panel"),
                 rx.link(
-                    rx.button("Upload files", color_scheme="green"),
+                    rx.button("Github", color_scheme="green"),
                     href="https://github.com/Anga205/AngaDriveV2",
                     target="_blank"
                 ),
@@ -735,7 +735,7 @@ def tablet_top_widget():
             rx.hstack(
                 rx.button("Sign Up", variant="soft", color_scheme="red"),
                 rx.link(
-                    rx.button("Upload files", color_scheme="green", variant="soft"),
+                    rx.button("Github", color_scheme="green", variant="soft"),
                     href="https://github.com/Anga205/AngaDriveV2",
                     target="_blank"
                 )
