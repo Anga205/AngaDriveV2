@@ -219,6 +219,3 @@ def get_cpu_temperature():
         return 0.0
     
 on_rpi=bool(get_cpu_temperature())
-
-def printdict(dict):
-    print(json.dumps(dict, indent=4))

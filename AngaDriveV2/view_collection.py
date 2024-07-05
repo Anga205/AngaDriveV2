@@ -42,9 +42,6 @@ class ViewCollectionState(State):
             print(f"Error occured in execuring AngaDriveV2.view_collection.ViewCollectionState.delete_file_from_collection.os_remove: {file_dict}\nError was: {e}")
         self.collection_files.remove(file_dict)
 
-    def print_selected_files(self):
-        print("hello!")
-
 
 def view_collection_file_editor_menu(file_obj, **kwargs):
     return rx.chakra.hstack(

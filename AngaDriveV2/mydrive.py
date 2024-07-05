@@ -156,10 +156,6 @@ def desktop_index():
         )
     )
 
-class TabletMyDriveState(State):
-    def ondropaction(self):
-        print("hello!")
-
 def no_files():
     return rx.upload(
     rx.vstack(

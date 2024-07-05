@@ -30,17 +30,6 @@ def create_database():
                         timestamp INTEGER
                 )
                         ''')
-            
-            cur.execute(
-                '''
-                CREATE TABLE notifications (
-                    NOTIFICATION_ID TEXT PRIMARY KEY,
-                    TIMESTAMP INTEGER,
-                    NOTIFICATION_CONDITION TEXT,
-                    NOTIFICATION_DATA TEXT
-                )
-                '''
-            )
 
             cur.execute('''
                 CREATE TABLE activity(
@@ -65,13 +54,17 @@ def create_database():
 create_database()
 
 def account_info(token):
-    con = sqlite3.connect(database_directory)
-    cur=con.cursor()
-    cur.execute(f"SELECT token, display_name, email FROM accounts WHERE token={dbify(token)}")
-    data = cur.fetchone()
-    data = dict(zip(["token", "display_name","email"],data))
-    con.close()
-    return data
+    try:
+        con = sqlite3.connect(database_directory)
+        cur=con.cursor()
+        cur.execute(f"SELECT token, display_name, email FROM accounts WHERE token= ? ", (token,))
+        data = cur.fetchone()
+        data = dict(zip(["token", "display_name","email"],data))
+        con.close()
+        return data
+    except Exception as e:
+        print(f"Error occured when running AngaDriveV2.DBMS.account_info\nVar Dump:\ntoken: {token}\ndata: {data}\nError: {e}")
+        return dict(zip(["token", "display_name","email"],["ERROR", "ERROR", "ERROR"]))
 
 def get_total_activity_pulses():
     con = sqlite3.connect(database_directory)
@@ -318,7 +311,7 @@ def is_valid_token(token: str) -> bool:
 
         # Execute a query to check if the token exists in the 'accounts' table
         cursor.execute("SELECT EXISTS(SELECT 1 FROM accounts WHERE token = ?)", (token,))
-        
+
         # Fetch the result
         result = cursor.fetchone()[0]
         # Close the cursor and connection
@@ -424,7 +417,7 @@ def user_login(email: str, password:str):
     return {True: result[0]}
 
 def flowinity_user_signup(flowinity_data):
-    
+
     con = sqlite3.connect(database_directory)
     cur = con.cursor()
     

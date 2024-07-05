@@ -18,12 +18,12 @@ class LoginState(State):
         self.signup_mode=False
         self.open_dialog()
 
-    login_email_id:str
-    login_password:str
-    is_invalid_login_email_id:bool = False
-    is_invalid_login_password:bool = False
-    disable_login_button:bool = True
-    login_password_focus_color = "#3182ce"
+    login_email_id: str
+    login_password: str
+    is_invalid_login_email_id: bool = False
+    is_invalid_login_password: bool = False
+    disable_login_button: bool = True
+    login_password_focus_color: str = "#3182ce"
 
     def update_login_button(self):
         if "" in [self.login_email_id, self.login_password]:
@@ -31,7 +31,7 @@ class LoginState(State):
         elif (not self.is_invalid_login_email_id) and (not self.is_invalid_login_password):
             self.disable_login_button = False
 
-    def set_login_email_id(self, new_text):
+    def set_login_email_id(self, new_text: str):
         new_text = new_text.replace(" ","")
         self.login_email_id = new_text
         if (new_text == "") or (is_valid_email(new_text)):
@@ -40,7 +40,7 @@ class LoginState(State):
             self.is_invalid_login_email_id = True
         self.update_login_button()
     
-    def set_login_password(self, new_text):
+    def set_login_password(self, new_text: str):
         self.login_password = new_text.strip()
         if (self.login_password=="") or (not (len(self.login_password)<3 or len(self.login_password)>64)):
             self.is_invalid_login_password = False
@@ -50,11 +50,6 @@ class LoginState(State):
             self.login_password_focus_color = "#880000"
         self.update_login_button()
     
-    def print_token(self, input_data=None):
-        if input_data is None:
-            print(self.token)
-        else:
-            print(input_data)
 
 
 def security_tooltip(text):
@@ -98,7 +93,7 @@ class SignUpPopupState(LoginState):
     signup_password_focus_color:str = "#3182ce"
     signup_retyped_password_focus_color:str = "#3182ce"
 
-    disable_signup_button = True
+    disable_signup_button: bool = True
     def enable_signup_button(self):
         if "" in [self.signup_display_name,self.signup_email,self.signup_password,self.signup_retyped_password]:
             self.disable_signup_button = True
@@ -269,7 +264,7 @@ def signup_form():
     )
 
 class LoginSwitchState(LoginState):
-    hover_card_text="Transfer files after login"
+    hover_card_text:str = "Transfer files after login"
     login_switch_state:bool = False
     should_it_load_switch:bool = False
 

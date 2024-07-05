@@ -8,7 +8,7 @@ start_time = time.time()
 
 class State(rx.State):
     local_start_time = float(start_time)
-    uptime = format_time(round(time.time() - local_start_time))
+    uptime:str = format_time(round(time.time() - local_start_time))
     ram_usage:int
     cpu_usage:int
     temperature:str
@@ -46,8 +46,8 @@ class State(rx.State):
         self.site_activity : list[dict] = [{"date":x, "times_opened": fetch_activity_from_last_week()[x]} for x in fetch_activity_from_last_week()]
         self.pulses: int = get_total_activity_pulses()
 
-    user_file_count=0
-    user_storage_amount="0 KB"
+    user_file_count: int = 0
+    user_storage_amount:str = "0 KB"
     def update_account_data_components(self):
         data: list[dict[str, str]] = get_all_user_files_for_display(self.token)
         self.user_file_count: int = len(data)
@@ -136,7 +136,7 @@ class State(rx.State):
         yield rx.set_clipboard(", \n".join(file_link_list))
         yield rx.toast.success("Files uploaded and copied to clipboard")
     
-    def copy_file_link(self, file_obj):
+    def copy_file_link(self, file_obj: dict[str, str]):
         if "." in file_obj["original_name"]:
             file_path = os.path.join(file_obj["file_path"].split(".")[0], file_obj["original_name"])
         else:

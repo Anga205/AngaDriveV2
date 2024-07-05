@@ -1,4 +1,4 @@
-import requests, uuid
+import requests, threading
 import reflex as rx
 from AngaDriveV2.State import State
 from AngaDriveV2.DBMS import *
@@ -33,11 +33,9 @@ class VerifierState(State):
                 yield rx.redirect(f"https://privateuploader.com/oauth/{client_secret}")
             else:
                 user_data["token"] = flowinity_code
-                print("self.is_logged_in",self.is_logged_in)
-                print("not does_user_have_files",not does_user_have_files(self.token))
                 if (not self.is_logged_in) and does_user_have_files(self.token):    # if the user is not logged in but still has files then transfer them
                     migrate_files(old_token=self.token, new_token=flowinity_code)
-                if not token_exists(flowinity_code):
+                if (not token_exists(flowinity_code)):
                     flowinity_user_signup(user_data)
                 self.is_logged_in = "True"
                 self.token = flowinity_code
@@ -46,4 +44,4 @@ class VerifierState(State):
                 return rx.redirect("/")
 
 def verifier():
-    return rx.chakra.text("Please wait while AngaDrive gets your data from Flowinity...")
+    return rx.heading("Please wait while AngaDrive gets your data from Flowinity...")
