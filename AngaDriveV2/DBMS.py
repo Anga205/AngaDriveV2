@@ -266,7 +266,7 @@ def get_all_collection_ids():
 def get_collection_ids_by_account_token(account_token):
     con = sqlite3.connect(database_directory)
     cur = con.cursor()
-    cur.execute(f"SELECT id FROM collections WHERE editors LIKE ?", (f'{account_token}%',))
+    cur.execute(f"SELECT id FROM collections WHERE editors LIKE ?", (f'%{account_token}%',))
     ids = [x[0] for x in cur]
     con.close()
     return ids
@@ -293,12 +293,12 @@ def gen_collection_id():
     else:
         return generated_id
 
-def create_new_collection(token, collection_name):
+def create_new_collection(user_token, collection_name):
     con = sqlite3.connect(database_directory)
     cur = con.cursor()
     collection_id = gen_collection_id()
 
-    cur.execute(f"INSERT INTO collections (id, name, editors, size, collections, files) VALUES (?, ?, ?, ?, ?, ?)", (collection_id, collection_name, token, 0, "", ""))
+    cur.execute(f"INSERT INTO collections (id, name, editors, size, collections, files) VALUES (?, ?, ?, ?, ?, ?)", (collection_id, collection_name, user_token, 0, "", ""))
     con.commit()
 
     return collection_id
@@ -482,13 +482,14 @@ def get_collection_info_for_viewer(collection_id):
         return None
     name = data[0]
     editors = data[1].split(",")
-    collection_data = {"Size": format_bytes(data[2]), "Files": [] if data[3]=="" else data[3].split(", "), "Collections": [] if data[4]=="" else data[4].split(", ")}
     return {
+        "id"        : collection_id,
         "name"      : name,
         "editors"   : editors,
-        "data"      : collection_data
+        "Size"      : format_bytes(data[2]),
+        "Files"     : [] if data[3]=="" else data[3].split(", "),
+        "Folders": [] if data[4]=="" else data[4].split(", ")
     }
-
 
 def get_file_info_for_card(file_path:str) -> dict[str,str]:
     try:
@@ -553,5 +554,63 @@ def remove_file_from_collection_db(collection_id, file_path):
     files = ", ".join(files)
     cur.execute(f"UPDATE collections SET size = ? WHERE id = ?", (size, collection_id))
     cur.execute(f"UPDATE collections SET files = ? WHERE id = ?", (files, collection_id))
+    con.commit()
+    con.close()
+
+def user_has_collections(user_token: str) -> bool:
+    con = sqlite3.connect(database_directory)
+    cur = con.cursor()
+
+    cur.execute(f"SELECT COUNT(*) FROM collections WHERE editors LIKE ?", (f'%{user_token}%',))
+    count = cur.fetchone()[0]
+
+    con.close()
+    return count>0
+
+def folder_is_in_collection(folder_id: str, collection_id: str) -> bool:
+    con = sqlite3.connect(database_directory)
+    cur = con.cursor()
+
+    cur.execute(f"SELECT collections FROM collections WHERE id = ?", (collection_id,))
+    collections = cur.fetchone()[0].split(", ")
+    return folder_id in collections
+
+def add_folder_to_collection(folder_id: str, collection_id: str):
+    if folder_is_in_collection(folder_id=folder_id, collection_id=collection_id):
+        return
+    con = sqlite3.connect(database_directory)
+    cur = con.cursor()
+    cur.execute(f"SELECT size, collections FROM collections WHERE id = ?", (collection_id,))
+    size, collections = cur.fetchone()
+    cur.execute(f"SELECT size FROM collections WHERE id = ?", (folder_id,))
+    folder_size = cur.fetchone()[0]
+    if folder_is_in_collection(folder_id=collection_id, collection_id=folder_id):
+        folder_size-=size
+    size+=folder_size
+    collections = [] if collections=="" else collections.split(",")
+    collections.append(folder_id)
+    collections = ",".join(collections)
+    cur.execute(f"UPDATE collections SET size = ? WHERE id = ?", (size, collection_id))
+    cur.execute(f"UPDATE collections SET collections = ? WHERE id = ?", (collections, collection_id))
+    con.commit()
+    con.close()
+
+def remove_folder_from_collection(folder_id: str, collection_id: str):
+    if not folder_is_in_collection(folder_id=folder_id, collection_id=collection_id):
+        return
+    con = sqlite3.connect(database_directory)
+    cur = con.cursor()
+    cur.execute(f"SELECT size, collections FROM collections WHERE id = ?", (collection_id,))
+    size, collections = cur.fetchone()
+    cur.execute(f"SELECT size FROM collections WHERE id = ?", (folder_id,))
+    folder_size = cur.fetchone()[0]
+    if folder_is_in_collection(folder_id=collection_id, collection_id=folder_id):
+        folder_size-=size
+    size-=folder_size
+    collections: list[str] = collections.split(",")
+    collections.remove(folder_id)
+    collections = ",".join(collections)
+    cur.execute(f"UPDATE collections SET size = ? WHERE id = ?", (size, collection_id))
+    cur.execute(f"UPDATE collections SET collections = ? WHERE id = ?", (collections, collection_id))
     con.commit()
     con.close()

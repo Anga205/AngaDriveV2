@@ -210,17 +210,29 @@ def get_system_info():
     }
     return system_info
 
+last_temp_check_time=0
+last_temp_seen=0
 def get_cpu_temperature():
+    global last_temp_check_time, last_temp_seen
+    if round(last_temp_check_time/2)==round(time.time()/2):
+        return last_temp_seen
+    last_temp_check_time = time.time()
     try:
         output = subprocess.check_output(['vcgencmd', 'measure_temp']).decode('utf-8')
         temperature = float(output.split('=')[1].split("'")[0])
+        last_temp_seen = round(temperature,2)
         return round(temperature,2)
     except Exception as e:
         result = subprocess.run(['sensors'], stdout=subprocess.PIPE, text=True)
         for line in result.stdout.split('\n'):
             if 'Core 0' in line:  # Adjust 'Core 0' as needed for your specific CPU
                 temp_str = line.split()[2]
+                last_temp_seen = temp_str[1:-2]
                 return temp_str[1:-2]
         return None
     
 on_rpi=bool(get_cpu_temperature())
+
+
+def printdict(dict):
+    print(json.dumps(dict, indent=4))

@@ -11,7 +11,9 @@ class ViewCollectionState(State):
     collection_name:str=""
     collection_editors:list[str]=[]
     collection_files:list[dict[str,str]] = []
+    collection_folders:list[dict[str,str]] = []
     is_collection_owner:bool = False
+    collection_has_both_files_and_folders:bool = False
     def load_collection_viewer(self):
         self.load_any_page()
         self.collection_id = self.router.page.params.get("id",None)
@@ -23,8 +25,11 @@ class ViewCollectionState(State):
         self.collection_name = collection_data["name"]
         self.collection_editors = collection_data["editors"]
         self.is_collection_owner = self.token in collection_data["editors"]
-        collection_files = collection_data["data"]["Files"]
+        collection_files = collection_data["Files"]
+        collection_folders = collection_data["Folders"]
         self.collection_files = [get_file_info_for_card(file) for file in collection_files]
+        self.collection_folders = [get_collection_info_for_viewer(folder) for folder in collection_folders]
+        self.collection_has_both_files_and_folders = bool(self.collection_files) and bool(self.collection_folders)
 
     def remove_file_from_collection(self, file_dict):
         remove_file_from_collection_db(collection_id=self.collection_id, file_path=file_dict["file_path"])
@@ -151,7 +156,7 @@ file_card_context_menu_wrapper = (
 
 def view_collection_file_card(file_dict):
     return file_card_context_menu_wrapper(
-        rx.chakra.vstack(
+        rx.vstack(
             file_name_header(
                 file_dict,
                 border_radius="1vh 1vh 0vh 0vh"
@@ -166,7 +171,7 @@ def view_collection_file_card(file_dict):
                 border_radius= "0vh 0vh 1vh 1vh"
             ),
         width="290px",
-        spacing="0px"
+        spacing="0"
     ),
     file_dict
 )
@@ -186,6 +191,7 @@ class AddFileDialogState(ViewCollectionState):
     def close_dialog(self):
         self.dialog_open_bool = False
         self.display_add_files_button:bool = False
+        self.collection_has_both_files_and_folders = bool(self.collection_files) and bool(self.collection_folders)
         return rx.clear_selected_files("view_collection_upload")
 
     new_user_files_in_collection: dict[str, bool] = {}
@@ -389,22 +395,177 @@ def add_files_accordion():
         width="100%"
     )
 
+class AddFolderDialogState(ViewCollectionState):
+    dialog_open_bool:bool = False
+    new_collection_name:str = ""
+    new_collection_name_is_valid:bool = False
+    user_folders:list[dict[str,str]] = []
+    user_folders_in_collection: dict[str, bool] = []
+    user_updated_folders_in_collection: dict[str, bool] = {}
+
+    def open_dialog(self):
+        collection_ids = get_collection_ids_by_account_token(self.token)
+        collection_ids.remove(self.collection_id)           # remove the id of the collection that user is currently viewing
+        self.user_folders=[get_collection_info_for_viewer(folder) for folder in collection_ids]
+        list_of_collection_folder_ids = [folder["id"] for folder in self.collection_folders]
+        self.user_folders_in_collection={collection_id:bool(collection_id in list_of_collection_folder_ids) for collection_id in collection_ids}
+        self.user_updated_folders_in_collection = copy.deepcopy(self.user_folders_in_collection)
+        self.dialog_open_bool = True
+    
+    def close_dialog(self):
+        self.input_border_color = "BLUE"
+        self.new_collection_name = ""
+        self.new_collection_name_is_valid = False
+        self.dialog_open_bool = False
+        self.enable_save_folder_changes_button = False
+        self.collection_has_both_files_and_folders = bool(self.collection_files) and bool(self.collection_folders)
+
+    input_border_color="BLUE"
+    def assess_input(self, new_input: str):
+        self.new_collection_name = new_input.strip()
+        if (self.new_collection_name=="") or (len(new_input)>2):
+            self.input_border_color = "BLUE"
+            self.new_collection_name_is_valid = bool(self.new_collection_name) # If the input is empty, the name is invalid
+            return
+        self.input_border_color = "RED"
+
+
+    def create_folder(self):
+        if self.new_collection_name_is_valid:
+            new_collection_id = create_new_collection(user_token=self.token, collection_name=self.new_collection_name)
+            add_folder_to_collection(folder_id=new_collection_id, collection_id=self.collection_id)
+            self.close_dialog()
+
+    enable_save_folder_changes_button:bool = False
+    def update_checkbox(self, folder_id):
+        self.user_updated_folders_in_collection[folder_id] = not self.user_updated_folders_in_collection[folder_id]
+        if self.user_folders_in_collection != self.user_updated_folders_in_collection:
+            self.enable_save_folder_changes_button = True
+        else:
+            self.enable_save_folder_changes_button = False
+    
+    def folder_accordion_save_changes(self):
+        new_folders = self.user_updated_folders_in_collection
+        old_folders = self.user_folders_in_collection
+        for i in new_folders:
+            if new_folders[i] and not old_folders[i]:
+                add_folder_to_collection(folder_id=i, collection_id=self.collection_id)
+                self.collection_folders.append(get_collection_info_for_viewer(i))
+            elif (not new_folders[i]) and old_folders[i]:
+                remove_folder_from_collection(folder_id=i, collection_id=self.collection_id)
+                self.collection_folders.remove(get_collection_info_for_viewer(i))
+        self.close_dialog()
+
+def add_folders_accordion():
+    return rx.vstack(
+        rx.chakra.hstack(
+            rx.chakra.divider(),
+            rx.chakra.text("OR"),
+            rx.chakra.divider(),
+            color="GRAY",
+            border_color="GRAY",
+            width="100%"
+        ),
+        rx.accordion.root(
+            rx.accordion.item(
+                header="Add existing folders",
+                content=rx.scroll_area(
+                    rx.vstack(
+                        rx.foreach(
+                            AddFolderDialogState.user_folders,
+                            lambda folder: rx.hstack(
+                                rx.checkbox(
+                                    checked=AddFolderDialogState.user_updated_folders_in_collection[folder["id"]],
+                                    on_change=lambda update: AddFolderDialogState.update_checkbox(folder["id"]),
+                                ),
+                                rx.text(
+                                    folder["name"],
+                                    color="WHITE"
+                                )
+                            )
+                        ),
+                        style={"max-height":'100px'}
+                    ),
+                    bg="#111111",
+                    padding="10px",
+                    border_radius="5px"
+                ),
+                value="item1"
+            ),
+            collapsible=True,
+            color_scheme="indigo",
+            width="100%",
+        ),
+        conditional_render(
+            AddFolderDialogState.enable_save_folder_changes_button,
+            rx.hstack(
+                rx.spacer(),
+                rx.button(
+                    "Save Changes",
+                    color_scheme="blue",
+                    variant="soft",
+                    on_click=AddFolderDialogState.folder_accordion_save_changes
+                ),
+                width="100%"
+            )
+        ),
+        width='100%'
+    )
+
+
+def add_folder_dialog(trigger, **kwargs):
+    return rx.dialog.root(
+        rx.dialog.trigger(
+            trigger
+        ),
+        rx.dialog.content(
+            rx.dialog.title(
+                "Create new collection",
+                color="WHITE"
+            ),
+            rx.dialog.description(
+                rx.vstack(
+                    rx.chakra.input(
+                        bg="#0f0f0f",
+                        color="GRAY",
+                        placeholder="Collection name",
+                        border_color=AddFolderDialogState.input_border_color,
+                        focus_border_color=AddFolderDialogState.input_border_color,
+                        on_change=AddFolderDialogState.assess_input,
+                        border_width="1px",
+                        value=AddFolderDialogState.new_collection_name,
+                    ),
+                    conditional_render(
+                        AddFolderDialogState.new_collection_name_is_valid,
+                        rx.hstack(
+                            rx.spacer(),
+                            rx.button(
+                                "Create folder",
+                                variant="soft",
+                                color_scheme="blue",
+                            ),
+                            width="100%"
+                        )
+                    ),
+                    conditional_render(
+                        AddFolderDialogState.user_folders,
+                        add_folders_accordion()
+                    ),
+                ),
+            ),
+            on_interact_outside=lambda x: AddFolderDialogState.close_dialog(),
+            on_escape_key_down=lambda x: AddFolderDialogState.close_dialog(),
+            on_pointer_down_outside=lambda x: AddFolderDialogState.close_dialog(),
+            bg="#0f0f0f"
+        ),
+        open=AddFolderDialogState.dialog_open_bool
+    )
+
 
 def desktop_index():
     return rx.chakra.vstack(
         shared_navbar(),
         rx.chakra.hstack(
-            rx.cond(
-                ViewCollectionState.collection_name,
-                rx.chakra.tooltip(
-                    rx.checkbox(),
-                    label="Album View"
-                ),
-                rx.box(
-                    width="0px",
-                    height="0px"
-                )
-            ),
             rx.chakra.spacer(),
             rx.cond(
                 ViewCollectionState.is_collection_owner,
@@ -424,46 +585,82 @@ def desktop_index():
                 ),
             ),
             rx.chakra.spacer(),
-            rx.cond(
+            conditional_render(
                 ViewCollectionState.is_collection_owner,
-                add_file_to_collection_dialog(
-                    rx.chakra.button(
-                        rx.chakra.icon(
-                            tag="plus_square",
-                            color="WHITE"
-                        ),
-                        rx.chakra.box(
-                            width="3px"
-                        ),
-                        "Add Files",
-                        color="WHITE",
-                        size="sm",
-                        bg="GREEN",
-                        _hover = {"bg":"rgb(0,255,0)","color":"rgb(100,100,100)"},
-                        on_click=AddFileDialogState.open_dialog
+                rx.hstack(
+                    add_folder_dialog(
+                        rx.button(
+                            rx.icon("folder-plus"),
+                            "Add folder",
+                            color_scheme="indigo",
+                            on_click=AddFolderDialogState.open_dialog
+                        )
+                    ),
+                    add_file_to_collection_dialog(
+                        rx.button(
+                            rx.icon(
+                                tag="file-plus-2",
+                                on_click=AddFileDialogState.open_dialog,
+                                height="60%"
+                            ),
+                            "Add Files",
+                            color="WHITE",
+                            bg="GREEN",
+                            _hover = {"bg":"rgb(0,255,0)","color":"rgb(100,100,100)"},
+                        )
                     )
-                ),
-                rx.chakra.box(
-                    width="0px",
-                    height="0px"
                 )
             ),
             width="95%"
         ),
-        rx.chakra.hstack(
-            rx.chakra.box(
-                width = "20px"
+        conditional_render(
+            ViewCollectionState.collection_has_both_files_and_folders,
+            rx.hstack(
+                rx.chakra.divider(),
+                rx.text(
+                    "Folders",
+                ),
+                rx.chakra.divider(),
+                border_color="gray",
+                align="center",
+                width="100%",
+                padding="20px",
+                color="gray",
             ),
-            rx.chakra.wrap(
+        ),
+        rx.flex(
+            rx.foreach(
+                ViewCollectionState.collection_folders,
+                desktop_collection_card
+            ),
+            warp="warp"
+        ),
+        conditional_render(
+            ViewCollectionState.collection_has_both_files_and_folders,
+            rx.hstack(
+                rx.chakra.divider(),
+                rx.text(
+                    "Files",
+                ),
+                rx.chakra.divider(),
+                border_color="gray",
+                align="center",
+                color="gray",
+                width="100%",
+                padding="20px"
+            ),
+        ),
+        rx.hstack(
+            rx.flex(
                 rx.foreach(
                     ViewCollectionState.collection_files,
                     view_collection_file_card
                 ),
+                wrap="wrap",
+                spacing='3'
             ),
-            rx.chakra.box(
-                width = "20px"
-            ),
-            spacing="0px",
+            padding="20px",
+            spacing="0",
         ),
         rx.chakra.box(
             height="20px"
@@ -487,9 +684,11 @@ def mobile_view():
             rx.spacer(),
             rx.button(
                 "Add Files",
-                color_scheme="grass",
+                bg="GREEN",
+                color="WHITE",
                 variant="solid",
                 radius="large",
+                _hover = {"bg":"rgb(0,255,0)","color":"rgb(100,100,100)"},
                 on_click=AddFileDialogState.open_dialog
             ),
             width="95%"

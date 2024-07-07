@@ -279,7 +279,7 @@ def file_name_header(file_obj, **kwargs):
         rx.chakra.spacer(),
         bg="#1c1c1c",
         border_color="#1c1c1c",
-        border_width="1vh",
+        border_width="1px",
         width="100%",
         height="55px",
         **kwargs
@@ -316,30 +316,30 @@ def file_details(file_obj, **kwargs):
         rx.chakra.hstack(
             rx.chakra.spacer(),
             rx.chakra.vstack(
-                rx.chakra.text(
+                rx.text(
                     "Uploaded Name:"
                 ),
-                rx.chakra.text(
+                rx.text(
                     "Timestamp:"
                 ),
-                rx.chakra.text(
+                rx.text(
                     "File Size:"
                 ),
-                spacing="0vh",
+                spacing="0px",
                 justify="start",
                 align_items="start",
             ),
             rx.chakra.vstack(
-                rx.chakra.text(
+                rx.text(
                     file_obj["file_path"] # file directory like 9487br483.png
                 ),
-                rx.chakra.text(
+                rx.text(
                     file_obj["timestamp"] # timestamp like time.ctime
                 ),
-                rx.chakra.text(
+                rx.text(
                     file_obj["size"] # file size like 32KB
                 ),
-                spacing="0vh",
+                spacing="0px",
                 justify="start",
                 align_items="start",
             ),
@@ -348,8 +348,8 @@ def file_details(file_obj, **kwargs):
             width="100%",
             color="GRAY",
         ),
-        rx.chakra.box(
-            height="1vh"
+        rx.box(
+            height="5px"
         ),
         spacing="0.75vh",
         border_color="#1c1c1c",
@@ -734,3 +734,6 @@ def mobile_file_card(file_obj):
     width="90%",
     spacing='0'
 )
+
+def desktop_collection_card(collection_obj, footer=empty_component()):
+    return rx.text(collection_obj["name"])

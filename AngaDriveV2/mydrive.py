@@ -161,7 +161,7 @@ def no_files():
     rx.vstack(
         rx.spacer(),
         rx.callout(
-            "uploaded files will show up here",
+            "uploaded files will show up here, tap anywhere to upload files",
             icon="info"
         ),
         rx.spacer(),
