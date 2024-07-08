@@ -245,11 +245,18 @@ def get_collection_count():
 def delete_collection_from_db(collection_id):
     con = sqlite3.connect(database_directory)
     cur = con.cursor()
-
-    cur.execute(f"DELETE FROM collections WHERE id = ?", (collection_id,))
-    con.commit()
-
+    cur.execute(f"select id from collections where collections like ?", (f'%{collection_id}%',))
+    collection_ids_to_edit = [x[0] for x in cur]
     con.close()
+    for collection_to_edit in collection_ids_to_edit:
+        remove_folder_from_collection(collection_id, collection_to_edit)        # first remove the folder from all collections
+
+    con = sqlite3.connect(database_directory)
+    cur = con.cursor()
+    cur.execute(f"DELETE FROM collections WHERE id = ?", (collection_id,)) # then remove the folder entirely
+    con.commit()
+    con.close()
+
 
 def get_all_collection_ids():
     
@@ -281,8 +288,17 @@ def collection_info_for_display(collection_id):
     collection_file_count = 0 if collection_info[3]=="" else len(collection_info[3].split(","))
     collection_size = format_bytes(collection_info[1])
     collection_editors_count = len(collection_info[4].split(","))
+    collection_folder_count = 0 if collection_info[2]=="" else len(collection_info[2].split(","))
     con.close()
-    return [collection_id, truncate_string(collection_name), collection_file_count, collection_size, collection_editors_count]
+    return {
+        "id":           collection_id, 
+        "name":         truncate_string(collection_name), 
+        "full_name":    collection_name,
+        "file_count":   collection_file_count, 
+        "size":         collection_size, 
+        "editor_count": collection_editors_count,
+        "folder_count": collection_folder_count
+        }
 
 def gen_collection_id():
     
@@ -488,7 +504,7 @@ def get_collection_info_for_viewer(collection_id):
         "editors"   : editors,
         "Size"      : format_bytes(data[2]),
         "Files"     : [] if data[3]=="" else data[3].split(", "),
-        "Folders": [] if data[4]=="" else data[4].split(", ")
+        "Folders": [] if data[4]=="" else data[4].split(",")
     }
 
 def get_file_info_for_card(file_path:str) -> dict[str,str]:
@@ -572,7 +588,12 @@ def folder_is_in_collection(folder_id: str, collection_id: str) -> bool:
     cur = con.cursor()
 
     cur.execute(f"SELECT collections FROM collections WHERE id = ?", (collection_id,))
-    collections = cur.fetchone()[0].split(", ")
+    collections = cur.fetchone()
+    if collections==None:
+        collections = []
+    else:
+        collections = collections[0].split(",")
+    con.close()
     return folder_id in collections
 
 def add_folder_to_collection(folder_id: str, collection_id: str):

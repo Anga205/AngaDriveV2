@@ -50,7 +50,7 @@ class CollectionState(State):
         self.close_dialog()
 
     collection_ids: list[int] = []
-    display_my_collections: list[list[str]]=[]
+    display_my_collections: list[dict[str,str]]=[]
     def update_collections(self):
         self.collection_ids = get_collection_ids_by_account_token(self.token)
         self.display_my_collections = [collection_info_for_display(collection_id) for collection_id in self.collection_ids]
@@ -58,15 +58,15 @@ class CollectionState(State):
     def load_collections_page(self):
         self.load_any_page()
         self.update_collections()
-
+    
     def delete_collection(self, collection_id):
         delete_collection_from_db(collection_id)
         self.collection_ids.remove(collection_id)
-        self.display_my_collections = [x for x in self.display_my_collections if x[0] != collection_id]
-    
+        self.display_my_collections = [x for x in self.display_my_collections if x['id'] != collection_id]
+
     def copy_collection(self, collection_obj):
-        yield rx.set_clipboard(f"{app_link}/collection?id={collection_obj[0]}")
-        yield rx.toast.success(f"Collection link to {collection_obj[1]} copied to clipboard")
+        yield rx.set_clipboard(f"{app_link}/collection?id={collection_obj['id']}")
+        yield rx.toast.success(f"Collection link to {collection_obj['name']} copied to clipboard")
 
 def create_new_collection_dialog(button):
     return rx.dialog.root(
@@ -118,10 +118,22 @@ def create_new_collection_dialog(button):
         open = CollectionState.open_new_collection_dialog
     )
 
+class ConfirmDeleteDialogState(CollectionState):
+    open_dialog_bool:bool = False
+    def open_dialog(self):
+        self.open_dialog_bool = True
+    def close_dialog(self, discard):
+        self.open_dialog_bool = False
+    def delete_collection(self, collection_id):
+        delete_collection_from_db(collection_id)
+        self.collection_ids.remove(collection_id)
+        self.display_my_collections = [x for x in self.display_my_collections if x['id'] != collection_id]
+        self.close_dialog(False)
+
 def confirm_delete_collection_dialog(button, collection_id, collection_name):
     return rx.dialog.root(
         rx.dialog.trigger(
-            button
+            rx.chakra.tooltip(button, label="Delete Collection")
         ),
         rx.dialog.content(
             rx.dialog.title(
@@ -151,7 +163,7 @@ def confirm_delete_collection_dialog(button, collection_id, collection_name):
                             rx.chakra.button(
                                 "Delete",
                                 color_scheme="red",
-                                on_click = lambda: CollectionState.delete_collection(collection_id)
+                                on_click = lambda: ConfirmDeleteDialogState.delete_collection(collection_id)
                             ),
                         ),
                         width="100%"
@@ -160,119 +172,11 @@ def confirm_delete_collection_dialog(button, collection_id, collection_name):
                     align_items="start"
                 ),
             ),
-            bg="#0f0f0f"
-        )
-    )
-
-def collection_accordian(collection_obj):   # collection_obj consists of [collection_id, collection_name, file_count, file_size, editor_count]
-    card_color="#1c1c1c"
-    return rx.chakra.box(
-        rx.chakra.accordion(
-            rx.chakra.accordion_item(
-                rx.chakra.accordion_button(
-                    rx.chakra.vstack(
-                        rx.chakra.box(height="0px", width="170px"),
-                        rx.chakra.hstack(
-                            rx.chakra.text(
-                                collection_obj[1], # collection name
-                                font_size="30px",
-                                color="WHITE"
-                            ),
-                            rx.chakra.accordion_icon(),
-                        ),
-                        rx.chakra.divider(
-                            border_color="GRAY"
-                        ),
-                        rx.chakra.box(
-                            height="10px"
-                        ),
-                        rx.chakra.hstack(
-                            rx.chakra.vstack(
-                                rx.chakra.text("File Count: "),
-                                rx.chakra.text("Total Size: "),
-                                rx.chakra.text("Editors: "),
-                                spacing="5px",
-                                align_items="start"
-                            ),
-                            rx.chakra.vstack(
-                                rx.chakra.text(collection_obj[2]),
-                                rx.chakra.text(collection_obj[3]),
-                                rx.chakra.text(collection_obj[4]),
-                                spacing="5px",
-                                align_items="start",
-                            ),
-                            font_size="15px",
-                            color="#bbbbbb",
-                            spacing="10px"
-                        ),
-                        spacing="0vh"
-                    )
-                ),
-                rx.chakra.accordion_panel(
-                    rx.chakra.hstack(
-                        rx.chakra.tooltip(
-                            rx.chakra.button(
-                                rx.chakra.icon(
-                                    tag="edit",
-                                    font_size="20px"
-                                ),
-                                height="30px",
-                                width="40px",
-                                border_radius="15px",
-                                bg="rgb(0, 75, 75)",
-                                color="rgb(0, 200, 200)",
-                                _hover={"bg":"rgb(0, 100, 100)", "color": "rgb(0, 255, 255)"}
-                            ),
-                            label="Edit Files"
-                        ),
-                        rx.chakra.spacer(),
-                        rx.chakra.tooltip(
-                            confirm_delete_collection_dialog(
-                                rx.chakra.button(
-                                    rx.chakra.icon(
-                                        tag="delete",
-                                        font_size="20px"
-                                    ),
-                                    height="30px",
-                                    width="40px",
-                                    border_radius="15px",
-                                    bg="rgb(75, 0, 0)",
-                                    color="rgb(200, 0, 0)",
-                                    _hover={"bg":"rgb(100, 0, 0)", "color": "rgb(255, 0, 0)"}
-                                ),
-                                collection_id=collection_obj[0],
-                                collection_name=collection_obj[1]
-                            ),
-                            label="Delete Collection"
-                        ),
-                        rx.chakra.spacer(),
-                        rx.chakra.tooltip(
-                            rx.chakra.button(
-                                rx.chakra.icon(
-                                    tag="copy",
-                                    font_size="20px"
-                                ),
-                                height="30px",
-                                width="40px",
-                                border_radius="15px",
-                                bg="rgb(75, 0, 75)",
-                                color="rgb(200, 0, 200)",
-                                _hover={"bg":"rgb(100, 100, 0)", "color": "rgb(255, 255, 0)"},
-                                on_click= lambda: CollectionState.copy_collection(collection_obj)
-                            ),
-                            label="Share Collection"
-                        ),
-                        width="100%"
-                    ),
-                )
-            ),
-            allow_toggle=True,
-            border_color=card_color
+            bg="#0f0f0f",
+            on_escape_key_down= ConfirmDeleteDialogState.close_dialog,
+            on_pointer_down_outside= ConfirmDeleteDialogState.close_dialog
         ),
-        bg=card_color,
-        border_color=card_color,
-        border_radius="5px",
-        border_width="5px"
+        open=ConfirmDeleteDialogState.open_dialog_bool
     )
 
 def context_menu_wrapper(*components):
@@ -309,7 +213,26 @@ def desktop_index():
                                 rx.chakra.wrap(
                                     rx.foreach(
                                         CollectionState.display_my_collections,
-                                        collection_accordian
+                                        lambda collection_obj: desktop_collection_card(
+                                            collection_obj,
+                                            copy_function=CollectionState.copy_collection(collection_obj),
+                                            button3=confirm_delete_collection_dialog(
+                                                rx.button(
+                                                    rx.chakra.icon(
+                                                        tag="delete",
+                                                        font_size="20px"
+                                                    ),
+                                                    radius="large",
+                                                    variant="soft",
+                                                    bg="rgb(75, 0, 0)",
+                                                    color="rgb(200, 0, 0)",
+                                                    _hover={"bg":"rgb(100, 0, 0)", "color": "rgb(255, 0, 0)"},
+                                                    on_click= ConfirmDeleteDialogState.open_dialog
+                                                ),
+                                                collection_id=collection_obj["id"],
+                                                collection_name=collection_obj["name"]
+                                            ),
+                                        )
                                     ),
                                     width="100%"
                                 ),
@@ -335,9 +258,9 @@ def desktop_index():
         )
     )
 
-def tablet_collection_display_accordian(collection_obj):  # collection_obj consists of [collection_id, collection_name, file_count, file_size, editor_count]
+def tablet_collection_display_accordian(collection_obj):  # collection_obj consists of {"id":, "name":, "file_count": , "size": , "editor_count":, "folder_count":}
     return rx.accordion.item(
-        header = collection_obj[1],
+        header = collection_obj["name"],
         content= rx.vstack(
             rx.hstack(
                 rx.vstack(
@@ -347,9 +270,9 @@ def tablet_collection_display_accordian(collection_obj):  # collection_obj consi
                     align="start"
                 ),
                 rx.vstack(
-                    rx.text(collection_obj[2]),
-                    rx.text(collection_obj[3]),
-                    rx.text(collection_obj[4]),
+                    rx.text(collection_obj["file_count"]),
+                    rx.text(collection_obj["size"]),
+                    rx.text(collection_obj["editor_count"]),
                     align="start"
                 ),
             ),
@@ -364,7 +287,7 @@ def tablet_collection_display_accordian(collection_obj):  # collection_obj consi
                         variant="soft",
                         radius="large"
                     ),
-                    href=f"{app_link}/collection?id={collection_obj[0]}",
+                    href=f"{app_link}/collection?id={collection_obj['id']}",
                     target="_blank"
                 ),
                 rx.spacer(),
@@ -385,7 +308,7 @@ def tablet_collection_display_accordian(collection_obj):  # collection_obj consi
                 rx.spacer(),
                 rx.button(
                     rx.icon("trash-2"),
-                    on_click= lambda: CollectionState.delete_collection(collection_obj[0]),
+                    on_click= lambda: CollectionState.delete_collection(collection_obj['id']),
                     color_scheme="tomato",
                     variant="soft",
                     radius="large"

@@ -735,5 +735,79 @@ def mobile_file_card(file_obj):
     spacing='0'
 )
 
-def desktop_collection_card(collection_obj, footer=empty_component()):
-    return rx.text(collection_obj["name"])
+def desktop_collection_card(collection_obj, copy_function=rx.set_clipboard("ERROR"), button3=None):
+    def sample_button():
+        return rx.button(
+            rx.icon("vault"),
+            color_scheme="blue",
+            radius="large",
+            variant="soft"
+        )
+
+    if button3==None:
+        button3 = sample_button()
+    return rx.vstack(
+        rx.heading(
+            collection_obj["name"],
+            color="WHITE",
+        ),
+        rx.chakra.divider(border_color="GRAY"),
+        rx.hstack(
+            rx.vstack(
+                rx.text("Size:"),
+                rx.text("File Count:"),
+                rx.text("Folder count:"),
+                rx.text("Editors:"),
+                width="100px"
+            ),
+            rx.vstack(
+                rx.text(collection_obj["size"]),
+                rx.text(collection_obj["file_count"]),
+                rx.text(collection_obj["folder_count"]),
+                rx.text(collection_obj["editor_count"]),
+            ),
+            color="GRAY",
+            align="center"
+        ),
+        rx.hstack(
+            rx.chakra.tooltip(
+                rx.link(
+                    rx.button(
+                        rx.icon(
+                            "eye"
+                        ),
+                        color="#ffb100",
+                        bg = "#302400",
+                        _hover = {"bg":"#413511","color":"#ffc200"},
+                        radius="large",
+                        variant="soft"
+                    ),
+                    href=f"{app_link}/collection/?id={collection_obj['id']}",
+                    target="_blank"
+                ),
+                label="View Collection"
+            ),
+            rx.spacer(),
+            rx.chakra.tooltip(
+                rx.button(
+                    rx.icon(
+                        "copy"
+                    ),
+                    color_scheme="green",
+                    radius="large",
+                    variant="soft",
+                    on_click=copy_function
+                ),
+                label="Copy link"
+            ),
+            rx.spacer(),
+            button3,
+            align="center",
+            width="90%"
+        ),
+        align="center",
+        padding="20px",
+        bg="#1c1c1c",
+        width="250px",
+        border_radius="5px"
+    )

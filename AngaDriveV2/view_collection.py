@@ -28,7 +28,7 @@ class ViewCollectionState(State):
         collection_files = collection_data["Files"]
         collection_folders = collection_data["Folders"]
         self.collection_files = [get_file_info_for_card(file) for file in collection_files]
-        self.collection_folders = [get_collection_info_for_viewer(folder) for folder in collection_folders]
+        self.collection_folders = [collection_info_for_display(folder) for folder in collection_folders]
         self.collection_has_both_files_and_folders = bool(self.collection_files) and bool(self.collection_folders)
 
     def remove_file_from_collection(self, file_dict):
@@ -46,6 +46,10 @@ class ViewCollectionState(State):
         except Exception as e:
             print(f"Error occured in execuring AngaDriveV2.view_collection.ViewCollectionState.delete_file_from_collection.os_remove: {file_dict}\nError was: {e}")
         self.collection_files.remove(file_dict)
+    
+    def copy_collection_link(self, collection_dict):
+        yield rx.set_clipboard(f"{app_link}/collection/?id={collection_dict['id']}")
+        yield rx.toast.success(f"Copied link to {collection_dict['full_name']}")
 
 
 def view_collection_file_editor_menu(file_obj, **kwargs):
@@ -406,7 +410,7 @@ class AddFolderDialogState(ViewCollectionState):
     def open_dialog(self):
         collection_ids = get_collection_ids_by_account_token(self.token)
         collection_ids.remove(self.collection_id)           # remove the id of the collection that user is currently viewing
-        self.user_folders=[get_collection_info_for_viewer(folder) for folder in collection_ids]
+        self.user_folders=[collection_info_for_display(folder) for folder in collection_ids]
         list_of_collection_folder_ids = [folder["id"] for folder in self.collection_folders]
         self.user_folders_in_collection={collection_id:bool(collection_id in list_of_collection_folder_ids) for collection_id in collection_ids}
         self.user_updated_folders_in_collection = copy.deepcopy(self.user_folders_in_collection)
@@ -434,6 +438,7 @@ class AddFolderDialogState(ViewCollectionState):
         if self.new_collection_name_is_valid:
             new_collection_id = create_new_collection(user_token=self.token, collection_name=self.new_collection_name)
             add_folder_to_collection(folder_id=new_collection_id, collection_id=self.collection_id)
+            self.collection_folders.append(collection_info_for_display(new_collection_id))
             self.close_dialog()
 
     enable_save_folder_changes_button:bool = False
@@ -450,11 +455,17 @@ class AddFolderDialogState(ViewCollectionState):
         for i in new_folders:
             if new_folders[i] and not old_folders[i]:
                 add_folder_to_collection(folder_id=i, collection_id=self.collection_id)
-                self.collection_folders.append(get_collection_info_for_viewer(i))
+                self.collection_folders.append(collection_info_for_display(i))
             elif (not new_folders[i]) and old_folders[i]:
                 remove_folder_from_collection(folder_id=i, collection_id=self.collection_id)
-                self.collection_folders.remove(get_collection_info_for_viewer(i))
+                self.collection_folders.remove(collection_info_for_display(i))
         self.close_dialog()
+    
+    def remove_folder_from_collection(self, folder_obj):
+        remove_folder_from_collection(folder_id=folder_obj['id'], collection_id=self.collection_id)
+        self.collection_folders.remove(folder_obj)
+        self.collection_has_both_files_and_folders = bool(self.collection_files) and bool(self.collection_folders)
+        return rx.toast.error(f"Removed folder from collection")
 
 def add_folders_accordion():
     return rx.vstack(
@@ -479,8 +490,9 @@ def add_folders_accordion():
                                     on_change=lambda update: AddFolderDialogState.update_checkbox(folder["id"]),
                                 ),
                                 rx.text(
-                                    folder["name"],
-                                    color="WHITE"
+                                    folder["full_name"],
+                                    color="WHITE",
+                                    on_click=lambda: AddFolderDialogState.update_checkbox(folder["id"])
                                 )
                             )
                         ),
@@ -543,6 +555,7 @@ def add_folder_dialog(trigger, **kwargs):
                                 "Create folder",
                                 variant="soft",
                                 color_scheme="blue",
+                                on_click=AddFolderDialogState.create_folder
                             ),
                             width="100%"
                         )
@@ -600,10 +613,10 @@ def desktop_index():
                         rx.button(
                             rx.icon(
                                 tag="file-plus-2",
-                                on_click=AddFileDialogState.open_dialog,
                                 height="60%"
                             ),
                             "Add Files",
+                            on_click=AddFileDialogState.open_dialog,
                             color="WHITE",
                             bg="GREEN",
                             _hover = {"bg":"rgb(0,255,0)","color":"rgb(100,100,100)"},
@@ -631,7 +644,22 @@ def desktop_index():
         rx.flex(
             rx.foreach(
                 ViewCollectionState.collection_folders,
-                desktop_collection_card
+                lambda collection_obj: desktop_collection_card(
+                    collection_obj, 
+                    copy_function=ViewCollectionState.copy_collection_link(collection_obj),
+                    button3=rx.chakra.tooltip(
+                        rx.button(
+                            rx.icon(
+                                "circle-x"
+                            ),
+                            color_scheme="red",
+                            variant="soft",
+                            radius="large",
+                            on_click=AddFolderDialogState.remove_folder_from_collection(collection_obj)
+                        ),
+                        label="Remove folder from collection"
+                    )
+                )
             ),
             warp="warp"
         ),
