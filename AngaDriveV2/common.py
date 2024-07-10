@@ -223,13 +223,15 @@ def get_cpu_temperature():
         last_temp_seen = round(temperature,2)
         return round(temperature,2)
     except Exception as e:
-        result = subprocess.run(['sensors'], stdout=subprocess.PIPE, text=True)
-        for line in result.stdout.split('\n'):
-            if 'Core 0' in line:  # Adjust 'Core 0' as needed for your specific CPU
-                temp_str = line.split()[2]
-                last_temp_seen = temp_str[1:-2]
-                return temp_str[1:-2]
-        return None
+        try:
+            result = subprocess.run(['sensors'], stdout=subprocess.PIPE, text=True)
+            for line in result.stdout.split('\n'):      # for this part of the code, run these first:
+                if 'Core 0' in line:                    # sudo apt-get install lm-sensors
+                    temp_str = line.split()[2]          # sudo sensors-detect
+                    last_temp_seen = temp_str[1:-2]
+                    return temp_str[1:-2]
+        except:
+            return 0.0
     
 on_rpi=bool(get_cpu_temperature())
 
