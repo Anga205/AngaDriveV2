@@ -179,7 +179,7 @@ def no_files():
 
 def tablet_show_files():
     return rx.vstack(
-    empty_component(height="1vh"),
+    empty_component(height="50px"),
     rx.hstack(
         rx.heading("My Files", color="WHITE"),
         rx.spacer(),
