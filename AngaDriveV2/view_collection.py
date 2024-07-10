@@ -708,18 +708,21 @@ def mobile_view():
             color="WHITE",
             style={"font-weight":"bold"}
         ),
-        rx.hstack(
-            rx.spacer(),
-            rx.button(
-                "Add Files",
-                bg="GREEN",
-                color="WHITE",
-                variant="solid",
-                radius="large",
-                _hover = {"bg":"rgb(0,255,0)","color":"rgb(100,100,100)"},
-                on_click=AddFileDialogState.open_dialog
-            ),
-            width="95%"
+        conditional_render(
+            ViewCollectionState.is_collection_owner,
+            rx.hstack(
+                rx.spacer(),
+                rx.button(
+                    "Add Files",
+                    bg="GREEN",
+                    color="WHITE",
+                    variant="solid",
+                    radius="large",
+                    _hover = {"bg":"rgb(0,255,0)","color":"rgb(100,100,100)"},
+                    on_click=AddFileDialogState.open_dialog
+                ),
+                width="95%"
+            )
         ),
         rx.flex(
             rx.foreach(
