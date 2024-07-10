@@ -1,5 +1,5 @@
 import reflex as rx
-import time, asyncio
+import asyncio
 from AngaDriveV2.common import *
 from AngaDriveV2.DBMS import *
 
@@ -104,6 +104,8 @@ class State(rx.State):
             self.upload_progress=0
     
     def delete_file(self, file_obj):
+        if file_obj not in self.user_files:
+            return rx.toast.error("File not found")
         filename = file_obj["file_path"]
         try:
             os.remove(os.path.join(file_directory,filename))
@@ -113,8 +115,7 @@ class State(rx.State):
                 print(f"Error occured in execuring AngaDriveV2.State.delete_file.remove_file_from_database: {file_obj}")
         except Exception as e:
             print(f"Error occured in execuring AngaDriveV2.State.delete_file.os_remove: {file_obj}\nError was: {e}")
-        self.user_files: list[dict[str, str]] = get_all_user_files_for_display(self.token)
-
+        self.user_files.remove(file_obj)
     
     async def handle_file_page_upload(self, files: list[rx.UploadFile]):
         yield rx.clear_selected_files("file_page_upload")
