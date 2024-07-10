@@ -226,8 +226,8 @@ class AddFileDialogState(ViewCollectionState):
                 original_file_name=file.filename
             )
             add_file_to_collection(collection_id=self.collection_id, file_path=filename)
-        self.close_dialog()
-        self.load_collection_viewer()
+        yield self.close_dialog()
+        yield self.load_collection_viewer()
 
     def save_changes(self):
         new_user_files_in_collection = self.new_user_files_in_collection
