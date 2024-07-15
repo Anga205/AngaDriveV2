@@ -35,7 +35,7 @@ class VerifierState(State):
                 user_data["token"] = flowinity_code
                 if (not self.is_logged_in) and does_user_have_files(self.token):    # if the user is not logged in but still has files then transfer them
                     migrate_files(old_token=self.token, new_token=flowinity_code)
-                if (not token_exists(flowinity_code)):
+                if (not token_exists_in_accounts_table(flowinity_code)):
                     flowinity_user_signup(user_data)
                 self.is_logged_in = "True"
                 self.token = flowinity_code

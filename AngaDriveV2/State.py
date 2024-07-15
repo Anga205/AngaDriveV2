@@ -18,6 +18,8 @@ class State(rx.State):
     is_logged_in = rx.LocalStorage(name="logged_in")
     username:str = "{username}"
     email:str = "{email_id}"
+
+    enable_previews:bool = True
     def add_token_if_not_present(self): # check if there is a token, if not, create one and then add it to database
         if self.token == "" or (not is_valid_token(self.token)):
             generated_token = gen_token()

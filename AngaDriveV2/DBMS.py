@@ -433,7 +433,6 @@ def user_login(email: str, password:str):
     return {True: result[0]}
 
 def flowinity_user_signup(flowinity_data):
-
     con = sqlite3.connect(database_directory)
     cur = con.cursor()
     
@@ -635,3 +634,11 @@ def remove_folder_from_collection(folder_id: str, collection_id: str):
     cur.execute(f"UPDATE collections SET collections = ? WHERE id = ?", (collections, collection_id))
     con.commit()
     con.close()
+
+def token_exists_in_accounts_table(token):
+    con = sqlite3.connect(database_directory)
+    cur = con.cursor()
+    cur.execute("SELECT COUNT(*) FROM accounts WHERE token = ?", (token,))
+    result = cur.fetchone()[0]
+    con.close()
+    return result>0

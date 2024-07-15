@@ -289,7 +289,7 @@ def file_details(file_obj, **kwargs):
     return rx.chakra.vstack(
         rx.box(
             rx.cond(
-                file_obj["previewable"],
+                file_obj["previewable"] & State.enable_previews,
                 rx.el.object(
                     data=file_obj["file_link"],
                     fallback=rx.text("failed to load"),
