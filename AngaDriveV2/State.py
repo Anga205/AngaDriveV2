@@ -61,6 +61,8 @@ class State(rx.State):
             self.add_token_if_not_present()
             add_timestamp_to_activity()
             self.state_initialized = True
+        if self.username == "{username}":
+            self.update_account_info()
 
     def load_index_page(self):
         self.load_any_page()
@@ -158,3 +160,10 @@ class State(rx.State):
     def download_file(self, file_obj):
         add_timestamp_to_activity()
         return rx.download("/"+os.path.join("..",file_directory,file_obj["file_path"]), filename=file_obj["original_name"])
+
+    def logout(self):
+        self.token = gen_token()
+        self.is_logged_in = ""
+        self.username:str = "{username}"
+        self.email:str = "{email_id}"
+        self.update_account_data_components()

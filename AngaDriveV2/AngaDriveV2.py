@@ -29,8 +29,6 @@ async def redirect():
 
 async def download_file(file_path: str, response: Response):
     full_file_path = os.path.join(os.getcwd(), AngaDriveV2.common.file_directory, file_path)
-    print(full_file_path, AngaDriveV2.DBMS.get_file_name(file_path))
-    print(os.path.exists(full_file_path))
 
     if os.path.exists(full_file_path):
         return FileResponse(full_file_path, media_type='application/octet-stream', filename=AngaDriveV2.DBMS.get_file_name(file_path))

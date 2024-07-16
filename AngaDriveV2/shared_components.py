@@ -160,8 +160,99 @@ def shared_navbar() -> rx.Component:
         spacing="0vh"
     )
 
+class AccountManagerState(State):
+
+    new_username:str
+    new_email:str
+    account_update_password:str
+    account_update_password_confirm:str
+    display_password_inputs:bool = False
+    dialog_bool:bool = False
+
+    def open_dialog(self):
+        self.new_username = self.username
+        self.new_email = self.email
+        self.display_password_inputs = False
+        self.dialog_bool = True
+        self.account_update_password = ""
+        self.account_update_password_confirm = ""
+    
+    def close_dialog(self):
+        self.dialog_bool = False
+    
+    def update_dialog(self):
+        if (self.new_username != self.username) or (self.new_email != self.email):
+            self.display_password_inputs = True
+        else:
+            self.display_password_inputs = False
+    
+    def account_manager_logout(self):
+        self.logout()
+        self.close_dialog()
+
+    def set_new_username(self, new_username: str):
+        new_username = new_username.strip()
+        new_username = new_username[:30]
+        new_username = new_username.replace(" ", "_")
+        self.new_username = new_username # strip and truncate to 30 characters
+        self.update_dialog()
+        
+
+
+def account_manager_wrapper(component, **kwargs):
+    return rx.dialog.root(
+        rx.dialog.trigger(component),
+        rx.dialog.content(
+            rx.dialog.title("Account Manager"),
+            rx.vstack(
+                rx.input(
+                    value=AccountManagerState.new_username,
+                    on_change=AccountManagerState.set_new_username,
+                    placeholder="Enter username here",
+                    width="100%"
+                ),
+                rx.input(
+                    value=AccountManagerState.new_email,
+                    on_change=AccountManagerState.set_new_email,
+                    placeholder="Enter email here",
+                    width="100%"
+                ),
+                rx.hstack(
+                    rx.button(
+                        rx.icon(
+                            "log-out",
+                            height="60%"
+                        ),
+                        "Log out",
+                        color_scheme="orange",
+                        variant="soft",
+                        on_click=AccountManagerState.account_manager_logout
+                    ),
+                    rx.spacer(),
+                    rx.button(
+                        rx.icon(
+                            "trash-2",
+                            height="60%"
+                        ),
+                        "Delete Account",
+                        color_scheme="red",
+                        variant="soft",
+                    ),
+                    width="100%"
+                ),
+                width="100%"
+            ),
+            bg="#0f0f0f",
+            on_escape_key_down=lambda _: AccountManagerState.close_dialog(),
+            on_pointer_down_outside=lambda _: AccountManagerState.close_dialog(),
+            on_interact_outside=lambda _: AccountManagerState.close_dialog(),
+        ),
+        open=AccountManagerState.dialog_bool,
+    )
+
+
 def shared_sidebar(opened_page, **kwargs):
-    buttons = ["Home", "Files", "Collections"]
+    buttons = ["Home", "Files", "Collections", "GitHub"]
     button_bg = "BLACK"
     selected_button_bg = "#1f1f1f"
 
@@ -172,10 +263,9 @@ def shared_sidebar(opened_page, **kwargs):
         button_on_hover = {"bg": "#101010"}
 
         return rx.chakra.button(
-                rx.chakra.image(
-                    src=image,
+                rx.icon(
+                    tag=image,
                     height="60%",
-                    custom_attrs={"draggable":"false"},
                     width="auto"
                 ),
                 rx.chakra.box(
@@ -194,8 +284,43 @@ def shared_sidebar(opened_page, **kwargs):
                 bg=button_colors[text],
                 color="WHITE",
                 _hover=button_on_hover
+            )
+
+    def sidebar_account_widget():
+        return account_manager_wrapper(
+            rx.vstack(
+                rx.hstack(
+                    rx.icon(
+                        "user",
+                        height="100%",
+                        width="auto",
+                        padding="3px"
+                    ),
+                    rx.vstack(
+                        rx.text(
+                            State.username,
+                        ),
+                        rx.text(
+                            State.email,
+                            color="GRAY",
+                            width="100%",
+                            font_size="12px"
+                        ),
+                        spacing="0",
+                    ),
+                    width="100%",
+                    height="40px",
+                    spacing="0vh",
+                    font_size="1.65vh",
+                    border_radius="0vh",
+                    color="WHITE",
+                    align="center",
+                    padding="5px",
+                    _hover={"color":"#e0e0e0","bg":"#1f1f1f"},
+                    on_click=AccountManagerState.open_dialog
                 )
-    
+            )
+        )
 
     return rx.chakra.vstack(
         rx.chakra.box(
@@ -203,19 +328,34 @@ def shared_sidebar(opened_page, **kwargs):
             height="2vh"
         ),
         sidebar_button(
-            "/home.png",
+            "Home",
             "Home",
             "/"
         ),
         sidebar_button(
-            "/folders.png",
+            "File",
             "Files",
             "/my_drive"
         ),
         sidebar_button(
-            "/collection.png",
+            "Folder",
             "Collections",
             "/my_collections"
+        ),
+        sidebar_button(
+            "github",
+            "GitHub",
+            "https://github.com/Anga205/AngaDriveV2"
+        ),
+        rx.spacer(),
+        rx.box(
+            rx.cond(
+                State.is_logged_in,
+                sidebar_account_widget(),
+                rx.text("Log in now"),
+            ),
+            width="100%",
+            padding="5px"
         ),
         height="100%",
         width="12%",
@@ -532,10 +672,9 @@ def tablet_drawer(button, current_page):
                 ),
                 rx.chakra.box(height="1vh"),
                 rx.chakra.button(
-                    rx.chakra.image(
-                        src="/home.png",
+                    rx.icon(
+                        tag="home",
                         height="50%",
-                        custom_attrs={"draggable":"false"},
                         width="auto"
                     ), 
                     rx.chakra.spacer(), 
