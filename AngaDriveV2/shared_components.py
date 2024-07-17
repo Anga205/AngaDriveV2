@@ -687,10 +687,9 @@ def tablet_drawer(button, current_page):
                     **{"on_click":rx.redirect("/")} if current_page!="home" else {}
                 ),
                 rx.chakra.button(
-                    rx.chakra.image(
-                        src="/folders.png",
+                    rx.icon(
+                        tag="File",
                         height="50%",
-                        custom_attrs={"draggable":"false"},
                         width="auto"
                     ),
                     rx.chakra.spacer(),
@@ -703,10 +702,9 @@ def tablet_drawer(button, current_page):
                     **{"on_click":rx.redirect("/my_drive")} if current_page!="files" else {}
                 ),
                 rx.chakra.button(
-                    rx.chakra.image(
-                        src="/collection.png",
+                    rx.icon(
+                        tag="Folder",
                         height="50%",
-                        custom_attrs={"draggable":"false"},
                         width="auto"
                     ),
                     rx.chakra.spacer(),
@@ -717,6 +715,25 @@ def tablet_drawer(button, current_page):
                     width="100%", 
                     _hover={"bg": "#202020"},
                     **{"on_click":rx.redirect("/my_collections")} if current_page!="collections" else {}
+                ),
+                rx.link(
+                    rx.chakra.button(
+                        rx.icon(
+                            tag="github",
+                            height="50%",
+                            width="auto"
+                        ),
+                        rx.chakra.spacer(),
+                        "Github", 
+                        rx.chakra.spacer(), 
+                        bg = "#0f0f0f", 
+                        color="WHITE", 
+                        width="100%", 
+                        _hover={"bg": "#202020"},
+                    ),
+                    width="100%",
+                    href="https://github.com/Anga205/AngaDrive",
+                    target="_blank"
                 ),
                 rx.spacer(),
                 align_items="start",
