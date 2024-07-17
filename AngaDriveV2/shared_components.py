@@ -321,6 +321,33 @@ def shared_sidebar(opened_page, **kwargs):
                 )
             )
         )
+    
+    def sidebar_login_widget():
+        return rx.hstack(
+            rx.button(
+                rx.chakra.text("Login"),
+                width="49%",
+                style={"font-weight":"bold"},
+                color_scheme="blue",
+                variant="soft",
+                font_size="1.75vh",
+                height="4vh",
+                border="1vh"
+            ),
+            rx.spacer(),
+            rx.button(
+                "Signup",
+                style={"font-weight":"bold"},
+                color_scheme="green",
+                variant="soft",
+                width="49%",
+                font_size="1.75vh",
+                height="4vh",
+                border="1vh"
+            ),
+            spacing="0px",
+            width="100%"
+        )
 
     return rx.chakra.vstack(
         rx.chakra.box(
@@ -342,17 +369,22 @@ def shared_sidebar(opened_page, **kwargs):
             "Collections",
             "/my_collections"
         ),
-        sidebar_button(
-            "github",
-            "GitHub",
-            "https://github.com/Anga205/AngaDriveV2"
+        rx.link(
+            sidebar_button(
+                "github",
+                "GitHub",
+                ""
+            ),
+            width="100%",
+            href="https://github.com/Anga205/AngaDriveV2",
+            target="_blank"
         ),
         rx.spacer(),
         rx.box(
             rx.cond(
                 State.is_logged_in,
                 sidebar_account_widget(),
-                rx.text("Log in now"),
+                sidebar_login_widget(),
             ),
             width="100%",
             padding="5px"
