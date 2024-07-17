@@ -3,146 +3,116 @@ from functools import lru_cache
 from contextlib import asynccontextmanager
 from AngaDriveV2.common import *
 
-class Connection():
-    con = None
-    cur = None
-    def __init__(self):
-        self.con = sqlite3.connect(database_directory)
-        self.cur = self.con.cursor()
-        if not os.path.exists(database_directory):
-            print("Database not found.... creating one now")
-            self.cur.execute('''
-                CREATE TABLE accounts (
-                    token TEXT PRIMARY KEY,
-                    display_name TEXT,
-                    email TEXT,
-                    hashed_password TEXT
-                )''')
-            
-            self.cur.execute('''
-                CREATE TABLE file_data(
-                        original_file_name TEXT,
-                        file_directory TEXT PRIMARY KEY,
-                        account_token TEXT,
-                        file_size INTEGER,
-                        timestamp INTEGER
-                )
-                        ''')
+def create_database():
+    if not os.path.exists(database_directory):
+        print("Database not found.... creating one now")
+        con = sqlite3.connect(database_directory)
+        cur = con.cursor()
+        cur.execute('''
+            CREATE TABLE accounts (
+                token TEXT PRIMARY KEY,
+                display_name TEXT,
+                email TEXT,
+                hashed_password TEXT
+            )''')
+        
+        cur.execute('''
+            CREATE TABLE file_data(
+                    original_file_name TEXT,
+                    file_directory TEXT PRIMARY KEY,
+                    account_token TEXT,
+                    file_size INTEGER,
+                    timestamp INTEGER
+            )
+                    ''')
 
-            self.cur.execute('''
-                CREATE TABLE activity(
-                    timestamps INTEGER
-                )
-            ''')
+        cur.execute('''
+            CREATE TABLE activity(
+                timestamps INTEGER
+            )
+        ''')
 
-            self.cur.execute('''
-                CREATE TABLE collections(
-                        id TEXT PRIMARY KEY,
-                        name TEXT,
-                        editors TEXT,
-                        size INTEGER,
-                        collections TEXT,
-                        files TEXT
-                )
-                        ''')
-            self.con.commit()
+        cur.execute('''
+            CREATE TABLE collections(
+                    id TEXT PRIMARY KEY,
+                    name TEXT,
+                    editors TEXT,
+                    size INTEGER,
+                    collections TEXT,
+                    files TEXT
+            )
+                    ''')
+        con.commit()
 
-            print("Database and table created successfully.")
+        print("Database and table created successfully.")
+        return con, cur
+    else:
+        print("Database found.... connecting to it now")
+        con = sqlite3.connect(database_directory)
+        cur = con.cursor()
+        return con, cur
 
-    def __del__(self):
-        print("Closing database connection")
-        self.con.commit()
-        self.con.close()
-        print("closed self.con")
-
-con = None
-
-@asynccontextmanager
-async def lifespan(discard=None):
-    global con
-    con = Connection()
-    print("Database connection established")
-    yield
-    del con
-    print("Database connection closed")
-    yield
-
+con, cur = create_database()
 
 def account_info(token):
     try:
-        con = sqlite3.connect(database_directory)
-        cur=con.cursor()
+        global cur, con
         cur.execute(f"SELECT token, display_name, email FROM accounts WHERE token= ? ", (token,))
         data = cur.fetchone()
         data = dict(zip(["token", "display_name","email"],data))
-        con.close()
         return data
     except Exception as e:
         print(f"Error occured when running AngaDriveV2.DBMS.account_info\nVar Dump:\ntoken: {token}\ndata: {data}\nError: {e}")
         return dict(zip(["token", "display_name","email"],["ERROR", "ERROR", "ERROR"]))
 
 def get_total_activity_pulses():
-    con = sqlite3.connect(database_directory)
-    cur = con.cursor()
+    global cur, con
     cur.execute("SELECT COUNT(timestamps) FROM activity")
     count = cur.fetchone()[0]
-    con.close()
     return count
 
 pulse_count = get_total_activity_pulses()
 
 def add_timestamp_to_activity():
-    global pulse_count
-    con = sqlite3.connect(database_directory)
-    cur = con.cursor()
+    global cur, con, pulse_count
     cur.execute(f"INSERT INTO activity (timestamps) VALUES ({round(time.time())});")
     con.commit()
-    con.close()
     pulse_count += 1
 
 def get_user_count():
-    con = sqlite3.connect(database_directory)
-    cur = con.cursor()
+    global cur, con
     cur.execute(f"SELECT COUNT(DISTINCT account_token) FROM file_data")
     try:
        count = int(cur.fetchone()[0])
     except Exception as e:
         print(f'Error occured when calculating get_user_count: {e}')
         count = 0
-    con.close()
     return count
 
 def get_registered_users():
-    con = sqlite3.connect(database_directory)
-    cur = con.cursor()
+    global cur, con
     cur.execute("SELECT COUNT(token) FROM accounts")
     try:
        count = int(cur.fetchone()[0])
     except Exception as e:
         print(f'Error occured when calculating get_registered_users: {e}')
         count = 0
-    con.close()
     return count
 
 def fetch_activity_from_last_week():
-    con = sqlite3.connect(database_directory)
-    cur = con.cursor()
+    global cur, con
     cur.execute(f"SELECT timestamps FROM activity")
     output = [x[0] for x in list(cur)]
-    con.close()
     return calls_per_day(output)
 
 def does_filename_already_exist(filename_to_check: str) -> bool:
     
-    con = sqlite3.connect(database_directory)
-    c = con.cursor()
+    global cur, con
 
     # Execute a SELECT query to check if the string is present in any row of the table
-    c.execute(f"SELECT * FROM file_data WHERE file_directory = {dbify(filename_to_check)}")
+    cur.execute(f"SELECT * FROM file_data WHERE file_directory = {dbify(filename_to_check)}")
     
-    row = c.fetchone()
-
-    con.close()
+    row = cur.fetchone()
 
     # If row is not None, the string is present in the table, so true means the file name is infact there in the database
     return row is not None
@@ -162,22 +132,14 @@ def gen_filename(filename):
 
 def add_file_to_database(original_file_name, file_directory, account_token, file_size):
     
-    original_file_name= dbify(original_file_name)
-    file_directory = dbify(file_directory)
-    account_token = dbify(account_token)
-    file_size = dbify(file_size)
+    global cur, con
 
-    con = sqlite3.connect(database_directory)
-    cur = con.cursor()
-
-    cur.execute(f"INSERT INTO file_data (original_file_name, file_directory, account_token, file_size, timestamp) VALUES ({original_file_name}, {file_directory}, {account_token}, {file_size}, {dbify(round(time.time()))})")
+    cur.execute(f"INSERT INTO file_data (original_file_name, file_directory, account_token, file_size, timestamp) VALUES (?, ?, ?, ?, ?)", (original_file_name, file_directory, account_token, file_size, round(time.time())))
     con.commit()
-    con.close()
 
 def get_all_user_files_for_display(account_token) -> list[dict[str, str]]:
 
-    con = sqlite3.connect(database_directory)
-    cur = con.cursor()
+    global cur, con
 
     cur.execute(f"SELECT original_file_name, file_directory, file_size, timestamp FROM file_data WHERE account_token = ?", (account_token,))
 
@@ -191,14 +153,12 @@ def get_all_user_files_for_display(account_token) -> list[dict[str, str]]:
         "previewable"   : can_be_previewed(x[1]),               # like True
         "owner_token"   : account_token
     } for x in cur]
-    con.close()
 
     return list(reversed(rows))       # reversed to put the most recently uploaded files at the top
 
 def remove_file_from_all_collections(file_path):
     try:
-        con = sqlite3.connect(database_directory)
-        cur = con.cursor()
+        global cur, con
         cur.execute(f"SELECT file_size FROM file_data WHERE file_directory = ?", (file_path,))
         file_size = cur.fetchone()[0]
         cur.execute(f"SELECT id, size, files FROM collections WHERE files LIKE ?", (f'%{file_path}%',))
@@ -211,33 +171,25 @@ def remove_file_from_all_collections(file_path):
             cur.execute(f"UPDATE collections SET files = ? WHERE id = ?", (files, row[0]))
             cur.execute(f"UPDATE collections SET size = ? WHERE id = ?", (new_size, row[0]))
         con.commit()
-        cur.close()
-        con.close()
     except Exception as e:
         print(f"Error occured when running AngaDriveV2.DBMS.remove_file_from_all_collections\nVar Dump:\nfile_path: {file_path}\nError: {e}")
 
 def remove_file_from_database(file_directory):
     remove_file_from_all_collections(file_directory)
     try:
-        con = sqlite3.connect(database_directory)
-        cur = con.cursor()
-
+        global cur, con
         cur.execute(f"DELETE FROM file_data WHERE file_directory = {dbify(file_directory)}")
         con.commit()
 
-        con.close()
     except Exception as e:
         print(f"Error occured when running AngaDriveV2.DBMS.remove_file_from_database\nVar Dump:\nfile_directory: {file_directory}\nError: {e}")
 
 def get_sum_of_user_file_sizes(token):
 
-    con = sqlite3.connect(database_directory)
-    cur = con.cursor()
-
+    global cur, con
     cur.execute(f"SELECT SUM(file_size) FROM file_data WHERE account_token={dbify(token)}")
     sum_of_file_sizes = cur.fetchone()[0]
 
-    con.close()
     try:
         return format_bytes(sum_of_file_sizes)
     except Exception as e:
@@ -246,56 +198,42 @@ def get_sum_of_user_file_sizes(token):
     
 def get_collection_count():
 
-    con = sqlite3.connect(database_directory)
-    cur = con.cursor()
+    global cur, con
 
     cur.execute(f"SELECT COUNT(id) FROM collections")
     count = cur.fetchone()[0]
 
-    cur.close()
-    con.close()
-
     return count
 
 def delete_collection_from_db(collection_id):
-    con = sqlite3.connect(database_directory)
-    cur = con.cursor()
+    global cur, con
     cur.execute(f"select id from collections where collections like ?", (f'%{collection_id}%',))
     collection_ids_to_edit = [x[0] for x in cur]
-    con.close()
     for collection_to_edit in collection_ids_to_edit:
         remove_folder_from_collection(collection_id, collection_to_edit)        # first remove the folder from all collections
 
-    con = sqlite3.connect(database_directory)
-    cur = con.cursor()
     cur.execute(f"DELETE FROM collections WHERE id = ?", (collection_id,)) # then remove the folder entirely
     con.commit()
-    con.close()
 
 
 def get_all_collection_ids():
     
-    con = sqlite3.connect(database_directory)
-    cur = con.cursor()
+    global cur, con
 
     cur.execute("SELECT id FROM collections")
        
     ids = [x[0] for x in cur]
 
-    con.close()
     return ids
 
 def get_collection_ids_by_account_token(account_token):
-    con = sqlite3.connect(database_directory)
-    cur = con.cursor()
+    global cur, con
     cur.execute(f"SELECT id FROM collections WHERE editors LIKE ?", (f'%{account_token}%',))
     ids = [x[0] for x in cur]
-    con.close()
     return ids
 
 def collection_info_for_display(collection_id):
-    con = sqlite3.connect(database_directory)
-    cur = con.cursor()
+    global cur, con
     
     cur.execute(f"SELECT name, size, collections, files, editors FROM collections WHERE id = ?", (collection_id,))
     collection_info = cur.fetchone()
@@ -304,7 +242,6 @@ def collection_info_for_display(collection_id):
     collection_size = format_bytes(collection_info[1])
     collection_editors_count = len(collection_info[4].split(","))
     collection_folder_count = 0 if collection_info[2]=="" else len(collection_info[2].split(","))
-    con.close()
     return {
         "id":           collection_id, 
         "name":         truncate_string(collection_name), 
@@ -325,8 +262,7 @@ def gen_collection_id():
         return generated_id
 
 def create_new_collection(user_token, collection_name):
-    con = sqlite3.connect(database_directory)
-    cur = con.cursor()
+    global cur, con
     collection_id = gen_collection_id()
 
     cur.execute(f"INSERT INTO collections (id, name, editors, size, collections, files) VALUES (?, ?, ?, ?, ?, ?)", (collection_id, collection_name, user_token, 0, "", ""))
@@ -337,8 +273,8 @@ def create_new_collection(user_token, collection_name):
 def is_valid_token(token: str) -> bool:
     try:
         # Connect to the SQLite database
-        conn = sqlite3.connect(database_directory)
-        cursor = conn.cursor()
+        global cur, con
+        cursor=cur
 
         # Execute a query to check if the token exists in the 'accounts' table
         cursor.execute("SELECT EXISTS(SELECT 1 FROM accounts WHERE token = ?)", (token,))
@@ -349,8 +285,6 @@ def is_valid_token(token: str) -> bool:
 
         # Return True if the token exists, else check filedata table
         if bool(result):
-            cursor.close()
-            conn.close()
             return True
         else:
             cursor.execute("SELECT EXISTS(SELECT 1 FROM file_data WHERE account_token = ?)", (token,))
@@ -358,8 +292,6 @@ def is_valid_token(token: str) -> bool:
 
             # Return True if the account exists in file data, else check collections
             if bool(result):
-                cursor.close()
-                conn.close()
                 return True
             
             else:
@@ -373,12 +305,10 @@ def is_valid_token(token: str) -> bool:
 
 def does_user_have_files(token):
     try:
-        conn = sqlite3.connect(database_directory)
-        cursor = conn.cursor()
+        global cur, con
         # Execute a SELECT query to check if the search string exists in any row of the "token" column
-        cursor.execute("SELECT EXISTS(SELECT 1 FROM file_data WHERE account_token = ?)", (token,))
-        result = cursor.fetchone()[0]  # Fetch the result of the query
-        conn.close()
+        cur.execute("SELECT EXISTS(SELECT 1 FROM file_data WHERE account_token = ?)", (token,))
+        result = cur.fetchone()[0]  # Fetch the result of the query
         return bool(result)
     except sqlite3.Error as e:
         print("SQLite error:", e)
@@ -388,44 +318,36 @@ def user_signup(token, display_name, email, password:str):
 
     hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
     
-    con = sqlite3.connect(database_directory)
-    cur = con.cursor()
+    global cur, con
 
     cur.execute("INSERT INTO accounts(token, display_name, email, hashed_password) VALUES (?, ?, ?, ?)", (token ,display_name,email,hashed_password))
 
     con.commit()
-    con.close()
 
 def migrate_files(old_token, new_token):
 
-    con = sqlite3.connect(database_directory)
-    cur = con.cursor()
+    global cur, con
 
     cur.execute("UPDATE file_data SET account_token = ? WHERE account_token = ?", (new_token, old_token))
 
     con.commit()
-    con.close()
     remove_account_from_accounts_table(old_token)
 
 def remove_account_from_accounts_table(token):
 
-    con = sqlite3.connect(database_directory)
-    cur = con.cursor()
+    global cur, con
 
     cur.execute("DELETE FROM accounts WHERE token = ?", (token,))
 
     con.commit()
-    con.close()
 
 def email_already_exists(email):
 
-    con = sqlite3.connect(database_directory)
-    cur = con.cursor()
+    global cur, con
 
     cur.execute("SELECT COUNT(*) FROM accounts WHERE email = ?", (email,))
 
     result = cur.fetchone()
-    con.close()
     try:
         return result>0
     except:
@@ -433,81 +355,70 @@ def email_already_exists(email):
 
 def user_login(email: str, password:str):
 
-    con = sqlite3.connect(database_directory)
-    cur = con.cursor()
+    global cur, con
 
     cur.execute("SELECT token, hashed_password FROM accounts WHERE email = ?", (email,))
     
     result:list[str] = cur.fetchone()
-    con.close()
 
-    if result == None:
+    if result == [None, None]:
         return {False: "Account not found"}
     if not bcrypt.checkpw(password.encode('utf-8'), result[1].encode('utf-8')):
         return {False: "Authentication Failed"}
     return {True: result[0]}
 
 def flowinity_user_signup(flowinity_data):
-    con = sqlite3.connect(database_directory)
-    cur = con.cursor()
+    global cur, con
     
     cur.execute("INSERT INTO accounts(token, display_name, email) VALUES (?, ?, ?)", (flowinity_data["token"], flowinity_data["username"], flowinity_data["email"]))
     
     con.commit()
-    con.close()
 
 def token_exists(token):
     return is_valid_token(token)
 
 def count_files():
 
-    con = sqlite3.connect(database_directory)
-    cur = con.cursor()
+    global cur, con
 
     cur.execute("SELECT COUNT(*) FROM file_data")
     file_count = cur.fetchone()[0]
-
-    cur.close()
-    con.close()
 
     return file_count
 
 def get_all_files_size():
 
-    con = sqlite3.connect(database_directory)
-    cur = con.cursor()
+    global con, cur
 
     cur.execute(f"SELECT SUM(file_size) FROM file_data")
     result = format_bytes(cur.fetchone()[0])
 
-    cur.close()
-    con.close()
+    
+    
 
     return result
 
 @lru_cache(maxsize=100)
 def get_file_name(file_path):
     try:
-        con = sqlite3.connect(database_directory)
-        cur = con.cursor()
+        global con, cur
 
         cur.execute(f"SELECT original_file_name FROM file_data WHERE file_directory = ?", (file_path, ))
         filename = cur.fetchone()[0]
         
-        cur.close()
-        con.close()
+        
+        
         return filename
     except Exception as e:
         print(f"Error occured when running AngaDriveV2.DBMS.get_file_name\nVar Dump:\nfile_path: {file_path}\nError: {e}")
         return "Error"
 
 def get_collection_info_for_viewer(collection_id):
-    con = sqlite3.connect(database_directory)
-    cur = con.cursor()
+    global con, cur
 
     cur.execute(f"SELECT name, editors, size, files, collections FROM collections WHERE id = ?", (collection_id,))
     data:list[str] = cur.fetchone()
-    con.close()
+    
     if data==None:
         return None
     name = data[0]
@@ -523,14 +434,13 @@ def get_collection_info_for_viewer(collection_id):
 
 def get_file_info_for_card(file_path:str) -> dict[str,str]:
     try:
-        con = sqlite3.connect(database_directory)
-        cur = con.cursor()
+        global con, cur
 
         cur.execute("SELECT original_file_name, file_size, timestamp, account_token FROM file_data WHERE file_directory = ?",(file_path,))
 
         file_data = cur.fetchone()
-        cur.close()
-        con.close()
+        
+        
 
         # ["unchangedfilename.png", "pgfubcid.png", "72.1KB", time.time(), "unchanged...", "http://localhost:8000/i/pgfubcid.png", True]
 
@@ -558,8 +468,7 @@ def get_file_info_for_card(file_path:str) -> dict[str,str]:
         }
 
 def add_file_to_collection(collection_id, file_path):
-    con = sqlite3.connect(database_directory)
-    cur = con.cursor()
+    global con, cur
 
     cur.execute(f"SELECT size, files FROM collections WHERE id = ?", (collection_id,))
     size, files = cur.fetchone()
@@ -570,11 +479,10 @@ def add_file_to_collection(collection_id, file_path):
     cur.execute(f"UPDATE collections SET size = ? WHERE id = ?", (size, collection_id))
     cur.execute(f"UPDATE collections SET files = ? WHERE id = ?", (files, collection_id))
     con.commit()
-    con.close()
+    
 
 def remove_file_from_collection_db(collection_id, file_path):
-    con = sqlite3.connect(database_directory)
-    cur = con.cursor()
+    global con, cur
 
     cur.execute(f"SELECT size, files FROM collections WHERE id = ?", (collection_id,))
     size, files = cur.fetchone()
@@ -585,21 +493,19 @@ def remove_file_from_collection_db(collection_id, file_path):
     cur.execute(f"UPDATE collections SET size = ? WHERE id = ?", (size, collection_id))
     cur.execute(f"UPDATE collections SET files = ? WHERE id = ?", (files, collection_id))
     con.commit()
-    con.close()
+    
 
 def user_has_collections(user_token: str) -> bool:
-    con = sqlite3.connect(database_directory)
-    cur = con.cursor()
+    global con, cur
 
     cur.execute(f"SELECT COUNT(*) FROM collections WHERE editors LIKE ?", (f'%{user_token}%',))
     count = cur.fetchone()[0]
 
-    con.close()
+    
     return count>0
 
 def folder_is_in_collection(folder_id: str, collection_id: str) -> bool:
-    con = sqlite3.connect(database_directory)
-    cur = con.cursor()
+    global con, cur
 
     cur.execute(f"SELECT collections FROM collections WHERE id = ?", (collection_id,))
     collections = cur.fetchone()
@@ -607,14 +513,13 @@ def folder_is_in_collection(folder_id: str, collection_id: str) -> bool:
         collections = []
     else:
         collections = collections[0].split(",")
-    con.close()
+    
     return folder_id in collections
 
 def add_folder_to_collection(folder_id: str, collection_id: str):
     if folder_is_in_collection(folder_id=folder_id, collection_id=collection_id):
         return
-    con = sqlite3.connect(database_directory)
-    cur = con.cursor()
+    global con, cur
     cur.execute(f"SELECT size, collections FROM collections WHERE id = ?", (collection_id,))
     size, collections = cur.fetchone()
     cur.execute(f"SELECT size FROM collections WHERE id = ?", (folder_id,))
@@ -628,13 +533,12 @@ def add_folder_to_collection(folder_id: str, collection_id: str):
     cur.execute(f"UPDATE collections SET size = ? WHERE id = ?", (size, collection_id))
     cur.execute(f"UPDATE collections SET collections = ? WHERE id = ?", (collections, collection_id))
     con.commit()
-    con.close()
+    
 
 def remove_folder_from_collection(folder_id: str, collection_id: str):
     if not folder_is_in_collection(folder_id=folder_id, collection_id=collection_id):
         return
-    con = sqlite3.connect(database_directory)
-    cur = con.cursor()
+    global con, cur
     cur.execute(f"SELECT size, collections FROM collections WHERE id = ?", (collection_id,))
     size, collections = cur.fetchone()
     cur.execute(f"SELECT size FROM collections WHERE id = ?", (folder_id,))
@@ -648,12 +552,20 @@ def remove_folder_from_collection(folder_id: str, collection_id: str):
     cur.execute(f"UPDATE collections SET size = ? WHERE id = ?", (size, collection_id))
     cur.execute(f"UPDATE collections SET collections = ? WHERE id = ?", (collections, collection_id))
     con.commit()
-    con.close()
+    
 
 def token_exists_in_accounts_table(token):
-    con = sqlite3.connect(database_directory)
-    cur = con.cursor()
+    global con, cur
     cur.execute("SELECT COUNT(*) FROM accounts WHERE token = ?", (token,))
     result = cur.fetchone()[0]
-    con.close()
+    
     return result>0
+
+@asynccontextmanager
+async def lifespan(discard=None):
+    global con
+    print("Database connection opened")
+    yield
+    con.commit()
+    con.close()
+    print("Database connection closed")
