@@ -1,27 +1,25 @@
 import sqlite3, os, time, bcrypt
 from functools import lru_cache
+from contextlib import asynccontextmanager
 from AngaDriveV2.common import *
 
-def create_database():
-    # Check if rx.db file exists in the current directory
-    db_file_path = database_directory
-
-    if not os.path.exists(db_file_path):
-        print("Database not found.... creating one now")
-        # If not, create a new database file and the table
-        with sqlite3.connect(db_file_path) as con:
-            cur = con.cursor()
-
-            cur.execute('''
+class Connection():
+    con = None
+    cur = None
+    def __init__(self):
+        self.con = sqlite3.connect(database_directory)
+        self.cur = self.con.cursor()
+        if not os.path.exists(database_directory):
+            print("Database not found.... creating one now")
+            self.cur.execute('''
                 CREATE TABLE accounts (
                     token TEXT PRIMARY KEY,
                     display_name TEXT,
                     email TEXT,
                     hashed_password TEXT
-                )
-                        ''')
+                )''')
             
-            cur.execute('''
+            self.cur.execute('''
                 CREATE TABLE file_data(
                         original_file_name TEXT,
                         file_directory TEXT PRIMARY KEY,
@@ -31,13 +29,13 @@ def create_database():
                 )
                         ''')
 
-            cur.execute('''
+            self.cur.execute('''
                 CREATE TABLE activity(
                     timestamps INTEGER
                 )
             ''')
 
-            cur.execute('''
+            self.cur.execute('''
                 CREATE TABLE collections(
                         id TEXT PRIMARY KEY,
                         name TEXT,
@@ -47,11 +45,28 @@ def create_database():
                         files TEXT
                 )
                         ''')
-            con.commit()
+            self.con.commit()
 
             print("Database and table created successfully.")
 
-create_database()
+    def __del__(self):
+        print("Closing database connection")
+        self.con.commit()
+        self.con.close()
+        print("closed self.con")
+
+con = None
+
+@asynccontextmanager
+async def lifespan(discard=None):
+    global con
+    con = Connection()
+    print("Database connection established")
+    yield
+    del con
+    print("Database connection closed")
+    yield
+
 
 def account_info(token):
     try:

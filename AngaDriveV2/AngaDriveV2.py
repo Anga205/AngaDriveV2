@@ -65,4 +65,5 @@ app.api.add_api_route("/i/{obfuscated_file_name}/{actual_file_name}",get_file_pr
 app.api.add_api_route("/download/{file_path}",download_file)
 app.add_page(AngaDriveV2.flowinity.verifier, route="/flowinitylogin", on_load=AngaDriveV2.flowinity.VerifierState.load_verifier_page)
 app.api.add_api_route("/",redirect)
+app.register_lifespan_task(AngaDriveV2.DBMS.lifespan)
 # app.api.add_api_route("/backup", backup_download)
