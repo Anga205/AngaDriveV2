@@ -58,88 +58,120 @@ def shared_navbar() -> rx.Component:
                 on_click=rx.redirect("/")
                 ),
             rx.chakra.spacer(),
+            # rx.popover.root(
+            #     rx.popover.trigger(
+            #         rx.chakra.image(
+            #             src="/health.png",
+            #             custom_attrs={"draggable":"false"},
+            #             color="WHITE", 
+            #             height="2vh",
+            #             on_click = SystemHealthState.open_system_health
+            #             )
+            #         ),
+            #     rx.popover.content(
+            #         rx.chakra.vstack(
+            #             rx.chakra.heading(
+            #                 "System Health", 
+            #                 color="RED",
+            #                 font_size="3.5vh"
+            #                 ),
+            #             rx.chakra.divider(border_color="GRAY"),
+            #             rx.chakra.box(
+            #                 rx.moment(
+            #                     interval=200, 
+            #                     on_change=SystemHealthState.tick_health
+            #                 ), 
+            #                 display="none"
+            #             ),
+            #             rx.chakra.box(
+            #                 rx.chakra.heading(
+            #                     rx.chakra.span(
+            #                         "Uptime: ",
+            #                         color="rgb(0, 100, 100)"
+            #                     ),
+            #                     rx.chakra.span(
+            #                         State.uptime,
+            #                         color="WHITE"
+            #                     ),
+            #                     font_size="2vh",
+            #                 ),
+            #                 rx.cond(
+            #                     State.temperature_available,
+            #                     rx.chakra.heading(
+            #                         rx.chakra.span(
+            #                             "Temperature: ",
+            #                             color="rgb(0, 100, 100)"
+            #                         ),
+            #                         rx.chakra.span(
+            #                             State.temperature,
+            #                             color="WHITE"
+            #                         ),
+            #                         font_size="2vh",
+            #                     ),
+            #                     empty_component()
+            #                 ),
+            #                 rx.chakra.hstack(
+            #                     rx.chakra.circular_progress(
+            #                         rx.chakra.circular_progress_label("RAM"),
+            #                         value=State.ram_usage,
+            #                         size="10vh"
+            #                     ),
+            #                     rx.chakra.circular_progress(
+            #                         rx.chakra.circular_progress_label("CPU"),
+            #                         value=State.cpu_usage,
+            #                         size="10vh"
+            #                     )
+            #                 ),
+            #                 border_radius="0.5vh",
+            #                 width="100%"
+            #             ),
+            #             color="WHITE",
+            #             bg="BLACK",
+            #             border_width="0px",
+            #             border_radius="0.5vh",
+            #             border_color="BLACK",
+            #         ),
+            #         bg="BLACK",
+            #         border_color="WHITE",
+            #         border_width="1px",
+            #         on_escape_key_down = SystemHealthState.close_system_health,
+            #         on_pointer_down_outside= SystemHealthState.close_system_health,
+            #         on_focus_outside= SystemHealthState.close_system_health,
+            #         on_interact_outside=SystemHealthState.close_system_health,
+            #     ),
+            #     open = SystemHealthState.show_system_health,
+            # ),
             rx.popover.root(
                 rx.popover.trigger(
-                    rx.chakra.image(
-                        src="/health.png",
-                        custom_attrs={"draggable":"false"},
-                        color="WHITE", 
-                        height="2vh",
-                        on_click = SystemHealthState.open_system_health
-                        )
-                    ),
+                    rx.icon(
+                        "settings",
+                        _hover={"color":"#777777"},
+                        color="WHITE"
+                    )
+                ),
                 rx.popover.content(
-                    rx.chakra.vstack(
-                        rx.chakra.heading(
-                            "System Health", 
-                            color="RED",
-                            font_size="3.5vh"
-                            ),
-                        rx.chakra.divider(border_color="GRAY"),
-                        rx.chakra.box(
-                            rx.moment(
-                                interval=200, 
-                                on_change=SystemHealthState.tick_health
-                            ), 
-                            display="none"
+                    rx.vstack(
+                        rx.heading(
+                            "Drive Settings"
                         ),
-                        rx.chakra.box(
-                            rx.chakra.heading(
-                                rx.chakra.span(
-                                    "Uptime: ",
-                                    color="rgb(0, 100, 100)"
-                                ),
-                                rx.chakra.span(
-                                    State.uptime,
-                                    color="WHITE"
-                                ),
-                                font_size="2vh",
-                            ),
-                            rx.cond(
-                                State.temperature_available,
-                                rx.chakra.heading(
-                                    rx.chakra.span(
-                                        "Temperature: ",
-                                        color="rgb(0, 100, 100)"
-                                    ),
-                                    rx.chakra.span(
-                                        State.temperature,
-                                        color="WHITE"
-                                    ),
-                                    font_size="2vh",
-                                ),
-                                empty_component()
-                            ),
-                            rx.chakra.hstack(
-                                rx.chakra.circular_progress(
-                                    rx.chakra.circular_progress_label("RAM"),
-                                    value=State.ram_usage,
-                                    size="10vh"
-                                ),
-                                rx.chakra.circular_progress(
-                                    rx.chakra.circular_progress_label("CPU"),
-                                    value=State.cpu_usage,
-                                    size="10vh"
-                                )
-                            ),
-                            border_radius="0.5vh",
-                            width="100%"
+                        rx.chakra.divider(
+                            border_color="#bbbbbb",
                         ),
-                        color="WHITE",
-                        bg="BLACK",
-                        border_width="0px",
-                        border_radius="0.5vh",
-                        border_color="BLACK",
+                        rx.hstack(
+                            rx.text(
+                                "Enable File Previews"
+                            ),
+                            rx.switch(
+                                checked=State.enable_previews,
+                                on_click=State.swap_previews
+                            ),
+                            align="center"
+                        ),
+                        width="100%",
+                        spacing="1"
                     ),
                     bg="BLACK",
-                    border_color="WHITE",
-                    border_width="1px",
-                    on_escape_key_down = SystemHealthState.close_system_health,
-                    on_pointer_down_outside= SystemHealthState.close_system_health,
-                    on_focus_outside= SystemHealthState.close_system_health,
-                    on_interact_outside=SystemHealthState.close_system_health,
-                ),
-                open = SystemHealthState.show_system_health,
+                )
             ),
             rx.chakra.box(
                 width="0.5vh"
