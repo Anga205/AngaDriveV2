@@ -108,18 +108,21 @@ class State(rx.State):
             self.upload_progress=0
     
     def delete_file(self, file_obj):
-        if file_obj not in self.user_files:
-            return rx.toast.error("File not found")
-        filename = file_obj["file_path"]
         try:
-            os.remove(os.path.join(file_directory,filename))
+            if file_obj not in self.user_files:
+                return rx.toast.error("File not found")
+            filename = file_obj["file_path"]
             try:
-                remove_file_from_database(filename)
+                os.remove(os.path.join(file_directory,filename))
+                try:
+                    remove_file_from_database(filename)
+                except Exception as e:
+                    print(f"Error occured in execuring AngaDriveV2.State.delete_file.remove_file_from_database: {file_obj}")
             except Exception as e:
-                print(f"Error occured in execuring AngaDriveV2.State.delete_file.remove_file_from_database: {file_obj}")
+                print(f"Error occured in execuring AngaDriveV2.State.delete_file.os_remove: {file_obj}\nError was: {e}")
+            self.user_files.remove(file_obj)
         except Exception as e:
-            print(f"Error occured in execuring AngaDriveV2.State.delete_file.os_remove: {file_obj}\nError was: {e}")
-        self.user_files.remove(file_obj)
+            print(f"Error occured in execuring AngaDriveV2.State.delete_file: {file_obj}\nError was: {e}")
     
     async def handle_file_page_upload(self, files: list[rx.UploadFile]):
         yield rx.clear_selected_files("file_page_upload")
@@ -146,7 +149,7 @@ class State(rx.State):
             file_path = os.path.join(file_obj["file_path"].split(".")[0], file_obj["original_name"])
         else:
             file_path = os.path.join(file_obj["file_path"], file_obj["original_name"])
-        yield rx.set_clipboard(file_link+file_path)
+        yield rx.set_clipboard(file_link+file_path.replace(" ","%20"))
         yield rx.toast.success("File link copied to clipboard")
     
     def copy_file_path(self, file_obj):
