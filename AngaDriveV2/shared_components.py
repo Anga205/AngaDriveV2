@@ -3,6 +3,7 @@ from AngaDriveV2.presets import *
 from AngaDriveV2.State import State
 from AngaDriveV2.DBMS import *
 from AngaDriveV2.common import *
+from AngaDriveV2.login_dialog import login_dialog, LoginState
 
 
 class SystemHealthState(State):
@@ -321,6 +322,41 @@ def shared_sidebar(opened_page, **kwargs):
                 )
             )
         )
+    
+    def sidebar_login_widget():
+        return rx.hstack(
+            login_dialog(
+                rx.button(
+                    rx.chakra.text("Login"),
+                    style={"font-weight":"bold"},
+                    color_scheme="blue",
+                    variant="soft",
+                    width="100%",
+                    font_size="1.75vh",
+                    on_click=LoginState.set_to_login_mode,
+                    height="4vh",
+                    border="1vh"
+                ),
+                width="49%",
+            ),
+            rx.spacer(),
+            login_dialog(
+                rx.button(
+                    "Signup",
+                    style={"font-weight":"bold"},
+                    color_scheme="green",
+                    variant="soft",
+                    width="100%",
+                    on_click=LoginState.set_to_signup_mode,
+                    font_size="1.75vh",
+                    height="4vh",
+                    border="1vh"
+                ),
+                width="49%"
+            ),
+            spacing="0px",
+            width="100%"
+        )
 
     return rx.chakra.vstack(
         rx.chakra.box(
@@ -342,17 +378,22 @@ def shared_sidebar(opened_page, **kwargs):
             "Collections",
             "/my_collections"
         ),
-        sidebar_button(
-            "github",
-            "GitHub",
-            "https://github.com/Anga205/AngaDriveV2"
+        rx.link(
+            sidebar_button(
+                "github",
+                "GitHub",
+                ""
+            ),
+            width="100%",
+            href="https://github.com/Anga205/AngaDriveV2",
+            target="_blank"
         ),
         rx.spacer(),
         rx.box(
             rx.cond(
                 State.is_logged_in,
                 sidebar_account_widget(),
-                rx.text("Log in now"),
+                sidebar_login_widget(),
             ),
             width="100%",
             padding="5px"
@@ -687,10 +728,9 @@ def tablet_drawer(button, current_page):
                     **{"on_click":rx.redirect("/")} if current_page!="home" else {}
                 ),
                 rx.chakra.button(
-                    rx.chakra.image(
-                        src="/folders.png",
+                    rx.icon(
+                        tag="File",
                         height="50%",
-                        custom_attrs={"draggable":"false"},
                         width="auto"
                     ),
                     rx.chakra.spacer(),
@@ -703,10 +743,9 @@ def tablet_drawer(button, current_page):
                     **{"on_click":rx.redirect("/my_drive")} if current_page!="files" else {}
                 ),
                 rx.chakra.button(
-                    rx.chakra.image(
-                        src="/collection.png",
+                    rx.icon(
+                        tag="Folder",
                         height="50%",
-                        custom_attrs={"draggable":"false"},
                         width="auto"
                     ),
                     rx.chakra.spacer(),
@@ -717,6 +756,25 @@ def tablet_drawer(button, current_page):
                     width="100%", 
                     _hover={"bg": "#202020"},
                     **{"on_click":rx.redirect("/my_collections")} if current_page!="collections" else {}
+                ),
+                rx.link(
+                    rx.chakra.button(
+                        rx.icon(
+                            tag="github",
+                            height="50%",
+                            width="auto"
+                        ),
+                        rx.chakra.spacer(),
+                        "Github", 
+                        rx.chakra.spacer(), 
+                        bg = "#0f0f0f", 
+                        color="WHITE", 
+                        width="100%", 
+                        _hover={"bg": "#202020"},
+                    ),
+                    width="100%",
+                    href="https://github.com/Anga205/AngaDrive",
+                    target="_blank"
                 ),
                 rx.spacer(),
                 align_items="start",
