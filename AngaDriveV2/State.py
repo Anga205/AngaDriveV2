@@ -19,7 +19,23 @@ class State(rx.State):
     username:str = "{username}"
     email:str = "{email_id}"
 
-    enable_previews:bool = True
+    enable_previews_local:str = rx.LocalStorage(name="enable_previews")
+    settings_initialized:str = rx.LocalStorage(name="settings_initialized")
+    enable_previews:bool
+
+    def initialize_settings(self):
+        if not self.settings_initialized:
+            self.settings_initialized = "true"
+            self.enable_previews_local = "true"
+        self.enable_previews = bool(self.enable_previews_local)
+
+    def swap_previews(self):
+        if self.enable_previews_local == "true":
+            self.enable_previews_local = ""
+        else:
+            self.enable_previews_local = "true"
+        self.enable_previews = bool(self.enable_previews_local)
+
     def add_token_if_not_present(self): # check if there is a token, if not, create one and then add it to database
         if self.token == "" or (not is_valid_token(self.token)):
             generated_token = gen_token()
@@ -60,6 +76,7 @@ class State(rx.State):
         if not self.state_initialized:
             self.add_token_if_not_present()
             add_timestamp_to_activity()
+            self.initialize_settings()
             self.state_initialized = True
         if self.username == "{username}":
             self.update_account_info()
