@@ -9,7 +9,9 @@ start_time = time.time()
 class State(rx.State):
     local_start_time = float(start_time)
     uptime:str = format_time(round(time.time() - local_start_time))
-    ram_usage:int
+    ram_percent:int
+    total_ram:str
+    used_ram:str
     cpu_usage:int
     temperature:str
     temperature_available:bool

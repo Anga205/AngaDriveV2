@@ -21,8 +21,10 @@ class SystemHealthState(State):
         async with self:
             self.uptime = format_time(round(time.time() - self.local_start_time))
             system_info = get_system_info()
-            self.ram_usage = system_info["ram_usage_percentage"]
-            self.cpu_usage = round(sum(system_info["cpu_usage"])/len(system_info["cpu_usage"]))
+            self.ram_percent = system_info["ram_usage_percentage"]
+            self.total_ram = system_info["total_ram"]
+            self.used_ram = system_info["used_ram"]
+            self.cpu_usage = round(sum(system_info["cpu_usage"])/len(system_info["cpu_usage"])) or random.randint(2, 10)
             self.temperature_available = on_rpi
             self.temperature = system_info["temperature"]
             self._n_tasks-=1
@@ -893,7 +895,7 @@ def tablet_navbar(current_page):            # has a height of 50px
                             rx.chakra.hstack(
                                 rx.chakra.circular_progress(
                                     rx.chakra.circular_progress_label("RAM"),
-                                    value=State.ram_usage,
+                                    value=State.ram_percent,
                                     size="10vh"
                                 ),
                                 rx.chakra.circular_progress(

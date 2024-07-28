@@ -206,7 +206,9 @@ def get_system_info():
     system_info = {
         "cpu_usage": cpu_usage,
         "ram_usage_percentage": ram_usage_percentage,
-        "temperature": f"{temp}°C"
+        "temperature": f"{temp}°C",
+        "total_ram": format_bytes(ram.total),
+        "used_ram": format_bytes(ram.used),
     }
     return system_info
 

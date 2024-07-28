@@ -15,6 +15,145 @@ def static_data_box(**kwargs) -> rx.Component:
         rx.chakra.divider(
             border_color="GRAY"
         ),
+        rx.box(
+            rx.moment(
+                interval=500, 
+                on_change=SystemHealthState.tick_health
+            ),
+            display="none"
+        ), 
+        rx.chakra.hstack(
+            card(
+                heading="RAM Usage",
+                content=rx.cond(
+                    State.ram_percent,
+                    rx.chakra.circular_progress(
+                        rx.chakra.circular_progress_label(
+                            rx.chakra.vstack(
+                                rx.chakra.text(
+                                    State.used_ram, 
+                                    color="WHITE", 
+                                    font_size="10"
+                                ),
+                                rx.divider(
+                                    color_scheme="cyan",
+                                    width="50%"
+                                ),
+                                rx.chakra.text(
+                                    State.total_ram, 
+                                    color="WHITE", 
+                                    font_size="10"
+                                ),
+                                spacing="0px"
+                            )
+                        ),
+                        value=State.ram_percent, 
+                        color="BLUE",
+                        size="20",
+                        height="100%",
+                    ),
+                    rx.chakra.circular_progress(
+                        rx.chakra.circular_progress_label("Loading....", color="WHITE", font_size="10"),
+                        color="BLUE",
+                        is_indeterminate=True,
+                        size="20",
+                        height="100%",
+                    )
+                ),
+                height="16vh",
+                overflow="auto",
+                width="30%"
+            ),
+            card(
+                heading="CPU Usage",
+                content=rx.cond(
+                    State.ram_percent,
+                    rx.chakra.circular_progress(
+                        rx.chakra.circular_progress_label(
+                            rx.chakra.text(
+                                rx.chakra.span(
+                                    State.cpu_usage,
+                                    font_size="20"
+                                ),
+                                rx.chakra.span(
+                                    "%",
+                                    font_size="10"
+                                )
+                            ),
+                        ),
+                        value=State.cpu_usage, 
+                        color="BLUE",
+                        size="20",
+                    ),
+                    rx.chakra.circular_progress(
+                        rx.chakra.circular_progress_label("Loading....", color="WHITE", font_size="10"),
+                        color="BLUE",
+                        is_indeterminate=True,
+                        size="20",
+                    )
+                ),
+                height="16vh",
+                overflow="auto",
+                width="30%"
+            ),
+            rx.chakra.vstack(
+                rx.cond(
+                    State.temperature_available,
+                    rx.chakra.vstack(
+                        rx.chakra.spacer(),
+                        rx.chakra.text(
+                            rx.chakra.span("Temperature: ", color="BLUE", font_size="2.5vh", as_="b"),
+                            State.temperature,
+                            color="WHITE",
+                            font_size="2.5vh",
+                            overflow="auto",
+                        ),
+                        rx.chakra.spacer(),
+                        width="100%",
+                        height="50%",
+                        bg="BLACK",
+                        border_radius="0.5vh",
+                        padding="1.5vh",
+                        align="center"
+                    ),
+                    rx.callout(
+                        "Temperature not available",
+                        icon="triangle_alert",
+                        color_scheme="red",
+                        role="alert",
+                        width="100%",
+                        height="50%",
+                        align="center"
+                    )
+                ),
+                rx.chakra.box(
+                    rx.cond(
+                        State.uptime,
+                        rx.chakra.text(
+                            rx.chakra.span("Uptime: ", color="BLUE", font_size="2.5vh", as_="b"),
+                            State.uptime,
+                            color="WHITE",
+                            font_size="2.5vh",
+                            overflow="auto",
+                        ),
+                        rx.chakra.text(
+                            "Loading...",
+                            color="WHITE",
+                            font_size="2.5vh"
+                        )
+                    ),
+                    width="100%",
+                    height="50%",
+                    bg="BLACK",
+                    border_radius="0.5vh",
+                    padding="1.5vh"
+                ),
+                height="100%",
+                width="40%",
+            ),
+            height="16vh",
+            width="100%"
+        ),
         rx.chakra.hstack(
             site_data_card(
                 "Pulses",
@@ -27,7 +166,7 @@ def static_data_box(**kwargs) -> rx.Component:
                     State.user_count,
                     width="100%"
                 ),
-                    label=State.registered_user_count
+                label=State.registered_user_count
             ),
             site_data_card(
                 "Collections", 
@@ -37,6 +176,27 @@ def static_data_box(**kwargs) -> rx.Component:
             ),
             width="100%",
             spacing="0.75vh",
+        ),
+        rx.chakra.flex(
+            rx.tooltip(
+                site_data_card(
+                    "Space Used", 
+                    State.space_used, 
+                    width="50%", 
+                ),
+                content=f"Your Storage: {State.user_storage_amount}",
+            ),
+            rx.chakra.box(width="1vh"),
+            rx.tooltip(
+                site_data_card(
+                    "Files hosted", 
+                    State.files_hosted,
+                    height="100%",
+                    width="50%"
+                ),
+                content=f"Your files: {State.user_file_count}",
+            ),
+            width="100%",
         ),
         card(
             "Site activity over past week",
@@ -56,28 +216,14 @@ def static_data_box(**kwargs) -> rx.Component:
                 height="100%"
             ),
             width = "100%",
-            height="250%"
-        ),
-        rx.chakra.flex(
-            site_data_card(
-                "Space Used", 
-                State.space_used, 
-                width="50%", 
-            ),
-            rx.chakra.box(width="1vh"),
-            site_data_card(
-                "Files hosted", 
-                State.files_hosted,
-                height="100%",
-                width="50%"
-            ),
-            width="100%",
+            height="100%"
         ),
         bg="#0f0f1f",
         border_width="1vh",
         border_radius = "1vh",
         border_color="#0f0f1f",
         spacing="0.75vh",
+        on_mount=SystemHealthState.open_system_health,
         **kwargs
     )
 
@@ -607,7 +753,7 @@ def desktop_index():
                 height="0vh"
             ),
             rx.chakra.vstack(
-                static_account_info(),
+#                static_account_info(),
                 static_data_box(
                     height="250%",
                     width="100%",
@@ -617,8 +763,8 @@ def desktop_index():
                 width="50%"
                 ),
             rx.chakra.vstack(
-                whats_new_widget(),
-                github_widget(),
+#                whats_new_widget(),
+#                github_widget(),
                 height="100%",
                 width="50%",
                 spacing="0.75vh"
