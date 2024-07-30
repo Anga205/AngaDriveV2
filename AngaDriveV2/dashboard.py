@@ -791,6 +791,44 @@ def github_widget():
         border_width="1vh"
     )
 
+class SettingsState(State):
+
+    @rx.var
+    def enable_restore_defaults(self) -> bool:
+        if (self.enable_caching) or (self.ultra_secure) or (not self.enable_previews):
+            return True
+        return False
+    
+    def restore_defaults(self):
+        if self.enable_caching:
+            self.swap_caching()
+        if self.ultra_secure:
+            self.swap_security()
+        if not self.enable_previews:
+            self.swap_previews()
+    
+    show_coming_soon:bool = False
+    def open_coming_soon(self):
+        self.show_coming_soon = True
+    
+    def close_coming_soon(self, discard=False):
+        self.show_coming_soon = False
+
+def coming_soon_dialog(trigger, **kwargs):
+    return rx.dialog.root(
+        rx.dialog.trigger(trigger),
+        rx.dialog.content(
+            rx.dialog.title("Coming Soon"),
+            rx.dialog.description("This feature is under development and will be available soon"),
+            bg="#0f0f0f",
+            on_escape_key_down=SettingsState.close_coming_soon,
+            on_pointer_down_outside=SettingsState.close_coming_soon
+        ),
+        open=SettingsState.show_coming_soon,
+        **kwargs
+    )
+
+
 def settings_widget_desktop(**kwargs):
     def settings_button(heading, icon, tooltip, **kwargs):
         enabled = True
@@ -843,10 +881,17 @@ def settings_widget_desktop(**kwargs):
             )
     return rx.vstack(
         rx.hstack(
-            settings_button(
-                "Caching",
-                "database-zap",
-                "Caching is currently Enabled, this may result in slower file deletion. (Upto 2 hours)"
+            coming_soon_dialog(
+                trigger=settings_button(
+                    "Caching",
+                    "database-zap",
+    #                [
+    #                    "Caching is currently Enabled, this may result in slower file deletion. (Upto 2 hours)",
+                        "Caching is currently Disabled, this may result in slightly slower page-load times.",
+    #                ],
+                    condition=State.enable_caching,
+                    on_click=SettingsState.open_coming_soon
+                )
             ),
             settings_button(
                 "File Previews",
@@ -858,10 +903,17 @@ def settings_widget_desktop(**kwargs):
                 condition=State.enable_previews,
                 on_click=State.swap_previews
             ),
-            settings_button(
-                "Ultra-Secure",
-                "lock",
-                "Ultra-Secure is currently Enabled, all newly uploaded files are protected by password-authentication"
+            coming_soon_dialog(
+                settings_button(
+                    "Ultra-Secure",
+                    "lock",
+    #                [
+    #                    "Ultra-Secure is currently Enabled, all newly uploaded files are protected by password-authentication by default",
+                        "Ultra-Secure is currently Disabled, all newly uploaded files are accessible to anyone with the link",
+    #                ],
+                    condition=State.ultra_secure,
+                    on_click=SettingsState.open_coming_soon
+                )
             ),
             spacing="1vh",
             overflow="hidden",
@@ -873,7 +925,8 @@ def settings_widget_desktop(**kwargs):
             width="100%",
             height="20%",
             color_scheme="tomato",
-            disabled=True
+            disabled=~SettingsState.enable_restore_defaults,
+            on_click=SettingsState.restore_defaults
         ),
         bg="rgb(100, 100, 100, 0.1)",
         border_radius="1vh",

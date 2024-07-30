@@ -22,21 +22,47 @@ class State(rx.State):
     email:str = "{email_id}"
 
     enable_previews_local:str = rx.LocalStorage(name="enable_previews")
+    enable_caching_local:str = rx.LocalStorage(name="enable_caching")
+    ultra_secure_local:str = rx.LocalStorage(name="ultra_secure")
     settings_initialized:str = rx.LocalStorage(name="settings_initialized")
     enable_previews:bool
+    ultra_secure:bool
+    enable_caching:bool
 
     def initialize_settings(self):
         if not self.settings_initialized:
             self.settings_initialized = "true"
             self.enable_previews_local = "true"
+            self.enable_caching_local = ""
+            self.ultra_secure_local = ""
         self.enable_previews = bool(self.enable_previews_local)
+        self.enable_caching = bool(self.enable_caching_local)
+        self.ultra_secure = bool(self.ultra_secure_local)
 
     def swap_previews(self):
         if self.enable_previews_local == "true":
             self.enable_previews_local = ""
         else:
             self.enable_previews_local = "true"
+            if self.ultra_secure:
+                self.swap_security()
         self.enable_previews = bool(self.enable_previews_local)
+
+    def swap_caching(self):
+        if self.enable_caching_local == "true":
+            self.enable_caching_local = ""
+        else:
+            self.enable_caching_local = "true"
+        self.enable_caching = bool(self.enable_caching_local)
+    
+    def swap_security(self):
+        if self.ultra_secure_local == "true":
+            self.ultra_secure_local = ""
+        else:
+            self.ultra_secure_local = "true"
+            if self.enable_caching:
+                self.swap_caching()
+        self.ultra_secure = bool(self.ultra_secure_local)
 
     def add_token_if_not_present(self): # check if there is a token, if not, create one and then add it to database
         if self.token == "" or (not is_valid_token(self.token)):
@@ -189,3 +215,6 @@ class State(rx.State):
         self.username:str = "{username}"
         self.email:str = "{email_id}"
         self.update_account_data_components()
+    
+    def print_state(self):
+        printdict("foo")
