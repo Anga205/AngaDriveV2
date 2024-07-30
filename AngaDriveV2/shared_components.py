@@ -60,89 +60,6 @@ def shared_navbar() -> rx.Component:
                 on_click=rx.redirect("/")
                 ),
             rx.chakra.spacer(),
-            # rx.popover.root(
-            #     rx.popover.trigger(
-            #         rx.chakra.image(
-            #             src="/health.png",
-            #             custom_attrs={"draggable":"false"},
-            #             color="WHITE", 
-            #             height="2vh",
-            #             on_click = SystemHealthState.open_system_health
-            #             )
-            #         ),
-            #     rx.popover.content(
-            #         rx.chakra.vstack(
-            #             rx.chakra.heading(
-            #                 "System Health", 
-            #                 color="RED",
-            #                 font_size="3.5vh"
-            #                 ),
-            #             rx.chakra.divider(border_color="GRAY"),
-            #             rx.chakra.box(
-            #                 rx.moment(
-            #                     interval=200, 
-            #                     on_change=SystemHealthState.tick_health
-            #                 ), 
-            #                 display="none"
-            #             ),
-            #             rx.chakra.box(
-            #                 rx.chakra.heading(
-            #                     rx.chakra.span(
-            #                         "Uptime: ",
-            #                         color="rgb(0, 100, 100)"
-            #                     ),
-            #                     rx.chakra.span(
-            #                         State.uptime,
-            #                         color="WHITE"
-            #                     ),
-            #                     font_size="2vh",
-            #                 ),
-            #                 rx.cond(
-            #                     State.temperature_available,
-            #                     rx.chakra.heading(
-            #                         rx.chakra.span(
-            #                             "Temperature: ",
-            #                             color="rgb(0, 100, 100)"
-            #                         ),
-            #                         rx.chakra.span(
-            #                             State.temperature,
-            #                             color="WHITE"
-            #                         ),
-            #                         font_size="2vh",
-            #                     ),
-            #                     empty_component()
-            #                 ),
-            #                 rx.chakra.hstack(
-            #                     rx.chakra.circular_progress(
-            #                         rx.chakra.circular_progress_label("RAM"),
-            #                         value=State.ram_usage,
-            #                         size="10vh"
-            #                     ),
-            #                     rx.chakra.circular_progress(
-            #                         rx.chakra.circular_progress_label("CPU"),
-            #                         value=State.cpu_usage,
-            #                         size="10vh"
-            #                     )
-            #                 ),
-            #                 border_radius="0.5vh",
-            #                 width="100%"
-            #             ),
-            #             color="WHITE",
-            #             bg="BLACK",
-            #             border_width="0px",
-            #             border_radius="0.5vh",
-            #             border_color="BLACK",
-            #         ),
-            #         bg="BLACK",
-            #         border_color="WHITE",
-            #         border_width="1px",
-            #         on_escape_key_down = SystemHealthState.close_system_health,
-            #         on_pointer_down_outside= SystemHealthState.close_system_health,
-            #         on_focus_outside= SystemHealthState.close_system_health,
-            #         on_interact_outside=SystemHealthState.close_system_health,
-            #     ),
-            #     open = SystemHealthState.show_system_health,
-            # ),
             rx.popover.root(
                 rx.popover.trigger(
                     rx.icon(
@@ -287,6 +204,42 @@ def account_manager_wrapper(component, **kwargs):
     )
 
 
+
+def sidebar_login_widget():
+    return rx.hstack(
+        login_dialog(
+            rx.button(
+                rx.chakra.text("Login"),
+                style={"font-weight":"bold"},
+                color_scheme="blue",
+                variant="soft",
+                width="100%",
+                font_size="1.75vh",
+                on_click=LoginState.set_to_login_mode,
+                height="4vh",
+                border="1vh"
+            ),
+            width="49%",
+        ),
+        rx.spacer(),
+        login_dialog(
+            rx.button(
+                "Signup",
+                style={"font-weight":"bold"},
+                color_scheme="green",
+                variant="soft",
+                width="100%",
+                on_click=LoginState.set_to_signup_mode,
+                font_size="1.75vh",
+                height="4vh",
+                border="1vh"
+            ),
+            width="49%"
+        ),
+        spacing="0px",
+        width="100%"
+    )
+
 def shared_sidebar(opened_page, **kwargs):
     buttons = ["Home", "Files", "Collections", "GitHub"]
     button_bg = "BLACK"
@@ -360,41 +313,6 @@ def shared_sidebar(opened_page, **kwargs):
                     on_click=AccountManagerState.open_dialog
                 )
             )
-        )
-    
-    def sidebar_login_widget():
-        return rx.hstack(
-            login_dialog(
-                rx.button(
-                    rx.chakra.text("Login"),
-                    style={"font-weight":"bold"},
-                    color_scheme="blue",
-                    variant="soft",
-                    width="100%",
-                    font_size="1.75vh",
-                    on_click=LoginState.set_to_login_mode,
-                    height="4vh",
-                    border="1vh"
-                ),
-                width="49%",
-            ),
-            rx.spacer(),
-            login_dialog(
-                rx.button(
-                    "Signup",
-                    style={"font-weight":"bold"},
-                    color_scheme="green",
-                    variant="soft",
-                    width="100%",
-                    on_click=LoginState.set_to_signup_mode,
-                    font_size="1.75vh",
-                    height="4vh",
-                    border="1vh"
-                ),
-                width="49%"
-            ),
-            spacing="0px",
-            width="100%"
         )
 
     return rx.chakra.vstack(
@@ -816,6 +734,7 @@ def tablet_drawer(button, current_page):
                     target="_blank"
                 ),
                 rx.spacer(),
+                sidebar_login_widget(),
                 align_items="start",
                 direction="column",
                 width="100%"
@@ -863,13 +782,6 @@ def tablet_navbar(current_page):            # has a height of 50px
                             font_size="3.5vh"
                             ),
                         rx.chakra.divider(border_color="GRAY"),
-                        rx.chakra.box(
-                            rx.moment(
-                                interval=250, 
-                                on_change=SystemHealthState.tick_health
-                            ), 
-                            display="none"
-                        ),
                         rx.chakra.box(
                             rx.chakra.heading(
                                 rx.chakra.span(

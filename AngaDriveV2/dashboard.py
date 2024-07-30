@@ -7,148 +7,149 @@ import platform
 
 def static_data_box(**kwargs) -> rx.Component:
     return rx.chakra.vstack(
-        # rx.chakra.heading(
-        #     "DriveV2 - Site Data",
-        #     color="WHITE",
-        #     font_size="3.5vh"
-        # ),
-        # rx.chakra.divider(
-        #     border_color="GRAY"
-        # ),
-        rx.chakra.hstack(
-            card(
-                heading="RAM Usage",
-                content=rx.cond(
-                    State.ram_percent,
-                    rx.chakra.circular_progress(
-                        rx.chakra.circular_progress_label(
-                            rx.chakra.vstack(
-                                rx.chakra.text(
-                                    State.used_ram, 
-                                    color="WHITE", 
-                                    font_size="1vh"
-                                ),
-                                rx.divider(
-                                    color_scheme="cyan",
-                                    width="50%"
-                                ),
-                                rx.chakra.text(
-                                    State.total_ram, 
-                                    color="WHITE", 
-                                    font_size="1vh"
-                                ),
-                                spacing="0px"
-                            )
-                        ),
-                        value=State.ram_percent, 
-                        color="BLUE",
-                        size="9vh",
-                        height="100%",
-                    ),
-                    rx.chakra.circular_progress(
-                        rx.chakra.circular_progress_label("Loading....", color="WHITE", font_size="1vh"),
-                        color="BLUE",
-                        is_indeterminate=True,
-                        size="9vh",
-                        height="100%",
-                    )
-                ),
-                height="17vh",
-                overflow="auto",
-                width="30%"
-            ),
-            card(
-                heading="CPU Usage",
-                content=rx.cond(
-                    State.ram_percent,
-                    rx.chakra.circular_progress(
-                        rx.chakra.circular_progress_label(
-                            rx.chakra.text(
-                                rx.chakra.span(
-                                    State.cpu_usage,
-                                    font_size="2vh"
-                                ),
-                                rx.chakra.span(
-                                    "%",
-                                    font_size="1vh"
+        rx.desktop_only(
+            rx.chakra.hstack(
+                card(
+                    heading="RAM Usage",
+                    content=rx.cond(
+                        State.ram_percent,
+                        rx.chakra.circular_progress(
+                            rx.chakra.circular_progress_label(
+                                rx.chakra.vstack(
+                                    rx.chakra.text(
+                                        State.used_ram, 
+                                        color="WHITE", 
+                                        font_size="1vh"
+                                    ),
+                                    rx.divider(
+                                        color_scheme="cyan",
+                                        width="50%"
+                                    ),
+                                    rx.chakra.text(
+                                        State.total_ram, 
+                                        color="WHITE", 
+                                        font_size="1vh"
+                                    ),
+                                    spacing="0px"
                                 )
                             ),
+                            value=State.ram_percent, 
+                            color="BLUE",
+                            size="9vh",
+                            height="100%",
                         ),
-                        value=State.cpu_usage, 
-                        color="BLUE",
-                        size="9vh",
-                    ),
-                    rx.chakra.circular_progress(
-                        rx.chakra.circular_progress_label("Loading....", color="WHITE", font_size="1vh"),
-                        color="BLUE",
-                        is_indeterminate=True,
-                        size="9vh",
-                    )
-                ),
-                height="17vh",
-                overflow="auto",
-                width="30%"
-            ),
-            rx.chakra.vstack(
-                rx.cond(
-                    State.temperature_available,
-                    rx.chakra.box(
-                        rx.chakra.text(
-                            rx.chakra.span("Temperature: ", color="BLUE", font_size="2.5vh", as_="b"),
-                            State.temperature,
-                            color="WHITE",
-                            font_size="2.5vh",
-                            overflow="auto",
-                        ),
-                        width="100%",
-                        height="50%",
-                        bg="BLACK",
-                        border_radius="0.5vh",
-                        padding="1.5vh",
-                        align="center"
-                    ),
-                    rx.chakra.box(
-                        rx.chakra.text(
-                            "Temperature Unavailable",
-                            color="RED",
-                            as_="b",
-                            font_size="2.5vh",
-                            overflow="auto",
-                        ),
-                        width="100%",
-                        height="50%",
-                        bg="BLACK",
-                        border_radius="0.5vh",
-                        padding="1.5vh",
-                        align="center"
-                    ),
-                ),
-                rx.chakra.box(
-                    rx.cond(
-                        State.uptime,
-                        rx.chakra.text(
-                            rx.chakra.span("Uptime: ", color="BLUE", font_size="2.5vh", as_="b"),
-                            State.uptime,
-                            color="WHITE",
-                            font_size="2.5vh",
-                            overflow="auto",
-                        ),
-                        rx.chakra.text(
-                            "Loading...",
-                            color="WHITE",
-                            font_size="2.5vh"
+                        rx.chakra.circular_progress(
+                            rx.chakra.circular_progress_label("Loading....", color="WHITE", font_size="1vh"),
+                            color="BLUE",
+                            is_indeterminate=True,
+                            size="9vh",
+                            height="100%",
                         )
                     ),
-                    width="100%",
-                    height="50%",
-                    bg="BLACK",
-                    border_radius="0.5vh",
-                    padding="1.5vh"
+                    height="17vh",
+                    overflow="auto",
+                    width="30%"
                 ),
-                height="100%",
-                width="40%",
+                card(
+                    heading="CPU Usage",
+                    content=rx.cond(
+                        State.ram_percent,
+                        rx.chakra.circular_progress(
+                            rx.chakra.circular_progress_label(
+                                rx.chakra.text(
+                                    rx.chakra.span(
+                                        State.cpu_usage,
+                                        font_size="2vh"
+                                    ),
+                                    rx.chakra.span(
+                                        "%",
+                                        font_size="1vh"
+                                    )
+                                ),
+                            ),
+                            value=State.cpu_usage, 
+                            color="BLUE",
+                            size="9vh",
+                        ),
+                        rx.chakra.circular_progress(
+                            rx.chakra.circular_progress_label("Loading....", color="WHITE", font_size="1vh"),
+                            color="BLUE",
+                            is_indeterminate=True,
+                            size="9vh",
+                        )
+                    ),
+                    height="17vh",
+                    overflow="auto",
+                    width="30%"
+                ),
+                rx.chakra.vstack(
+                    rx.cond(
+                        State.temperature_available,
+                        rx.chakra.box(
+                            rx.chakra.text(
+                                rx.chakra.span("Temperature: ", color="BLUE", font_size="2.5vh", as_="b"),
+                                State.temperature,
+                                color="WHITE",
+                                font_size="2.5vh",
+                                overflow="auto",
+                                text_align="center"
+                            ),
+                            width="100%",
+                            height="50%",
+                            bg="BLACK",
+                            border_radius="0.5vh",
+                            padding="1.5vh",
+                            align="center"
+                        ),
+                        rx.chakra.box(
+                            rx.chakra.text(
+                                "Temperature Unavailable",
+                                color="RED",
+                                as_="b",
+                                font_size="2.5vh",
+                                overflow="auto",
+                                text_align="center"
+                            ),
+                            width="100%",
+                            height="50%",
+                            bg="BLACK",
+                            border_radius="0.5vh",
+                            padding="1.5vh",
+                            align="center"
+                        ),
+                    ),
+                    rx.chakra.box(
+                        rx.cond(
+                            State.uptime,
+                            rx.chakra.text(
+                                rx.chakra.span("Uptime: ", color="BLUE", font_size="2.5vh", as_="b"),
+                                State.uptime,
+                                color="WHITE",
+                                font_size="2.5vh",
+                                overflow="auto",
+                                text_align="center"
+                            ),
+                            rx.chakra.text(
+                                "Loading...",
+                                color="WHITE",
+                                font_size="2.5vh",
+                                text_align="center"
+                            )
+                        ),
+                        width="100%",
+                        height="50%",
+                        bg="BLACK",
+                        border_radius="0.5vh",
+                        padding="1.5vh"
+                    ),
+                    height="100%",
+                    width="40%",
+                ),
+                height="17vh",
+                width="100%",
+                on_mount=SystemHealthState.open_system_health,
+                on_unmount=SystemHealthState.close_system_health_no_params
             ),
-            height="17vh",
             width="100%"
         ),
         rx.chakra.hstack(
@@ -202,14 +203,38 @@ def static_data_box(**kwargs) -> rx.Component:
                 content=f"{platform.node()} {platform.machine()}",
                 width="40%",
             ),
-            site_data_card(
-                heading="Foo",
-                content="84",
+            rx.desktop_only(
+                site_data_card(
+                    heading="Foo",
+                    content="84",
+                    width="100%"
+                ),
                 width="30%"
             ),
-            site_data_card(
-                heading="Bar",
-                content="582",
+            rx.desktop_only(
+                site_data_card(
+                    heading="Bar",
+                    content="582",
+                    width="100%"
+                ),
+                width="30%"
+            ),
+            rx.mobile_and_tablet(
+                site_data_card(
+                    heading="Temp",
+                    content=State.temperature,
+                    width="100%",
+                    overflow="auto"
+                ),
+                width="30%"
+            ),
+            rx.mobile_and_tablet(
+                site_data_card(
+                    heading="Uptime",
+                    content=State.uptime,
+                    width="100%",
+                    overflow="auto"
+                ),
                 width="30%"
             ),
             width="100%"
@@ -246,7 +271,6 @@ def static_data_box(**kwargs) -> rx.Component:
         padding="1vh",
         border_radius="1vh",
         spacing="0.75vh",
-        on_mount=SystemHealthState.open_system_health,
         **kwargs
     )
 
@@ -968,14 +992,6 @@ def tablet_top_widget():
         State.is_logged_in,
         rx.vstack(
             rx.heading("Welcome back, ",State.username),
-            rx.hstack(
-                rx.button(rx.icon(tag="external_link")," Panel"),
-                rx.link(
-                    rx.button("Github", color_scheme="green"),
-                    href="https://github.com/Anga205/AngaDriveV2",
-                    target="_blank"
-                ),
-            ),
             font_size="40px",
             align="center"
         ),
@@ -986,15 +1002,14 @@ def tablet_top_widget():
                 rx.text.span("V2", color="CYAN"), 
                 font_size="40px"
             ),
-            rx.hstack(
-                rx.button("Sign Up", variant="soft", color_scheme="red"),
-                rx.link(
-                    rx.button("Github", color_scheme="green", variant="soft"),
-                    href="https://github.com/Anga205/AngaDriveV2",
-                    target="_blank"
-                )
+            rx.text(
+                "Because 99₹/month for google one was too expensive. (also open source btw)", 
+                width="75%", 
+                color="GRAY",
+                text_align="center"
             ),
-            align="center"
+            align="center",
+            width="100%"
         ),
     ),
     rx.spacer(),
