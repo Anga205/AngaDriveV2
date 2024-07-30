@@ -3,25 +3,18 @@ from AngaDriveV2.presets import *
 from AngaDriveV2.State import State
 from AngaDriveV2.shared_components import *
 from AngaDriveV2.login_dialog import *
-
+import platform
 
 def static_data_box(**kwargs) -> rx.Component:
     return rx.chakra.vstack(
-        rx.chakra.heading(
-            "DriveV2 - Site Data",
-            color="WHITE",
-            font_size="3.5vh"
-        ),
-        rx.chakra.divider(
-            border_color="GRAY"
-        ),
-        rx.box(
-            rx.moment(
-                interval=500, 
-                on_change=SystemHealthState.tick_health
-            ),
-            display="none"
-        ), 
+        # rx.chakra.heading(
+        #     "DriveV2 - Site Data",
+        #     color="WHITE",
+        #     font_size="3.5vh"
+        # ),
+        # rx.chakra.divider(
+        #     border_color="GRAY"
+        # ),
         rx.chakra.hstack(
             card(
                 heading="RAM Usage",
@@ -33,7 +26,7 @@ def static_data_box(**kwargs) -> rx.Component:
                                 rx.chakra.text(
                                     State.used_ram, 
                                     color="WHITE", 
-                                    font_size="10"
+                                    font_size="1vh"
                                 ),
                                 rx.divider(
                                     color_scheme="cyan",
@@ -42,25 +35,25 @@ def static_data_box(**kwargs) -> rx.Component:
                                 rx.chakra.text(
                                     State.total_ram, 
                                     color="WHITE", 
-                                    font_size="10"
+                                    font_size="1vh"
                                 ),
                                 spacing="0px"
                             )
                         ),
                         value=State.ram_percent, 
                         color="BLUE",
-                        size="20",
+                        size="9vh",
                         height="100%",
                     ),
                     rx.chakra.circular_progress(
-                        rx.chakra.circular_progress_label("Loading....", color="WHITE", font_size="10"),
+                        rx.chakra.circular_progress_label("Loading....", color="WHITE", font_size="1vh"),
                         color="BLUE",
                         is_indeterminate=True,
-                        size="20",
+                        size="9vh",
                         height="100%",
                     )
                 ),
-                height="16vh",
+                height="17vh",
                 overflow="auto",
                 width="30%"
             ),
@@ -73,34 +66,33 @@ def static_data_box(**kwargs) -> rx.Component:
                             rx.chakra.text(
                                 rx.chakra.span(
                                     State.cpu_usage,
-                                    font_size="20"
+                                    font_size="2vh"
                                 ),
                                 rx.chakra.span(
                                     "%",
-                                    font_size="10"
+                                    font_size="1vh"
                                 )
                             ),
                         ),
                         value=State.cpu_usage, 
                         color="BLUE",
-                        size="20",
+                        size="9vh",
                     ),
                     rx.chakra.circular_progress(
-                        rx.chakra.circular_progress_label("Loading....", color="WHITE", font_size="10"),
+                        rx.chakra.circular_progress_label("Loading....", color="WHITE", font_size="1vh"),
                         color="BLUE",
                         is_indeterminate=True,
-                        size="20",
+                        size="9vh",
                     )
                 ),
-                height="16vh",
+                height="17vh",
                 overflow="auto",
                 width="30%"
             ),
             rx.chakra.vstack(
                 rx.cond(
                     State.temperature_available,
-                    rx.chakra.vstack(
-                        rx.chakra.spacer(),
+                    rx.chakra.box(
                         rx.chakra.text(
                             rx.chakra.span("Temperature: ", color="BLUE", font_size="2.5vh", as_="b"),
                             State.temperature,
@@ -108,7 +100,6 @@ def static_data_box(**kwargs) -> rx.Component:
                             font_size="2.5vh",
                             overflow="auto",
                         ),
-                        rx.chakra.spacer(),
                         width="100%",
                         height="50%",
                         bg="BLACK",
@@ -116,15 +107,21 @@ def static_data_box(**kwargs) -> rx.Component:
                         padding="1.5vh",
                         align="center"
                     ),
-                    rx.callout(
-                        "Temperature not available",
-                        icon="triangle_alert",
-                        color_scheme="red",
-                        role="alert",
+                    rx.chakra.box(
+                        rx.chakra.text(
+                            "Temperature Unavailable",
+                            color="RED",
+                            as_="b",
+                            font_size="2.5vh",
+                            overflow="auto",
+                        ),
                         width="100%",
                         height="50%",
+                        bg="BLACK",
+                        border_radius="0.5vh",
+                        padding="1.5vh",
                         align="center"
-                    )
+                    ),
                 ),
                 rx.chakra.box(
                     rx.cond(
@@ -151,7 +148,7 @@ def static_data_box(**kwargs) -> rx.Component:
                 height="100%",
                 width="40%",
             ),
-            height="16vh",
+            height="17vh",
             width="100%"
         ),
         rx.chakra.hstack(
@@ -192,12 +189,38 @@ def static_data_box(**kwargs) -> rx.Component:
                     "Files hosted", 
                     State.files_hosted,
                     height="100%",
-                    width="50%"
+                    width="50%",
+                    overflow="auto"
                 ),
                 content=f"Your files: {State.user_file_count}",
             ),
             width="100%",
         ),
+        rx.chakra.hstack(
+            site_data_card(
+                heading="Host",
+                content=f"{platform.node()} {platform.machine()}",
+                width="40%",
+            ),
+            site_data_card(
+                heading="Foo",
+                content="84",
+                width="30%"
+            ),
+            site_data_card(
+                heading="Bar",
+                content="582",
+                width="30%"
+            ),
+            width="100%"
+        ),
+        rx.box(
+            rx.moment(
+                interval=500, 
+                on_change=SystemHealthState.tick_health
+            ),
+            display="none"
+        ), 
         card(
             "Site activity over past week",
             rx.recharts.area_chart(
@@ -213,15 +236,15 @@ def static_data_box(**kwargs) -> rx.Component:
                 rx.recharts.graphing_tooltip(),
                 data=State.site_activity,
                 color="BLACK",
+                font_size="1.5vh",
                 height="100%"
             ),
             width = "100%",
             height="100%"
         ),
-        bg="#0f0f1f",
-        border_width="1vh",
-        border_radius = "1vh",
-        border_color="#0f0f1f",
+        bg="rgb(0, 0, 255, 0.1)",
+        padding="1vh",
+        border_radius="1vh",
         spacing="0.75vh",
         on_mount=SystemHealthState.open_system_health,
         **kwargs
@@ -744,7 +767,98 @@ def github_widget():
         border_width="1vh"
     )
 
+def settings_widget_desktop(**kwargs):
+    def settings_button(heading, icon, tooltip, **kwargs):
+        enabled = True
+        if "enabled" in kwargs:
+            enabled = kwargs["enabled"]
+            del kwargs["enabled"]
+        
+        if "condition" not in kwargs:
+            return rx.tooltip(
+                rx.button(
+                    rx.vstack(
+                        rx.spacer(),
+                        rx.heading(
+                            heading,
+                            font_size="3vh"
+                        ),
+                        rx.icon(
+                            icon,
+                            height="50%",
+                            width="50%"
+                        ),
+                        rx.text(
+                            "Default: Enabled" if enabled else "Default: Disabled",
+                            font_size="1.5vh"
+                        ),
+                        rx.spacer(),
+                        overflow="auto",
+                        height="100%",
+                        spacing="0",
+                        width="100%",
+                        align="center"
+                    ),
+                    height="100%",
+                    width="32.5%",
+                    bg="rgb(0,255,0,0.1)" if enabled else "rgb(255,0,0,0.1)",
+                    color="#BBBBBB",
+                    padding="0.5vh",
+                    _hover={"bg":"rgb(0,255,0,0.5)" if enabled else "rgb(255,0,0,0.5)", "color":"WHITE"},
+                    **kwargs
+                ),
+                content=tooltip,
+            )
+        else:
+            condition = kwargs["condition"]
+            del kwargs["condition"]
+            return rx.cond(
+                condition,
+                settings_button(heading, icon, tooltip[0], enabled=True, **kwargs),
+                settings_button(heading, icon, tooltip[1], enabled=False, **kwargs),
+            )
+    return rx.vstack(
+        rx.hstack(
+            settings_button(
+                "Caching",
+                "database-zap",
+                "Caching is currently Enabled, this may result in slower file deletion. (Upto 2 hours)"
+            ),
+            settings_button(
+                "File Previews",
+                "eye",
+                [
+                    "File Previews are currently Enabled, this may result in slower page-load times.",
+                    "File Previews are currently Disabled, use this to speed up page-load times.",
+                ],
+                condition=State.enable_previews,
+                on_click=State.swap_previews
+            ),
+            settings_button(
+                "Ultra-Secure",
+                "lock",
+                "Ultra-Secure is currently Enabled, all newly uploaded files are protected by password-authentication"
+            ),
+            spacing="1vh",
+            overflow="hidden",
+            width="100%",
+            height="80%"
+        ),
+        rx.button(
+            rx.text("Restore Defaults", as_="b"),
+            width="100%",
+            height="20%",
+            color_scheme="tomato",
+            disabled=True
+        ),
+        bg="rgb(100, 100, 100, 0.1)",
+        border_radius="1vh",
+        padding="1vh",
+        **kwargs
+    )
+
 def desktop_index():
+
     return site_template(
         "Home",
         rx.chakra.hstack(
@@ -753,18 +867,19 @@ def desktop_index():
                 height="0vh"
             ),
             rx.chakra.vstack(
-#                static_account_info(),
-                static_data_box(
-                    height="250%",
+                settings_widget_desktop(
                     width="100%",
+                    height="20%"
                 ),
                 height="100%",
                 spacing="0.75vh",
                 width="50%"
                 ),
             rx.chakra.vstack(
-#                whats_new_widget(),
-#                github_widget(),
+                static_data_box(
+                    height="100%",
+                    width="100%",
+                ),
                 height="100%",
                 width="50%",
                 spacing="0.75vh"
@@ -909,8 +1024,5 @@ def index():
         rx.mobile_and_tablet(
             tablet_index()
         ),
-#        rx.mobile_only(
-#            view_under_construction()
-#        ),
         width="100%",
     )

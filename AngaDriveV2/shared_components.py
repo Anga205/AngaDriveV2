@@ -148,7 +148,8 @@ def shared_navbar() -> rx.Component:
                     rx.icon(
                         "settings",
                         _hover={"color":"#777777"},
-                        color="WHITE"
+                        color="WHITE",
+                        height="2.5vh"
                     )
                 ),
                 rx.popover.content(
@@ -334,14 +335,18 @@ def shared_sidebar(opened_page, **kwargs):
                     rx.vstack(
                         rx.text(
                             State.username,
+                            font_size="1.8vh",
+                            padding="0"
                         ),
                         rx.text(
                             State.email,
                             color="GRAY",
                             width="100%",
-                            font_size="12px"
+                            font_size="1.3vh",
+                            padding="0"
                         ),
                         spacing="0",
+                        overflow="hidden"
                     ),
                     width="100%",
                     height="40px",
