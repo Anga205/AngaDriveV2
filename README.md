@@ -60,7 +60,7 @@ reflex init
 reflex run
 ```
 
-### For Debian based systems:
+### For Debian/Arch/RedHat based systems:
 
 open bash copy the repository into your filesystem using
 
@@ -73,53 +73,6 @@ cd AngaDriveV2
 ```
 now you can quick-start the app using the startup script
 ```
-bash debian.sh
+bash start.sh
 ```
 this will automatically install all dependencies and start up the webapp
-
-### For Arch and Redhat based systems
-~~go away nobody thinks you're distro is cool, touch grass~~
-
-To install and run the application on Arch Linux and Redhat-based systems, follow these steps:
-
-1. Open your terminal.
-
-2. Clone the repository into your filesystem using the following command:
-    ```
-    git clone https://github.com/Anga205/AngaDriveV2
-    ```
-
-3. Navigate to the cloned repository by running:
-    ```
-    cd AngaDriveV2
-    ```
-
-4. Install the necessary dependencies by executing the following command:
-    ```
-    sudo pacman -S python3 nodejs curl python3-venv unzip
-    ```
-
-5. Set up a virtual environment by running the following command:
-    ```
-    python -m venv venv
-    ```
-
-6. Activate the virtual environment:
-    ```
-    source venv/bin/activate
-    ```
-
-7. Install the required Python packages:
-    ```
-    pip install -r requirements.txt
-    ```
-
-8. Initialize and run reflex:
-    ```
-    reflex init
-    reflex run
-    ```
-
-    ## License
-
-    This project is licensed under the [GNU Affero General Public License v3.0](https://www.gnu.org/licenses/agpl-3.0.en.html). Please see the [LICENSE](LICENSE) file for more details.
