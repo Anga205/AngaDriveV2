@@ -44,9 +44,10 @@ def tpu_signup_button(**kwargs):
                 src="/flowinity.svg",
                 custom_attrs={"draggable":"false"},
                 height="2vh",
-                width="auto"
+                width="auto",
                 ),
             rx.chakra.text("Flowinity Oauth"),
+            font_size="1.75vh",
             height="100%"
         ),
         bg="rgb(20, 10, 30)",

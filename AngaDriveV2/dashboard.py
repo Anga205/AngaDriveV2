@@ -792,12 +792,6 @@ def github_widget():
     )
 
 class SettingsState(State):
-
-    @rx.var
-    def enable_restore_defaults(self) -> bool:
-        if (self.enable_caching) or (self.ultra_secure) or (not self.enable_previews):
-            return True
-        return False
     
     def restore_defaults(self):
         if self.enable_caching:
@@ -840,10 +834,10 @@ def settings_widget_desktop(**kwargs):
             return rx.tooltip(
                 rx.button(
                     rx.vstack(
-                        rx.spacer(),
                         rx.heading(
                             heading,
-                            font_size="3vh"
+                            font_size="3vh",
+                            overflow="auto"
                         ),
                         rx.icon(
                             icon,
@@ -854,10 +848,11 @@ def settings_widget_desktop(**kwargs):
                             "Default: Enabled" if enabled else "Default: Disabled",
                             font_size="1.5vh"
                         ),
-                        rx.spacer(),
+                        justify="center",
                         overflow="auto",
                         height="100%",
-                        spacing="0",
+                        spacing="0vh",
+                        padding="0vh",
                         width="100%",
                         align="center"
                     ),
@@ -866,6 +861,7 @@ def settings_widget_desktop(**kwargs):
                     bg="rgb(0,255,0,0.1)" if enabled else "rgb(255,0,0,0.1)",
                     color="#BBBBBB",
                     padding="0.5vh",
+                    align="center",
                     _hover={"bg":"rgb(0,255,0,0.5)" if enabled else "rgb(255,0,0,0.5)", "color":"WHITE"},
                     **kwargs
                 ),
@@ -885,10 +881,10 @@ def settings_widget_desktop(**kwargs):
                 trigger=settings_button(
                     "Caching",
                     "database-zap",
-    #                [
-    #                    "Caching is currently Enabled, this may result in slower file deletion. (Upto 2 hours)",
+                    [
+                        "Caching is currently Enabled, this may result in slower file deletion. (Upto 2 hours)",
                         "Caching is currently Disabled, this may result in slightly slower page-load times.",
-    #                ],
+                    ],
                     condition=State.enable_caching,
                     on_click=SettingsState.open_coming_soon
                 )
@@ -907,10 +903,10 @@ def settings_widget_desktop(**kwargs):
                 settings_button(
                     "Ultra-Secure",
                     "lock",
-    #                [
-    #                    "Ultra-Secure is currently Enabled, all newly uploaded files are protected by password-authentication by default",
+                    [
+                        "Ultra-Secure is currently Enabled, all newly uploaded files are protected by password-authentication by default",
                         "Ultra-Secure is currently Disabled, all newly uploaded files are accessible to anyone with the link",
-    #                ],
+                    ],
                     condition=State.ultra_secure,
                     on_click=SettingsState.open_coming_soon
                 )
@@ -922,15 +918,151 @@ def settings_widget_desktop(**kwargs):
         ),
         rx.button(
             rx.text("Restore Defaults", as_="b"),
+            font_size="1.65vh",
             width="100%",
             height="20%",
             color_scheme="tomato",
-            disabled=~SettingsState.enable_restore_defaults,
-            on_click=SettingsState.restore_defaults
+            disabled=~(State.ultra_secure | ~State.enable_previews| State.enable_caching),
+            on_click=SettingsState.restore_defaults,
+            variant="soft",
         ),
         bg="rgb(100, 100, 100, 0.1)",
         border_radius="1vh",
         padding="1vh",
+        **kwargs
+    )
+
+def import_files(**kwargs):
+    return rx.vstack(
+        rx.heading(
+            "Import/Export files",
+            color="WHITE",
+            font_size="2vh"
+        ),
+        rx.chakra.divider(
+            border_color="GRAY"
+        ),
+        rx.tabs.root(
+            rx.tabs.list(
+                rx.tabs.trigger(
+                    "GitHub", 
+                    value="github",
+                    height="4vh"
+                ),
+                rx.tabs.trigger(
+                    "Flowinity", 
+                    value="flowinity",
+                    height="4vh"
+                ),
+                rx.tabs.trigger(
+                    "Export", 
+                    value="export",
+                    height="4vh"
+                ),
+                height="13vh",
+                font_size="1.3vh",
+                spacing="0vh"
+            ),
+            rx.tabs.content(
+                rx.vstack(
+                    rx.spacer(),
+                    rx.chakra.input(
+                        placeholder="Enter github repo URL",
+                        width="100%",
+                        font_size="1.5vh",
+                        height="3.5vh",
+                        border_radius="0.3vh",
+                    ),
+                    rx.hstack(
+                        rx.spacer(),
+                        rx.button(
+                            "Import as collection",
+                            color_scheme="iris",
+                            variant="soft",
+                            font_size="1.3vh",
+                            disabled=True
+                        ),
+                        width="100%"
+                    ),
+                    rx.spacer(),
+                    spacing="1vh",
+                    height="100%",
+                    padding="10px"
+                ),
+                value="github",
+            ),
+            rx.tabs.content(
+                rx.vstack(
+                    rx.spacer(),
+                    rx.chakra.input(
+                        placeholder="Enter file link",
+                        width="100%",
+                        font_size="1.5vh",
+                        height="3.5vh",
+                        border_radius="0.3vh",
+                    ),
+                    rx.hstack(
+                        rx.spacer(),
+                        rx.button(
+                            "Import files",
+                            color_scheme="iris",
+                            variant="soft",
+                            font_size="1.3vh",
+                            disabled=True
+                        ),
+                        width="100%"
+                    ),
+                    rx.spacer(),
+                    spacing="1vh",
+                    height="100%",
+                    padding="10px"
+                ),
+                value="flowinity",
+            ),
+            rx.tabs.content(
+                rx.vstack(
+                    rx.spacer(),
+                    rx.chakra.password(
+                        placeholder="Enter password",
+                        width="100%",
+                        font_size="1.5vh",
+                        height="3.5vh",
+                        border_radius="0.3vh",
+                    ),
+                    rx.hstack(
+                        rx.spacer(),
+                        rx.button(
+                            "Export files",
+                            color_scheme="iris",
+                            variant="soft",
+                            font_size="1.3vh",
+                            disabled=True
+                        ),
+                        width="100%"
+                    ),
+                    rx.spacer(),
+                    spacing="1vh",
+                    height="100%",
+                    padding="10px"
+                ),
+                value="export",
+            ),
+            default_value="github",
+            orientation="vertical",
+            width="100%",
+            bg="BLACK",
+            font_size="1.2vh",
+            border_radius="1vh",
+            on_click=SettingsState.open_coming_soon,
+            height="100%",
+            spacing="1vh"
+        ),
+        overflow="auto",
+        bg="rgb(67, 108, 49, 0.1)",
+        border_radius="1vh",
+        align="center",
+        padding="1vh",
+        spacing="1vh",
         **kwargs
     )
 
@@ -947,6 +1079,10 @@ def desktop_index():
                 settings_widget_desktop(
                     width="100%",
                     height="20%"
+                ),
+                import_files(
+                    width="100%",
+                    height="22%"
                 ),
                 height="100%",
                 spacing="0.75vh",

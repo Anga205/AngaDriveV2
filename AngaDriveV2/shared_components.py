@@ -206,38 +206,49 @@ def account_manager_wrapper(component, **kwargs):
 
 
 def sidebar_login_widget():
-    return rx.hstack(
-        login_dialog(
-            rx.button(
-                rx.chakra.text("Login"),
-                style={"font-weight":"bold"},
-                color_scheme="blue",
-                variant="soft",
-                width="100%",
-                font_size="1.75vh",
-                on_click=LoginState.set_to_login_mode,
-                height="4vh",
-                border="1vh"
+    return rx.vstack(
+        rx.hstack(
+            login_dialog(
+                rx.button(
+                    rx.chakra.text("Login"),
+                    style={"font-weight":"bold"},
+                    color_scheme="blue",
+                    variant="soft",
+                    width="100%",
+                    font_size="1.75vh",
+                    on_click=LoginState.set_to_login_mode,
+                    height="4vh",
+                    border="1vh",
+                    border_radius="0.5vh"
+                ),
+                width="49%",
             ),
-            width="49%",
-        ),
-        rx.spacer(),
-        login_dialog(
-            rx.button(
-                "Signup",
-                style={"font-weight":"bold"},
-                color_scheme="green",
-                variant="soft",
-                width="100%",
-                on_click=LoginState.set_to_signup_mode,
-                font_size="1.75vh",
-                height="4vh",
-                border="1vh"
+            rx.spacer(),
+            login_dialog(
+                rx.button(
+                    "Signup",
+                    style={"font-weight":"bold"},
+                    color_scheme="green",
+                    variant="soft",
+                    width="100%",
+                    on_click=LoginState.set_to_signup_mode,
+                    font_size="1.75vh",
+                    height="4vh",
+                    border="1vh",
+                    border_radius="0.5vh"
+                ),
+                width="49%"
             ),
-            width="49%"
+            spacing="0px",
+            width="100%"
         ),
-        spacing="0px",
-        width="100%"
+        tpu_signup_button(
+            width="100%",
+            height="4vh",
+            border_radius="0.5vh",
+        ),
+        spacing="5px",
+        width="100%",
     )
 
 def shared_sidebar(opened_page, **kwargs):
