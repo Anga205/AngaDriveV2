@@ -934,10 +934,11 @@ def settings_widget_desktop(**kwargs):
 
 def import_files(**kwargs):
     return rx.vstack(
-        rx.heading(
+        rx.chakra.heading(
             "Import/Export files",
             color="WHITE",
-            font_size="2vh"
+            font_size="2vh",
+            height="5vh"
         ),
         rx.chakra.divider(
             border_color="GRAY"
@@ -1042,6 +1043,7 @@ def import_files(**kwargs):
                     ),
                     rx.spacer(),
                     spacing="1vh",
+                    style={"height":"100%"},
                     height="100%",
                     padding="10px"
                 ),
@@ -1066,6 +1068,49 @@ def import_files(**kwargs):
         **kwargs
     )
 
+def bulk_actions_widget(**kwargs):
+    return rx.chakra.vstack(
+        rx.chakra.heading(
+            "Bulk Actions",
+            font_size="2.2vh",
+        ),
+        rx.chakra.divider(
+            border_color="GRAY"
+        ),
+        rx.vstack(
+            rx.spacer(),
+            rx.heading("Im coding this at 3am"),
+            rx.spacer(),
+            height="80%"
+        ),
+        padding="1vh",
+        border_radius="1vh",
+        bg="rgb(120, 122, 151, 0.1)",
+        **kwargs
+    )
+
+def contact_me_widget(**kwargs):
+    return rx.chakra.vstack(
+        rx.chakra.heading(
+            "Message the Developer", 
+            font_size="2.2vh"
+        ),
+        rx.chakra.divider(
+            border_color="GRAY"
+        ),
+        rx.vstack(
+            rx.spacer(),
+            rx.heading("ill add these later im gonna go sleep now"),
+            rx.spacer(),
+            height="80%"
+        ),
+        border_radius="1vh",
+        padding="1vh",
+        bg="rgb(184, 109, 119, 0.1)",
+        **kwargs
+    )
+
+
 def desktop_index():
 
     return site_template(
@@ -1084,10 +1129,23 @@ def desktop_index():
                     width="100%",
                     height="22%"
                 ),
+                rx.chakra.hstack(
+                    bulk_actions_widget(
+                        height="100%",
+                        width="50%"
+                    ),
+                    contact_me_widget(
+                        height="100%",
+                        width="50%"
+                    ),
+                    height="58%",
+                    width="100%",
+                    spacing="1vh"
+                ),
                 height="100%",
                 spacing="0.75vh",
                 width="50%"
-                ),
+            ),
             rx.chakra.vstack(
                 static_data_box(
                     height="100%",
@@ -1096,11 +1154,11 @@ def desktop_index():
                 height="100%",
                 width="50%",
                 spacing="0.75vh"
-                ),
+            ),
             rx.chakra.box(
                 height="0vh",
                 width="0vh"
-                ),
+            ),
             spacing="0.75vh",
             width="100%",
             height="93.25vh"
