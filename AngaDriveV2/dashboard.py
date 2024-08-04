@@ -197,45 +197,26 @@ def static_data_box(**kwargs) -> rx.Component:
             ),
             width="100%",
         ),
-        rx.chakra.hstack(
-            site_data_card(
-                heading="Host",
-                content=f"{platform.node()} {platform.machine()}",
-                width="40%",
-            ),
-            rx.desktop_only(
+        rx.mobile_and_tablet(
+            rx.chakra.hstack(
                 site_data_card(
-                    heading="Foo",
-                    content="84",
-                    width="100%"
+                    heading="Host",
+                    content=f"{platform.node()} {platform.machine()}",
+                    width="40%",
                 ),
-                width="30%"
-            ),
-            rx.desktop_only(
-                site_data_card(
-                    heading="Bar",
-                    content="582",
-                    width="100%"
-                ),
-                width="30%"
-            ),
-            rx.mobile_and_tablet(
                 site_data_card(
                     heading="Temp",
                     content=State.temperature,
-                    width="100%",
+                    width="30%",
                     overflow="auto"
                 ),
-                width="30%"
-            ),
-            rx.mobile_and_tablet(
                 site_data_card(
                     heading="Uptime",
                     content=State.uptime,
-                    width="100%",
+                    width="30%",
                     overflow="auto"
                 ),
-                width="30%"
+                width="100%"
             ),
             width="100%"
         ),
@@ -926,7 +907,7 @@ def settings_widget_desktop(**kwargs):
             on_click=SettingsState.restore_defaults,
             variant="soft",
         ),
-        bg="rgb(100, 100, 100, 0.1)",
+        bg="rgb(9, 232, 84, 0.05)",
         border_radius="1vh",
         padding="1vh",
         **kwargs
@@ -1074,18 +1055,118 @@ def bulk_actions_widget(**kwargs):
             "Bulk Actions",
             font_size="2.2vh",
         ),
-        rx.chakra.divider(
-            border_color="GRAY"
-        ),
-        rx.vstack(
-            rx.spacer(),
-            rx.heading("Im coding this at 3am"),
-            rx.spacer(),
-            height="80%"
+        rx.chakra.vstack(
+            rx.chakra.accordion(
+                rx.chakra.accordion_item(
+                    rx.chakra.accordion_button(
+                        "File Actions",
+                        rx.chakra.accordion_icon(),
+                        font_size="2vh",
+                    ),
+                    rx.chakra.accordion_panel(
+                        rx.chakra.vstack(
+                            rx.chakra.button(
+                                "Delete my files",
+                                width="100%",
+                                font_size="1.7vh",
+                                height="33%",
+                                border_radius="0.3vh"
+                            ),
+                            rx.chakra.button(
+                                "Transfer my files",
+                                width="100%",
+                                font_size="1.7vh",
+                                height="33%",
+                                border_radius="0.3vh"
+                            ),
+                            rx.chakra.button(
+                                "Change existing file settings",
+                                width="100%",
+                                font_size="1.7vh",
+                                height="33%",
+                                border_radius="0.3vh"
+                            ),
+                            height="12vh",
+                            spacing="0.5vh"
+                        )
+                    ),
+                ),
+                rx.chakra.accordion_item(
+                    rx.chakra.accordion_button(
+                        "Collection Actions",
+                        rx.chakra.accordion_icon(),
+                        font_size="2vh",
+                    ),
+                    rx.chakra.accordion_panel(
+                        rx.chakra.vstack(
+                            rx.chakra.button(
+                                "Delete my Collections",
+                                width="100%",
+                                font_size="1.7vh",
+                                height="33%",
+                                border_radius="0.3vh"
+                            ),
+                            rx.chakra.button(
+                                "Transfer my Collections",
+                                width="100%",
+                                font_size="1.7vh",
+                                height="33%",
+                                border_radius="0.3vh"
+                            ),
+                            rx.chakra.button(
+                                "Change existing Collection settings",
+                                width="100%",
+                                font_size="1.7vh",
+                                height="33%",
+                                border_radius="0.3vh"
+                            ),
+                            height="12vh",
+                            spacing="0.5vh"
+                        )
+                    ),
+                ),
+                rx.chakra.accordion_item(
+                    rx.chakra.accordion_button(
+                        "Account Actions",
+                        rx.chakra.accordion_icon(),
+                        font_size="2vh",
+                    ),
+                    rx.chakra.accordion_panel(
+                        rx.chakra.vstack(
+                            rx.chakra.button(
+                                "Change password",
+                                width="100%",
+                                font_size="1.7vh",
+                                height="33%",
+                                border_radius="0.3vh"
+                            ),
+                            rx.chakra.button(
+                                "Change account settings",
+                                width="100%",
+                                font_size="1.7vh",
+                                height="33%",
+                                border_radius="0.3vh"
+                            ),
+                            height="12vh",
+                            spacing="0.5vh"
+                        )
+                    ),
+                ),
+                default_index=[0],
+                spacing="0vh",
+                width="100%",
+                height="100%"
+            ),
+            height="80%",
+            width="100%",
+            spacing="0px"
         ),
         padding="1vh",
         border_radius="1vh",
         bg="rgb(120, 122, 151, 0.1)",
+        spacing="1vh",
+        on_click=SettingsState.open_coming_soon,
+        overflow="auto",
         **kwargs
     )
 
@@ -1098,15 +1179,33 @@ def contact_me_widget(**kwargs):
         rx.chakra.divider(
             border_color="GRAY"
         ),
-        rx.vstack(
-            rx.spacer(),
-            rx.heading("ill add these later im gonna go sleep now"),
-            rx.spacer(),
-            height="80%"
+        rx.chakra.vstack(
+            rx.chakra.text_area(
+                placeholder="You can send me issues, feature requests, or just say hi! but if ur expecting a response then remember to leave your email or anything else i can use to get back to you later",
+                height="92%",
+                font_size="1.5vh",
+                width="100%",
+                bg="BLACK"
+            ),
+            rx.chakra.hstack(
+                rx.chakra.spacer(),
+                rx.chakra.button(
+                    "Send",
+                    font_size="1.6vh",
+                    height="100%",
+                    width="25%"
+                ),
+                width="100%",
+                height="8%"
+            ),
+            height="100%",
+            width="100%",
         ),
         border_radius="1vh",
         padding="1vh",
+        spacing="1vh",
         bg="rgb(184, 109, 119, 0.1)",
+        overflow="auto",
         **kwargs
     )
 
@@ -1125,10 +1224,15 @@ def desktop_index():
                     width="100%",
                     height="20%"
                 ),
-                import_files(
+                static_data_box(
+                    height="80%",
                     width="100%",
-                    height="22%"
                 ),
+                height="100%",
+                spacing="0.75vh",
+                width="50%"
+            ),
+            rx.chakra.vstack(
                 rx.chakra.hstack(
                     bulk_actions_widget(
                         height="100%",
@@ -1142,14 +1246,9 @@ def desktop_index():
                     width="100%",
                     spacing="1vh"
                 ),
-                height="100%",
-                spacing="0.75vh",
-                width="50%"
-            ),
-            rx.chakra.vstack(
-                static_data_box(
-                    height="100%",
+                import_files(
                     width="100%",
+                    height="22%"
                 ),
                 height="100%",
                 width="50%",
