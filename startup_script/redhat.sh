@@ -14,5 +14,7 @@ if [ ! -d "venv" ]; then
     source venv/bin/activate
     pip install -r requirements.txt
     reflex init
+    deactivate
 fi
+source venv/bin/activate
 reflex run
