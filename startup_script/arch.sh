@@ -1,5 +1,5 @@
 # List of packages to search for
-PACKAGES=("git" "python-virtualenv" "curl" "nodejs" "gcc" "python" "unzip")
+PACKAGES=("git" "python-virtualenv" "curl" "nodejs" "gcc" "python" "unzip" "lm-sensors")
 
 # Loop through the packages and check if they are installed
 for package in "${PACKAGES[@]}"; do
