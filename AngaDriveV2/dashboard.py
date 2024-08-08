@@ -1242,7 +1242,7 @@ def desktop_index():
                         height="100%",
                         width="50%"
                     ),
-                    height="58%",
+                    height="78%",
                     width="100%",
                     spacing="1vh"
                 ),
