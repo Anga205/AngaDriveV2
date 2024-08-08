@@ -110,7 +110,7 @@ def does_filename_already_exist(filename_to_check: str) -> bool:
     global cur, con
 
     # Execute a SELECT query to check if the string is present in any row of the table
-    cur.execute(f"SELECT * FROM file_data WHERE file_directory = {dbify(filename_to_check)}")
+    cur.execute(f"SELECT original_file_name FROM file_data WHERE file_directory = {dbify(filename_to_check)}")
     
     row = cur.fetchone()
 

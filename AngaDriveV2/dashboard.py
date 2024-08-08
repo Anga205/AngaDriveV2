@@ -3,155 +3,153 @@ from AngaDriveV2.presets import *
 from AngaDriveV2.State import State
 from AngaDriveV2.shared_components import *
 from AngaDriveV2.login_dialog import *
-
+import platform
 
 def static_data_box(**kwargs) -> rx.Component:
     return rx.chakra.vstack(
-        rx.chakra.heading(
-            "DriveV2 - Site Data",
-            color="WHITE",
-            font_size="3.5vh"
-        ),
-        rx.chakra.divider(
-            border_color="GRAY"
-        ),
-        rx.box(
-            rx.moment(
-                interval=500, 
-                on_change=SystemHealthState.tick_health
-            ),
-            display="none"
-        ), 
-        rx.chakra.hstack(
-            card(
-                heading="RAM Usage",
-                content=rx.cond(
-                    State.ram_percent,
-                    rx.chakra.circular_progress(
-                        rx.chakra.circular_progress_label(
-                            rx.chakra.vstack(
-                                rx.chakra.text(
-                                    State.used_ram, 
-                                    color="WHITE", 
-                                    font_size="10"
-                                ),
-                                rx.divider(
-                                    color_scheme="cyan",
-                                    width="50%"
-                                ),
-                                rx.chakra.text(
-                                    State.total_ram, 
-                                    color="WHITE", 
-                                    font_size="10"
-                                ),
-                                spacing="0px"
-                            )
-                        ),
-                        value=State.ram_percent, 
-                        color="BLUE",
-                        size="20",
-                        height="100%",
-                    ),
-                    rx.chakra.circular_progress(
-                        rx.chakra.circular_progress_label("Loading....", color="WHITE", font_size="10"),
-                        color="BLUE",
-                        is_indeterminate=True,
-                        size="20",
-                        height="100%",
-                    )
-                ),
-                height="16vh",
-                overflow="auto",
-                width="30%"
-            ),
-            card(
-                heading="CPU Usage",
-                content=rx.cond(
-                    State.ram_percent,
-                    rx.chakra.circular_progress(
-                        rx.chakra.circular_progress_label(
-                            rx.chakra.text(
-                                rx.chakra.span(
-                                    State.cpu_usage,
-                                    font_size="20"
-                                ),
-                                rx.chakra.span(
-                                    "%",
-                                    font_size="10"
+        rx.desktop_only(
+            rx.chakra.hstack(
+                card(
+                    heading="RAM Usage",
+                    content=rx.cond(
+                        State.ram_percent,
+                        rx.chakra.circular_progress(
+                            rx.chakra.circular_progress_label(
+                                rx.chakra.vstack(
+                                    rx.chakra.text(
+                                        State.used_ram, 
+                                        color="WHITE", 
+                                        font_size="1vh"
+                                    ),
+                                    rx.divider(
+                                        color_scheme="cyan",
+                                        width="50%"
+                                    ),
+                                    rx.chakra.text(
+                                        State.total_ram, 
+                                        color="WHITE", 
+                                        font_size="1vh"
+                                    ),
+                                    spacing="0px"
                                 )
                             ),
+                            value=State.ram_percent, 
+                            color="BLUE",
+                            size="9vh",
+                            height="100%",
                         ),
-                        value=State.cpu_usage, 
-                        color="BLUE",
-                        size="20",
+                        rx.chakra.circular_progress(
+                            rx.chakra.circular_progress_label("Loading....", color="WHITE", font_size="1vh"),
+                            color="BLUE",
+                            is_indeterminate=True,
+                            size="9vh",
+                            height="100%",
+                        )
                     ),
-                    rx.chakra.circular_progress(
-                        rx.chakra.circular_progress_label("Loading....", color="WHITE", font_size="10"),
-                        color="BLUE",
-                        is_indeterminate=True,
-                        size="20",
-                    )
+                    height="17vh",
+                    overflow="auto",
+                    width="30%"
                 ),
-                height="16vh",
-                overflow="auto",
-                width="30%"
-            ),
-            rx.chakra.vstack(
-                rx.cond(
-                    State.temperature_available,
-                    rx.chakra.vstack(
-                        rx.chakra.spacer(),
-                        rx.chakra.text(
-                            rx.chakra.span("Temperature: ", color="BLUE", font_size="2.5vh", as_="b"),
-                            State.temperature,
-                            color="WHITE",
-                            font_size="2.5vh",
-                            overflow="auto",
+                card(
+                    heading="CPU Usage",
+                    content=rx.cond(
+                        State.ram_percent,
+                        rx.chakra.circular_progress(
+                            rx.chakra.circular_progress_label(
+                                rx.chakra.text(
+                                    rx.chakra.span(
+                                        State.cpu_usage,
+                                        font_size="2vh"
+                                    ),
+                                    rx.chakra.span(
+                                        "%",
+                                        font_size="1vh"
+                                    )
+                                ),
+                            ),
+                            value=State.cpu_usage, 
+                            color="BLUE",
+                            size="9vh",
                         ),
-                        rx.chakra.spacer(),
+                        rx.chakra.circular_progress(
+                            rx.chakra.circular_progress_label("Loading....", color="WHITE", font_size="1vh"),
+                            color="BLUE",
+                            is_indeterminate=True,
+                            size="9vh",
+                        )
+                    ),
+                    height="17vh",
+                    overflow="auto",
+                    width="30%"
+                ),
+                rx.chakra.vstack(
+                    rx.cond(
+                        State.temperature_available,
+                        rx.chakra.box(
+                            rx.chakra.text(
+                                rx.chakra.span("Temperature: ", color="BLUE", font_size="2.5vh", as_="b"),
+                                State.temperature,
+                                color="WHITE",
+                                font_size="2.5vh",
+                                overflow="auto",
+                                text_align="center"
+                            ),
+                            width="100%",
+                            height="50%",
+                            bg="BLACK",
+                            border_radius="0.5vh",
+                            padding="1.5vh",
+                            align="center"
+                        ),
+                        rx.chakra.box(
+                            rx.chakra.text(
+                                "Temperature Unavailable",
+                                color="RED",
+                                as_="b",
+                                font_size="2.5vh",
+                                overflow="auto",
+                                text_align="center"
+                            ),
+                            width="100%",
+                            height="50%",
+                            bg="BLACK",
+                            border_radius="0.5vh",
+                            padding="1.5vh",
+                            align="center"
+                        ),
+                    ),
+                    rx.chakra.box(
+                        rx.cond(
+                            State.uptime,
+                            rx.chakra.text(
+                                rx.chakra.span("Uptime: ", color="BLUE", font_size="2.5vh", as_="b"),
+                                State.uptime,
+                                color="WHITE",
+                                font_size="2.5vh",
+                                overflow="auto",
+                                text_align="center"
+                            ),
+                            rx.chakra.text(
+                                "Loading...",
+                                color="WHITE",
+                                font_size="2.5vh",
+                                text_align="center"
+                            )
+                        ),
                         width="100%",
                         height="50%",
                         bg="BLACK",
                         border_radius="0.5vh",
-                        padding="1.5vh",
-                        align="center"
+                        padding="1.5vh"
                     ),
-                    rx.callout(
-                        "Temperature not available",
-                        icon="triangle_alert",
-                        color_scheme="red",
-                        role="alert",
-                        width="100%",
-                        height="50%",
-                        align="center"
-                    )
+                    height="100%",
+                    width="40%",
                 ),
-                rx.chakra.box(
-                    rx.cond(
-                        State.uptime,
-                        rx.chakra.text(
-                            rx.chakra.span("Uptime: ", color="BLUE", font_size="2.5vh", as_="b"),
-                            State.uptime,
-                            color="WHITE",
-                            font_size="2.5vh",
-                            overflow="auto",
-                        ),
-                        rx.chakra.text(
-                            "Loading...",
-                            color="WHITE",
-                            font_size="2.5vh"
-                        )
-                    ),
-                    width="100%",
-                    height="50%",
-                    bg="BLACK",
-                    border_radius="0.5vh",
-                    padding="1.5vh"
-                ),
-                height="100%",
-                width="40%",
+                height="17vh",
+                width="100%",
+                on_mount=SystemHealthState.open_system_health,
+                on_unmount=SystemHealthState.close_system_health_no_params
             ),
-            height="16vh",
             width="100%"
         ),
         rx.chakra.hstack(
@@ -192,12 +190,43 @@ def static_data_box(**kwargs) -> rx.Component:
                     "Files hosted", 
                     State.files_hosted,
                     height="100%",
-                    width="50%"
+                    width="50%",
+                    overflow="auto"
                 ),
                 content=f"Your files: {State.user_file_count}",
             ),
             width="100%",
         ),
+        rx.mobile_and_tablet(
+            rx.chakra.hstack(
+                site_data_card(
+                    heading="Host",
+                    content=f"{platform.node()} {platform.machine()}",
+                    width="40%",
+                ),
+                site_data_card(
+                    heading="Temp",
+                    content=State.temperature,
+                    width="30%",
+                    overflow="auto"
+                ),
+                site_data_card(
+                    heading="Uptime",
+                    content=State.uptime,
+                    width="30%",
+                    overflow="auto"
+                ),
+                width="100%"
+            ),
+            width="100%"
+        ),
+        rx.box(
+            rx.moment(
+                interval=500, 
+                on_change=SystemHealthState.tick_health
+            ),
+            display="none"
+        ), 
         card(
             "Site activity over past week",
             rx.recharts.area_chart(
@@ -213,17 +242,16 @@ def static_data_box(**kwargs) -> rx.Component:
                 rx.recharts.graphing_tooltip(),
                 data=State.site_activity,
                 color="BLACK",
+                font_size="1.5vh",
                 height="100%"
             ),
             width = "100%",
             height="100%"
         ),
-        bg="#0f0f1f",
-        border_width="1vh",
-        border_radius = "1vh",
-        border_color="#0f0f1f",
+        bg="rgb(0, 0, 255, 0.1)",
+        padding="1vh",
+        border_radius="1vh",
         spacing="0.75vh",
-        on_mount=SystemHealthState.open_system_health,
         **kwargs
     )
 
@@ -744,7 +772,446 @@ def github_widget():
         border_width="1vh"
     )
 
+class SettingsState(State):
+    
+    def restore_defaults(self):
+        if self.enable_caching:
+            self.swap_caching()
+        if self.ultra_secure:
+            self.swap_security()
+        if not self.enable_previews:
+            self.swap_previews()
+    
+    show_coming_soon:bool = False
+    def open_coming_soon(self):
+        self.show_coming_soon = True
+    
+    def close_coming_soon(self, discard=False):
+        self.show_coming_soon = False
+
+def coming_soon_dialog(trigger, **kwargs):
+    return rx.dialog.root(
+        rx.dialog.trigger(trigger),
+        rx.dialog.content(
+            rx.dialog.title("Coming Soon"),
+            rx.dialog.description("This feature is under development and will be available soon"),
+            bg="#0f0f0f",
+            on_escape_key_down=SettingsState.close_coming_soon,
+            on_pointer_down_outside=SettingsState.close_coming_soon
+        ),
+        open=SettingsState.show_coming_soon,
+        **kwargs
+    )
+
+
+def settings_widget_desktop(**kwargs):
+    def settings_button(heading, icon, tooltip, **kwargs):
+        enabled = True
+        if "enabled" in kwargs:
+            enabled = kwargs["enabled"]
+            del kwargs["enabled"]
+        
+        if "condition" not in kwargs:
+            return rx.tooltip(
+                rx.button(
+                    rx.vstack(
+                        rx.heading(
+                            heading,
+                            font_size="3vh",
+                            overflow="auto"
+                        ),
+                        rx.icon(
+                            icon,
+                            height="50%",
+                            width="50%"
+                        ),
+                        rx.text(
+                            "Default: Enabled" if enabled else "Default: Disabled",
+                            font_size="1.5vh"
+                        ),
+                        justify="center",
+                        overflow="auto",
+                        height="100%",
+                        spacing="0vh",
+                        padding="0vh",
+                        width="100%",
+                        align="center"
+                    ),
+                    height="100%",
+                    width="32.5%",
+                    bg="rgb(0,255,0,0.1)" if enabled else "rgb(255,0,0,0.1)",
+                    color="#BBBBBB",
+                    padding="0.5vh",
+                    align="center",
+                    _hover={"bg":"rgb(0,255,0,0.5)" if enabled else "rgb(255,0,0,0.5)", "color":"WHITE"},
+                    **kwargs
+                ),
+                content=tooltip,
+            )
+        else:
+            condition = kwargs["condition"]
+            del kwargs["condition"]
+            return rx.cond(
+                condition,
+                settings_button(heading, icon, tooltip[0], enabled=True, **kwargs),
+                settings_button(heading, icon, tooltip[1], enabled=False, **kwargs),
+            )
+    return rx.vstack(
+        rx.hstack(
+            coming_soon_dialog(
+                trigger=settings_button(
+                    "Caching",
+                    "database-zap",
+                    [
+                        "Caching is currently Enabled, this may result in slower file deletion. (Upto 2 hours)",
+                        "Caching is currently Disabled, this may result in slightly slower page-load times.",
+                    ],
+                    condition=State.enable_caching,
+                    on_click=SettingsState.open_coming_soon
+                )
+            ),
+            settings_button(
+                "File Previews",
+                "eye",
+                [
+                    "File Previews are currently Enabled, this may result in slower page-load times.",
+                    "File Previews are currently Disabled, use this to speed up page-load times.",
+                ],
+                condition=State.enable_previews,
+                on_click=State.swap_previews
+            ),
+            coming_soon_dialog(
+                settings_button(
+                    "Ultra-Secure",
+                    "lock",
+                    [
+                        "Ultra-Secure is currently Enabled, all newly uploaded files are protected by password-authentication by default",
+                        "Ultra-Secure is currently Disabled, all newly uploaded files are accessible to anyone with the link",
+                    ],
+                    condition=State.ultra_secure,
+                    on_click=SettingsState.open_coming_soon
+                )
+            ),
+            spacing="1vh",
+            overflow="hidden",
+            width="100%",
+            height="80%"
+        ),
+        rx.button(
+            rx.text("Restore Defaults", as_="b"),
+            font_size="1.65vh",
+            width="100%",
+            height="20%",
+            color_scheme="tomato",
+            disabled=~(State.ultra_secure | ~State.enable_previews| State.enable_caching),
+            on_click=SettingsState.restore_defaults,
+            variant="soft",
+        ),
+        bg="rgb(9, 232, 84, 0.05)",
+        border_radius="1vh",
+        padding="1vh",
+        **kwargs
+    )
+
+def import_files(**kwargs):
+    return rx.vstack(
+        rx.chakra.heading(
+            "Import/Export files",
+            color="WHITE",
+            font_size="2vh",
+            height="5vh"
+        ),
+        rx.chakra.divider(
+            border_color="GRAY"
+        ),
+        rx.tabs.root(
+            rx.tabs.list(
+                rx.tabs.trigger(
+                    "GitHub", 
+                    value="github",
+                    height="4vh"
+                ),
+                rx.tabs.trigger(
+                    "Flowinity", 
+                    value="flowinity",
+                    height="4vh"
+                ),
+                rx.tabs.trigger(
+                    "Export", 
+                    value="export",
+                    height="4vh"
+                ),
+                height="13vh",
+                font_size="1.3vh",
+                spacing="0vh"
+            ),
+            rx.tabs.content(
+                rx.vstack(
+                    rx.spacer(),
+                    rx.chakra.input(
+                        placeholder="Enter github repo URL",
+                        width="100%",
+                        font_size="1.5vh",
+                        height="3.5vh",
+                        border_radius="0.3vh",
+                    ),
+                    rx.hstack(
+                        rx.spacer(),
+                        rx.button(
+                            "Import as collection",
+                            color_scheme="iris",
+                            variant="soft",
+                            font_size="1.3vh",
+                            disabled=True
+                        ),
+                        width="100%"
+                    ),
+                    rx.spacer(),
+                    spacing="1vh",
+                    height="100%",
+                    padding="10px"
+                ),
+                value="github",
+            ),
+            rx.tabs.content(
+                rx.vstack(
+                    rx.spacer(),
+                    rx.chakra.input(
+                        placeholder="Enter file link",
+                        width="100%",
+                        font_size="1.5vh",
+                        height="3.5vh",
+                        border_radius="0.3vh",
+                    ),
+                    rx.hstack(
+                        rx.spacer(),
+                        rx.button(
+                            "Import files",
+                            color_scheme="iris",
+                            variant="soft",
+                            font_size="1.3vh",
+                            disabled=True
+                        ),
+                        width="100%"
+                    ),
+                    rx.spacer(),
+                    spacing="1vh",
+                    height="100%",
+                    padding="10px"
+                ),
+                value="flowinity",
+            ),
+            rx.tabs.content(
+                rx.vstack(
+                    rx.spacer(),
+                    rx.chakra.password(
+                        placeholder="Enter password",
+                        width="100%",
+                        font_size="1.5vh",
+                        height="3.5vh",
+                        border_radius="0.3vh",
+                    ),
+                    rx.hstack(
+                        rx.spacer(),
+                        rx.button(
+                            "Export files",
+                            color_scheme="iris",
+                            variant="soft",
+                            font_size="1.3vh",
+                            disabled=True
+                        ),
+                        width="100%"
+                    ),
+                    rx.spacer(),
+                    spacing="1vh",
+                    style={"height":"100%"},
+                    height="100%",
+                    padding="10px"
+                ),
+                value="export",
+            ),
+            default_value="github",
+            orientation="vertical",
+            width="100%",
+            bg="BLACK",
+            font_size="1.2vh",
+            border_radius="1vh",
+            on_click=SettingsState.open_coming_soon,
+            height="100%",
+            spacing="1vh"
+        ),
+        overflow="auto",
+        bg="rgb(67, 108, 49, 0.1)",
+        border_radius="1vh",
+        align="center",
+        padding="1vh",
+        spacing="1vh",
+        **kwargs
+    )
+
+def bulk_actions_widget(**kwargs):
+    return rx.chakra.vstack(
+        rx.chakra.heading(
+            "Bulk Actions",
+            font_size="2.2vh",
+        ),
+        rx.chakra.vstack(
+            rx.chakra.accordion(
+                rx.chakra.accordion_item(
+                    rx.chakra.accordion_button(
+                        "File Actions",
+                        rx.chakra.accordion_icon(),
+                        font_size="2vh",
+                    ),
+                    rx.chakra.accordion_panel(
+                        rx.chakra.vstack(
+                            rx.chakra.button(
+                                "Delete my files",
+                                width="100%",
+                                font_size="1.7vh",
+                                height="33%",
+                                border_radius="0.3vh"
+                            ),
+                            rx.chakra.button(
+                                "Transfer my files",
+                                width="100%",
+                                font_size="1.7vh",
+                                height="33%",
+                                border_radius="0.3vh"
+                            ),
+                            rx.chakra.button(
+                                "Change existing file settings",
+                                width="100%",
+                                font_size="1.7vh",
+                                height="33%",
+                                border_radius="0.3vh"
+                            ),
+                            height="12vh",
+                            spacing="0.5vh"
+                        )
+                    ),
+                ),
+                rx.chakra.accordion_item(
+                    rx.chakra.accordion_button(
+                        "Collection Actions",
+                        rx.chakra.accordion_icon(),
+                        font_size="2vh",
+                    ),
+                    rx.chakra.accordion_panel(
+                        rx.chakra.vstack(
+                            rx.chakra.button(
+                                "Delete my Collections",
+                                width="100%",
+                                font_size="1.7vh",
+                                height="33%",
+                                border_radius="0.3vh"
+                            ),
+                            rx.chakra.button(
+                                "Transfer my Collections",
+                                width="100%",
+                                font_size="1.7vh",
+                                height="33%",
+                                border_radius="0.3vh"
+                            ),
+                            rx.chakra.button(
+                                "Change existing Collection settings",
+                                width="100%",
+                                font_size="1.7vh",
+                                height="33%",
+                                border_radius="0.3vh"
+                            ),
+                            height="12vh",
+                            spacing="0.5vh"
+                        )
+                    ),
+                ),
+                rx.chakra.accordion_item(
+                    rx.chakra.accordion_button(
+                        "Account Actions",
+                        rx.chakra.accordion_icon(),
+                        font_size="2vh",
+                    ),
+                    rx.chakra.accordion_panel(
+                        rx.chakra.vstack(
+                            rx.chakra.button(
+                                "Change password",
+                                width="100%",
+                                font_size="1.7vh",
+                                height="33%",
+                                border_radius="0.3vh"
+                            ),
+                            rx.chakra.button(
+                                "Change account settings",
+                                width="100%",
+                                font_size="1.7vh",
+                                height="33%",
+                                border_radius="0.3vh"
+                            ),
+                            height="12vh",
+                            spacing="0.5vh"
+                        )
+                    ),
+                ),
+                default_index=[0],
+                spacing="0vh",
+                width="100%",
+                height="100%"
+            ),
+            height="80%",
+            width="100%",
+            spacing="0px"
+        ),
+        padding="1vh",
+        border_radius="1vh",
+        bg="rgb(120, 122, 151, 0.1)",
+        spacing="1vh",
+        on_click=SettingsState.open_coming_soon,
+        overflow="auto",
+        **kwargs
+    )
+
+def contact_me_widget(**kwargs):
+    return rx.chakra.vstack(
+        rx.chakra.heading(
+            "Message the Developer", 
+            font_size="2.2vh"
+        ),
+        rx.chakra.divider(
+            border_color="GRAY"
+        ),
+        rx.chakra.vstack(
+            rx.chakra.text_area(
+                placeholder="You can send me issues, feature requests, or just say hi! but if ur expecting a response then remember to leave your email or anything else i can use to get back to you later",
+                height="92%",
+                font_size="1.5vh",
+                width="100%",
+                bg="BLACK"
+            ),
+            rx.chakra.hstack(
+                rx.chakra.spacer(),
+                rx.chakra.button(
+                    "Send",
+                    font_size="1.6vh",
+                    height="100%",
+                    width="25%"
+                ),
+                width="100%",
+                height="8%"
+            ),
+            height="100%",
+            width="100%",
+        ),
+        border_radius="1vh",
+        padding="1vh",
+        spacing="1vh",
+        bg="rgb(184, 109, 119, 0.1)",
+        overflow="auto",
+        **kwargs
+    )
+
+
 def desktop_index():
+
     return site_template(
         "Home",
         rx.chakra.hstack(
@@ -753,26 +1220,44 @@ def desktop_index():
                 height="0vh"
             ),
             rx.chakra.vstack(
-#                static_account_info(),
+                settings_widget_desktop(
+                    width="100%",
+                    height="20%"
+                ),
                 static_data_box(
-                    height="250%",
+                    height="80%",
                     width="100%",
                 ),
                 height="100%",
                 spacing="0.75vh",
                 width="50%"
-                ),
+            ),
             rx.chakra.vstack(
-#                whats_new_widget(),
-#                github_widget(),
+                rx.chakra.hstack(
+                    bulk_actions_widget(
+                        height="100%",
+                        width="50%"
+                    ),
+                    contact_me_widget(
+                        height="100%",
+                        width="50%"
+                    ),
+                    height="78%",
+                    width="100%",
+                    spacing="1vh"
+                ),
+                import_files(
+                    width="100%",
+                    height="22%"
+                ),
                 height="100%",
                 width="50%",
                 spacing="0.75vh"
-                ),
+            ),
             rx.chakra.box(
                 height="0vh",
                 width="0vh"
-                ),
+            ),
             spacing="0.75vh",
             width="100%",
             height="93.25vh"
@@ -853,14 +1338,6 @@ def tablet_top_widget():
         State.is_logged_in,
         rx.vstack(
             rx.heading("Welcome back, ",State.username),
-            rx.hstack(
-                rx.button(rx.icon(tag="external_link")," Panel"),
-                rx.link(
-                    rx.button("Github", color_scheme="green"),
-                    href="https://github.com/Anga205/AngaDriveV2",
-                    target="_blank"
-                ),
-            ),
             font_size="40px",
             align="center"
         ),
@@ -871,15 +1348,14 @@ def tablet_top_widget():
                 rx.text.span("V2", color="CYAN"), 
                 font_size="40px"
             ),
-            rx.hstack(
-                rx.button("Sign Up", variant="soft", color_scheme="red"),
-                rx.link(
-                    rx.button("Github", color_scheme="green", variant="soft"),
-                    href="https://github.com/Anga205/AngaDriveV2",
-                    target="_blank"
-                )
+            rx.text(
+                "Because 99₹/month for google one was too expensive. (also open source btw)", 
+                width="75%", 
+                color="GRAY",
+                text_align="center"
             ),
-            align="center"
+            align="center",
+            width="100%"
         ),
     ),
     rx.spacer(),
@@ -909,8 +1385,5 @@ def index():
         rx.mobile_and_tablet(
             tablet_index()
         ),
-#        rx.mobile_only(
-#            view_under_construction()
-#        ),
         width="100%",
     )
