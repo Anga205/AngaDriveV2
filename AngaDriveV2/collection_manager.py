@@ -8,7 +8,7 @@ class CollectionState(State):
     new_collection_name:str = ""
     is_invalid_collection_name:bool = False
     new_collection_input_border_color:str="#3182ce"
-    show_create_button:bool = False
+    show_create_button:bool = False 
 
     def check_if_show_button(self):
         if ("" != self.new_collection_name) or (not self.is_invalid_collection_name):
@@ -120,17 +120,23 @@ def create_new_collection_dialog(button):
 
 class ConfirmDeleteDialogState(CollectionState):
     open_dialog_bool:bool = False
-    def open_dialog(self):
+
+    collection_id_to_be_deleted:str
+    collection_name_to_be_deleted:str
+    def open_dialog(self, collection_id, collection_name):
         self.open_dialog_bool = True
+        self.collection_id_to_be_deleted = collection_id
+        self.collection_name_to_be_deleted = collection_name
     def close_dialog(self, discard):
         self.open_dialog_bool = False
-    def delete_collection(self, collection_id):
+    def delete_collection(self):
+        collection_id = self.collection_id_to_be_deleted
         delete_collection_from_db(collection_id)
         self.collection_ids.remove(collection_id)
         self.display_my_collections = [x for x in self.display_my_collections if x['id'] != collection_id]
         self.close_dialog(False)
 
-def confirm_delete_collection_dialog(button, collection_id, collection_name):
+def confirm_delete_collection_dialog(button):
     return rx.dialog.root(
         rx.dialog.trigger(
             rx.chakra.tooltip(button, label="Delete Collection")
@@ -145,7 +151,7 @@ def confirm_delete_collection_dialog(button, collection_id, collection_name):
                     rx.chakra.text(
                         rx.chakra.span("Are you SURE you want to delete "),
                         rx.chakra.span("'", font_weight="bold"),
-                        rx.chakra.span(collection_name, font_weight="bold"),
+                        rx.chakra.span(ConfirmDeleteDialogState.collection_name_to_be_deleted, font_weight="bold"),
                         rx.chakra.span("' ", font_weight="bold"),
                         rx.chakra.span("permanently?"),
                         align_items="start",
@@ -163,7 +169,7 @@ def confirm_delete_collection_dialog(button, collection_id, collection_name):
                             rx.chakra.button(
                                 "Delete",
                                 color_scheme="red",
-                                on_click = lambda: ConfirmDeleteDialogState.delete_collection(collection_id)
+                                on_click = ConfirmDeleteDialogState.delete_collection
                             ),
                         ),
                         width="100%"
@@ -210,14 +216,14 @@ def desktop_index():
                                 rx.chakra.box(
                                     height="2vh"
                                     ),
-                                rx.chakra.wrap(
-                                    rx.foreach(
-                                        CollectionState.display_my_collections,
-                                        lambda collection_obj: desktop_collection_card(
-                                            collection_obj,
-                                            copy_function=CollectionState.copy_collection(collection_obj),
-                                            button3=confirm_delete_collection_dialog(
-                                                rx.button(
+                                confirm_delete_collection_dialog(
+                                    rx.chakra.wrap(
+                                        rx.foreach(
+                                            CollectionState.display_my_collections,
+                                            lambda collection_obj: desktop_collection_card(
+                                                collection_obj,
+                                                copy_function=CollectionState.copy_collection(collection_obj),
+                                                button3=rx.button(
                                                     rx.chakra.icon(
                                                         tag="delete",
                                                         font_size="20px"
@@ -227,14 +233,12 @@ def desktop_index():
                                                     bg="rgb(75, 0, 0)",
                                                     color="rgb(200, 0, 0)",
                                                     _hover={"bg":"rgb(100, 0, 0)", "color": "rgb(255, 0, 0)"},
-                                                    on_click= ConfirmDeleteDialogState.open_dialog
-                                                ),
-                                                collection_id=collection_obj["id"],
-                                                collection_name=collection_obj["name"]
-                                            ),
-                                        )
-                                    ),
-                                    width="100%"
+                                                    on_click= lambda: ConfirmDeleteDialogState.open_dialog(collection_obj['id'], collection_obj['name'])
+                                                )
+                                            )
+                                        ),
+                                        width="100%"
+                                    )
                                 ),
                                 spacing="0vh"
                             ),
@@ -321,7 +325,8 @@ def tablet_collection_display_accordian(collection_obj):  # collection_obj consi
             padding="10px",
         ),
         bg="#120f1e",
-        color="WHITE"
+        color="WHITE",
+        value=collection_obj["id"]
     )
 
 def tablet_index():
