@@ -3,6 +3,46 @@ from functools import lru_cache
 from contextlib import asynccontextmanager
 from AngaDriveV2.common import *
 
+accounts={}
+file_data={}
+activity=[]
+collections={}
+
+def load_database():
+    global con, cur
+    global accounts, file_data, collections
+    cur.execute("SELECT token, display_name, email, hashed_password FROM accounts")
+    for row in cur:
+        accounts[row[0]] = {
+            "token":            row[0],
+            "display_name":     row[1],
+            "email":            row[2],
+            "hashed_password":  row[3]
+        }
+    cur.execute("SELECT original_file_name, file_directory, account_token, file_size, timestamp FROM file_data")
+    for row in cur:
+        file_data[row[1]] = {
+            "original_file_name":    row[0],
+            "file_directory":        row[1],
+            "account_token":         row[2],
+            "file_size":             row[3],
+            "timestamp":             row[4]
+        }
+    cur.execute("SELECT id, name, editors, size, collections, files FROM collections")
+    for row in cur:
+        collections[row[0]] = {
+            "id":           row[0],
+            "name":         row[1],
+            "editors":      row[2],
+            "size":         row[3],
+            "collections":  row[4],
+            "files":        row[5]
+        }
+    
+    cur.execute("SELECT timestamps FROM activity")
+    for row in cur:
+        activity.append(row[0])
+
 def create_database():
     if not os.path.exists(database_directory):
         print("Database not found.... creating one now")

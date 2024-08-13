@@ -1,4 +1,4 @@
-import datetime, time, os, random, re, psutil, subprocess, json, threading
+import datetime, time, os, random, re, psutil, subprocess, json, threading, builtins
 
 app_data_dir = "uploaded_files"
 def app_data_dir_function():
@@ -237,11 +237,16 @@ def get_cpu_temperature():
     
 on_rpi=bool(get_cpu_temperature())
 
+def print(*args, end="\n"):
+    debug_file=os.path.join(app_data_dir, "debug.log")
+    args=[f"[{time.ctime(time.time())}]"]+[" ".join(args)]
+    builtins.print(*args, end=end)
 
-def printdict(dict):
-    if type(dict)==type({}):
-        threading.Thread(target=lambda: print(json.dumps(dict, indent=4))).start()
-        return dict
+    if os.path.exists(debug_file):
+        with open(debug_file, "a") as f:
+            f.write(" ".join(args))
+            f.write(end)
     else:
-        threading.Thread(target=lambda: print(end=f"{dict}\n")).start()
-        return dict
+        with open(debug_file, "w") as f:
+            f.write(" ".join(args))
+            f.write(end)

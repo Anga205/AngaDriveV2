@@ -306,7 +306,7 @@ def login_button_group() -> rx.Component:
 
 class AccountEditorState(State):
     def temp_edit_aspect(self):
-        printdict("TODO: update AccountEditorState.temp_edit_aspect")
+        print("TODO: update AccountEditorState.temp_edit_aspect")
 
     account_deletion_dialog:bool = False
     account_deletion_password:str = ""

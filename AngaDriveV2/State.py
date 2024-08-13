@@ -216,5 +216,3 @@ class State(rx.State):
         self.email:str = "{email_id}"
         self.update_account_data_components()
     
-    def print_state(self):
-        printdict("foo")

@@ -661,6 +661,7 @@ def desktop_index():
                     )
                 )
             ),
+            spacing="2",
             warp="warp"
         ),
         conditional_render(
