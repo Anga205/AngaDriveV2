@@ -31,33 +31,9 @@ this will create a folder named `AngaDriveV2`, enter it using
 ```
 cd AngaDriveV2
 ```
-now setup a virtual environment, for this you may need `virtualenv` installed beforehand
-<details>
-<summary>How to install virtualenv using pip</summary>
-
-To install virtualenv using pip, follow these steps:
-
-1. Open your command prompt or terminal.
-2. Run the following command to install virtualenv:
-    ```
-    pip install virtualenv
-    ```
-3. Wait for the installation to complete. Once it's done, you should see a success message.
-
-</details>
-
+now run the windows startup command
 ```
-py -m venv venv
-```
-
-enter the virtual environment:
-```
-venv\Scripts\activate
-```
-initialize and reflex:
-```
-reflex init
-reflex run
+start.bat
 ```
 
 ### For Debian/Arch/RedHat based systems:
