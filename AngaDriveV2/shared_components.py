@@ -198,7 +198,6 @@ def account_manager_wrapper(component, **kwargs):
             bg="#0f0f0f",
             on_escape_key_down=lambda _: AccountManagerState.close_dialog(),
             on_pointer_down_outside=lambda _: AccountManagerState.close_dialog(),
-            on_interact_outside=lambda _: AccountManagerState.close_dialog(),
         ),
         open=AccountManagerState.dialog_bool,
     )
@@ -251,6 +250,47 @@ def sidebar_login_widget():
         width="100%",
     )
 
+def sidebar_account_widget():
+    return account_manager_wrapper(
+        rx.vstack(
+            rx.hstack(
+                rx.icon(
+                    "user",
+                    height="100%",
+                    width="auto",
+                    padding="3px"
+                ),
+                rx.vstack(
+                    rx.text(
+                        State.username,
+                        font_size="1.8vh",
+                        padding="0"
+                    ),
+                    rx.text(
+                        State.email,
+                        color="GRAY",
+                        width="100%",
+                        font_size="1.3vh",
+                        padding="0"
+                    ),
+                    spacing="0",
+                    overflow="hidden"
+                ),
+                width="100%",
+                height="40px",
+                spacing="0vh",
+                font_size="1.65vh",
+                border_radius="0vh",
+                color="WHITE",
+                align="center",
+                padding="5px",
+                _hover={"color":"#e0e0e0","bg":"#1f1f1f"},
+                on_click=AccountManagerState.open_dialog
+            )
+        )
+    )
+
+
 def shared_sidebar(opened_page, **kwargs):
     buttons = ["Home", "Files", "Collections", "GitHub"]
     button_bg = "BLACK"
@@ -286,45 +326,6 @@ def shared_sidebar(opened_page, **kwargs):
                 _hover=button_on_hover
             )
 
-    def sidebar_account_widget():
-        return account_manager_wrapper(
-            rx.vstack(
-                rx.hstack(
-                    rx.icon(
-                        "user",
-                        height="100%",
-                        width="auto",
-                        padding="3px"
-                    ),
-                    rx.vstack(
-                        rx.text(
-                            State.username,
-                            font_size="1.8vh",
-                            padding="0"
-                        ),
-                        rx.text(
-                            State.email,
-                            color="GRAY",
-                            width="100%",
-                            font_size="1.3vh",
-                            padding="0"
-                        ),
-                        spacing="0",
-                        overflow="hidden"
-                    ),
-                    width="100%",
-                    height="40px",
-                    spacing="0vh",
-                    font_size="1.65vh",
-                    border_radius="0vh",
-                    color="WHITE",
-                    align="center",
-                    padding="5px",
-                    _hover={"color":"#e0e0e0","bg":"#1f1f1f"},
-                    on_click=AccountManagerState.open_dialog
-                )
-            )
-        )
 
     return rx.chakra.vstack(
         rx.chakra.box(
@@ -745,7 +746,11 @@ def tablet_drawer(button, current_page):
                     target="_blank"
                 ),
                 rx.spacer(),
-                sidebar_login_widget(),
+                rx.cond(
+                    State.is_logged_in,
+                    sidebar_account_widget(),
+                    sidebar_login_widget(),
+                ),
                 align_items="start",
                 direction="column",
                 width="100%"
