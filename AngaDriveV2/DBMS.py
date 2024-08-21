@@ -16,9 +16,10 @@ def load_database():
         accounts[row[0]] = {
             "token":            row[0],
             "display_name":     row[1],
-            "email":            row[2],
-            "hashed_password":  row[3]
+            "email":            row[2]
         }
+        if row[3]!=None:
+            accounts[row[0]]["hashed_password"]=row[3]
     cur.execute("SELECT original_file_name, file_directory, account_token, file_size, timestamp FROM file_data")
     for row in cur:
         file_data[row[1]] = {
@@ -35,10 +36,9 @@ def load_database():
             "name":         row[1],
             "editors":      row[2],
             "size":         row[3],
-            "collections":  row[4],
-            "files":        row[5]
+            "collections":  [] if row[4]=="" else row[4].split(","),
+            "files":        [] if row[5]=="" else row[5].split(", ")
         }
-    
     cur.execute("SELECT timestamps FROM activity")
     for row in cur:
         activity.append(row[0])
@@ -96,13 +96,13 @@ con, cur = create_database()
 
 def account_info(token):
     try:
-        global cur, con
-        cur.execute(f"SELECT token, display_name, email FROM accounts WHERE token= ? ", (token,))
-        data = cur.fetchone()
-        data = dict(zip(["token", "display_name","email"],data))
-        return data
+        return {
+            "token"         : token,
+            "display_name"  : accounts[token]["display_name"],
+            "email"         : accounts[token]["email"]
+        }
     except Exception as e:
-        print(f"Error occured when running AngaDriveV2.DBMS.account_info\nVar Dump:\ntoken: {token}\ndata: {data}\nError: {e}")
+        print(f"Error occured when running AngaDriveV2.DBMS.account_info\nVar Dump:\ntoken: {token}\ndata: {accounts}\nError: {e}")
         return dict(zip(["token", "display_name","email"],["ERROR", "ERROR", "ERROR"]))
 
 def get_total_activity_pulses():
@@ -605,6 +605,7 @@ def token_exists_in_accounts_table(token):
 async def lifespan(discard=None):
     global con
     print("Database connection opened")
+    load_database()
     yield
     con.commit()
     con.close()

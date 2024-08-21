@@ -239,6 +239,12 @@ on_rpi=bool(get_cpu_temperature())
 
 def print(*args, end="\n"):
     debug_file=os.path.join(app_data_dir, "debug.log")
+    args=list(args)
+    for i in range(len(args)):
+        if type(args[i])==type({}):
+            args[i]="\n"+json.dumps(args[i], indent=4)
+        if type(args[i])==type([]):
+            args[i]="\n"+json.dumps(args[i], indent=4)
     args=[f"[{time.ctime(time.time())}]"]+[" ".join(args)]
     builtins.print(*args, end=end)
 
