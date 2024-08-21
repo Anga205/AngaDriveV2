@@ -106,56 +106,36 @@ def account_info(token):
         return dict(zip(["token", "display_name","email"],["ERROR", "ERROR", "ERROR"]))
 
 def get_total_activity_pulses():
-    global cur, con
-    cur.execute("SELECT COUNT(timestamps) FROM activity")
-    count = cur.fetchone()[0]
-    return count
+    return len(activity)
 
 pulse_count = get_total_activity_pulses()
 
 def add_timestamp_to_activity():
+
+    timestamp = round(time.time())
+    global activity
+    activity.append(timestamp)
+
     global cur, con, pulse_count
-    cur.execute(f"INSERT INTO activity (timestamps) VALUES ({round(time.time())});")
+    cur.execute(f"INSERT INTO activity (timestamps) VALUES ({timestamp});")
     con.commit()
     pulse_count += 1
 
 def get_user_count():
-    global cur, con
-    cur.execute(f"SELECT COUNT(DISTINCT account_token) FROM file_data")
-    try:
-       count = int(cur.fetchone()[0])
-    except Exception as e:
-        print(f'Error occured when calculating get_user_count: {e}')
-        count = 0
-    return count
+    
+    accounts_set = set()
+    for file in file_data:
+        accounts_set.add(file_data[file]["account_token"])
+    return len(accounts_set)
 
 def get_registered_users():
-    global cur, con
-    cur.execute("SELECT COUNT(token) FROM accounts")
-    try:
-       count = int(cur.fetchone()[0])
-    except Exception as e:
-        print(f'Error occured when calculating get_registered_users: {e}')
-        count = 0
-    return count
+    return len(accounts)
 
 def fetch_activity_from_last_week():
-    global cur, con
-    cur.execute(f"SELECT timestamps FROM activity")
-    output = [x[0] for x in list(cur)]
-    return calls_per_day(output)
+    return calls_per_day(activity)
 
 def does_filename_already_exist(filename_to_check: str) -> bool:
-    
-    global cur, con
-
-    # Execute a SELECT query to check if the string is present in any row of the table
-    cur.execute(f"SELECT original_file_name FROM file_data WHERE file_directory = {dbify(filename_to_check)}")
-    
-    row = cur.fetchone()
-
-    # If row is not None, the string is present in the table, so true means the file name is infact there in the database
-    return row is not None
+    return filename_to_check in file_data
 
 def gen_filename(filename):
     generated_name = ""
@@ -171,10 +151,20 @@ def gen_filename(filename):
     return generated_name #if generated filename doesnt already exist, then return the generated one
 
 def add_file_to_database(original_file_name, file_directory, account_token, file_size):
+
+    timestamp = round(time.time())
+
+    global file_data
+    file_data[file_directory] = {
+        "original_file_name": original_file_name,
+        "file_directory": file_directory,
+        "account_token": account_token,
+        "file_size": file_size,
+        "timestamp": timestamp
+    }
     
     global cur, con
-
-    cur.execute(f"INSERT INTO file_data (original_file_name, file_directory, account_token, file_size, timestamp) VALUES (?, ?, ?, ?, ?)", (original_file_name, file_directory, account_token, file_size, round(time.time())))
+    cur.execute(f"INSERT INTO file_data (original_file_name, file_directory, account_token, file_size, timestamp) VALUES (?, ?, ?, ?, ?)", (original_file_name, file_directory, account_token, file_size, timestamp))
     con.commit()
 
 def get_all_user_files_for_display(account_token) -> list[dict[str, str]]:
@@ -358,6 +348,14 @@ def user_signup(token, display_name, email, password:str):
 
     hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
     
+    global accounts
+    accounts[token] = {
+        "token"         : token,
+        "display_name"  : display_name,
+        "email"         : email,
+        "hashed_password": hashed_password
+    }
+
     global cur, con
 
     cur.execute("INSERT INTO accounts(token, display_name, email, hashed_password) VALUES (?, ?, ?, ?)", (token ,display_name,email,hashed_password))
