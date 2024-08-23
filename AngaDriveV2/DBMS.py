@@ -3,11 +3,6 @@ from functools import lru_cache
 from contextlib import asynccontextmanager
 from AngaDriveV2.common import *
 
-accounts={}
-file_data={}
-activity=[]
-collections={}
-
 def load_database():
     global con, cur
     global accounts, file_data, collections
@@ -169,21 +164,20 @@ def add_file_to_database(original_file_name, file_directory, account_token, file
 
 def get_all_user_files_for_display(account_token) -> list[dict[str, str]]:
 
-    global cur, con
+    rows = []
 
-    cur.execute(f"SELECT original_file_name, file_directory, file_size, timestamp FROM file_data WHERE account_token = ?", (account_token,))
-
-    rows = [{
-        "original_name" : x[0],                                 # like original_name.png
-        "file_path"     : x[1],                                 # like vb78duvhs6s.png
-        "size"          : format_bytes(x[2]),                   # like 75.1 KB
-        "timestamp"     : time.ctime(x[3]),                     # like wed 23 june 2023
-        "truncated_name": truncate_string(x[0], length=20),     # like origina....
-        "file_link"     : file_link+x[1],                       # like https://file.anga.pro/i/vb78duvhs6s.png
-        "previewable"   : can_be_previewed(x[1]),               # like True
-        "owner_token"   : account_token
-    } for x in cur]
-
+    for file in file_data:
+        if file_data[file]["account_token"]==account_token:
+            rows.append({
+                "original_name" : file_data[file]["original_file_name"],                                 # like original_name.png
+                "file_path"     : file_data[file]["file_directory"],                                 # like vb78duvhs6s.png
+                "size"          : format_bytes(file_data[file]["file_size"]),                   # like 75.1 KB
+                "timestamp"     : time.ctime(file_data[file]["timestamp"]),                     # like wed 23 june 2023
+                "truncated_name": truncate_string(file_data[file]["original_file_name"], length=20),     # like origina....
+                "file_link"     : file_link+file_data[file]["file_directory"],                       # like https://file.anga.pro/i/vb78duvhs6s.png
+                "previewable"   : can_be_previewed(file_data[file]["file_directory"]),               # like True
+                "owner_token"   : account_token
+            })
     return list(reversed(rows))       # reversed to put the most recently uploaded files at the top
 
 def remove_file_from_all_collections(file_path):
@@ -206,9 +200,13 @@ def remove_file_from_all_collections(file_path):
 
 def remove_file_from_database(file_directory):
     remove_file_from_all_collections(file_directory)
+
+    global file_data
+    del file_data[file_directory]
+
     try:
         global cur, con
-        cur.execute(f"DELETE FROM file_data WHERE file_directory = {dbify(file_directory)}")
+        cur.execute(f"DELETE FROM file_data WHERE file_directory = ?", (file_directory,))
         con.commit()
 
     except Exception as e:
@@ -216,15 +214,11 @@ def remove_file_from_database(file_directory):
 
 def get_sum_of_user_file_sizes(token):
 
-    global cur, con
-    cur.execute(f"SELECT SUM(file_size) FROM file_data WHERE account_token={dbify(token)}")
-    sum_of_file_sizes = cur.fetchone()[0]
-
-    try:
-        return format_bytes(sum_of_file_sizes)
-    except Exception as e:
-        print(f"Error occured when calculating AngaDriveV2.DBMS.get_sum_of_user_file_sizes\nVar Dump:\nsum_of_file_sizes: {sum_of_file_sizes}\nError: {e}")
-        return format_bytes(0)
+    sum_of_sizes = 0
+    for file in file_data:
+        if file_data[file]["account_token"]==token:
+            sum_of_sizes += file_data[file]["file_size"]
+    return format_bytes(sum_of_sizes)
     
 def get_collection_count():
 
@@ -364,6 +358,12 @@ def user_signup(token, display_name, email, password:str):
 
 def migrate_files(old_token, new_token):
 
+    global file_data
+
+    for file in file_data:
+        if file_data[file]["account_token"]==old_token:
+            file_data[file]["account_token"] = new_token
+
     global cur, con
 
     cur.execute("UPDATE file_data SET account_token = ? WHERE account_token = ?", (new_token, old_token))
@@ -372,6 +372,9 @@ def migrate_files(old_token, new_token):
     remove_account_from_accounts_table(old_token)
 
 def remove_account_from_accounts_table(token):
+
+    global accounts
+    del accounts[token]
 
     global cur, con
 
