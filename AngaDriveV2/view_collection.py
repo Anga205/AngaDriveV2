@@ -13,7 +13,6 @@ class ViewCollectionState(State):
     collection_files:list[dict[str,str]] = []
     collection_folders:list[dict[str,str]] = []
     is_collection_owner:bool = False
-    collection_has_both_files_and_folders:bool = False
     def load_collection_viewer(self):
         self.load_any_page()
         self.collection_id = self.router.page.params.get("id",None)
@@ -29,7 +28,6 @@ class ViewCollectionState(State):
         collection_folders = collection_data["Folders"]
         self.collection_files = [get_file_info_for_card(file) for file in collection_files]
         self.collection_folders = [collection_info_for_display(folder) for folder in collection_folders]
-        self.collection_has_both_files_and_folders = bool(self.collection_files) and bool(self.collection_folders)
 
     def remove_file_from_collection(self, file_dict):
         remove_file_from_collection_db(collection_id=self.collection_id, file_path=file_dict["file_path"])
@@ -627,7 +625,7 @@ def desktop_index():
             width="95%"
         ),
         conditional_render(
-            ViewCollectionState.collection_has_both_files_and_folders,
+            ViewCollectionState.collection_files & ViewCollectionState.collection_folders,
             rx.hstack(
                 rx.chakra.divider(),
                 rx.text(
@@ -665,7 +663,7 @@ def desktop_index():
             warp="warp"
         ),
         conditional_render(
-            ViewCollectionState.collection_has_both_files_and_folders,
+            ViewCollectionState.collection_files & ViewCollectionState.collection_folders,
             rx.hstack(
                 rx.chakra.divider(),
                 rx.text(

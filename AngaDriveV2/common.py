@@ -1,5 +1,10 @@
 import datetime, time, os, random, re, psutil, subprocess, json, threading, builtins
 
+accounts={}
+file_data={}
+activity=[]
+collections={}
+
 app_data_dir = "uploaded_files"
 def app_data_dir_function():
     return app_data_dir
@@ -245,6 +250,8 @@ def print(*args, end="\n"):
             args[i]="\n"+json.dumps(args[i], indent=4)
         if type(args[i])==type([]):
             args[i]="\n"+json.dumps(args[i], indent=4)
+        if type(args[i])==type(1):
+            args[i]=str(args[i])
     args=[f"[{time.ctime(time.time())}]"]+[" ".join(args)]
     builtins.print(*args, end=end)
 

@@ -139,7 +139,7 @@ class ConfirmDeleteDialogState(CollectionState):
 def confirm_delete_collection_dialog(button):
     return rx.dialog.root(
         rx.dialog.trigger(
-            rx.chakra.tooltip(button, label="Delete Collection")
+            button
         ),
         rx.dialog.content(
             rx.dialog.title(
@@ -223,17 +223,20 @@ def desktop_index():
                                             lambda collection_obj: desktop_collection_card(
                                                 collection_obj,
                                                 copy_function=CollectionState.copy_collection(collection_obj),
-                                                button3=rx.button(
-                                                    rx.chakra.icon(
-                                                        tag="delete",
-                                                        font_size="20px"
+                                                button3=rx.chakra.tooltip(
+                                                        rx.button(
+                                                        rx.chakra.icon(
+                                                            tag="delete",
+                                                            font_size="20px"
+                                                        ),
+                                                        radius="large",
+                                                        variant="soft",
+                                                        bg="rgb(75, 0, 0)",
+                                                        color="rgb(200, 0, 0)",
+                                                        _hover={"bg":"rgb(100, 0, 0)", "color": "rgb(255, 0, 0)"},
+                                                        on_click= lambda: ConfirmDeleteDialogState.open_dialog(collection_obj['id'], collection_obj['name'])
                                                     ),
-                                                    radius="large",
-                                                    variant="soft",
-                                                    bg="rgb(75, 0, 0)",
-                                                    color="rgb(200, 0, 0)",
-                                                    _hover={"bg":"rgb(100, 0, 0)", "color": "rgb(255, 0, 0)"},
-                                                    on_click= lambda: ConfirmDeleteDialogState.open_dialog(collection_obj['id'], collection_obj['name'])
+                                                    label="Delete Collection"
                                                 )
                                             )
                                         ),
