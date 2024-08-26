@@ -14,14 +14,8 @@ async def get_file(file_path: str):
     return FileResponse(os.path.join(AngaDriveV2.common.file_directory, file_path))
 
 async def get_file_preserve_name(obfuscated_file_name: str, actual_file_name:str):
-    try:
-        AngaDriveV2.DBMS.add_timestamp_to_activity() # add to the homepage graph every time a file is viewed
-        file_path = obfuscated_file_name + (("."+actual_file_name.split(".")[-1]) if "." in actual_file_name else "")   # add back file extension if it was there in the original name
-        if not os.path.exists(os.path.join(AngaDriveV2.common.file_directory, file_path)):
-            raise HTTPException(status_code=404, detail="File not found")
-        return FileResponse(os.path.join(AngaDriveV2.common.file_directory, file_path))
-    except Exception as e:
-        return HTTPException(status_code=500, detail=f"Failed to get file because of {e}")
+    file_path = obfuscated_file_name + (("."+actual_file_name.split(".")[-1]) if "." in actual_file_name else "")   # add back file extension if it was there in the original name
+    return await get_file(file_path)
 
 async def redirect():
     return RedirectResponse(url = AngaDriveV2.common.app_link)

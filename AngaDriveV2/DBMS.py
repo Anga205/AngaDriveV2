@@ -5,7 +5,7 @@ from AngaDriveV2.common import *
 
 def load_database():
     global con, cur
-    global accounts, file_data, collections
+    global accounts, file_data, collections, activity
     cur.execute("SELECT token, display_name, email, hashed_password FROM accounts")
     for row in cur:
         accounts[row[0]] = {
@@ -29,7 +29,7 @@ def load_database():
         collections[row[0]] = {
             "id":           row[0],
             "name":         row[1],
-            "editors":      row[2],
+            "editors":      [] if row[2]=="" else row[2].split(","),
             "size":         row[3],
             "collections":  [] if row[4]=="" else row[4].split(","),
             "files":        [] if row[5]=="" else row[5].split(", ")
@@ -108,19 +108,24 @@ pulse_count = get_total_activity_pulses()
 def add_timestamp_to_activity():
 
     timestamp = round(time.time())
-    global activity
+    global activity, pulse_count
     activity.append(timestamp)
+    pulse_count += 1
 
-    global cur, con, pulse_count
+    global cur, con
     cur.execute(f"INSERT INTO activity (timestamps) VALUES ({timestamp});")
     con.commit()
-    pulse_count += 1
 
 def get_user_count():
     
     accounts_set = set()
     for file in file_data:
         accounts_set.add(file_data[file]["account_token"])
+    for collection in collections:
+        for editor in collections[collection]["editors"]:
+            accounts_set.add(editor)
+    for account in accounts:
+        accounts_set.add(account)
     return len(accounts_set)
 
 def get_registered_users():
@@ -180,7 +185,14 @@ def get_all_user_files_for_display(account_token) -> list[dict[str, str]]:
             })
     return list(reversed(rows))       # reversed to put the most recently uploaded files at the top
 
-def remove_file_from_all_collections(file_path):
+def remove_file_from_all_collections(file_path): #TODO: migrate this function with a working size updater
+
+    global collections
+    for collection in collections:
+        if file_path in collections[collection]["files"]:
+            collections[collection]["files"].remove(file_path)
+            collections[collection]["size"] -= file_data[file_path]["file_size"]
+
     try:
         global cur, con
         cur.execute(f"SELECT file_size FROM file_data WHERE file_directory = ?", (file_path,))
@@ -221,59 +233,39 @@ def get_sum_of_user_file_sizes(token):
     return format_bytes(sum_of_sizes)
     
 def get_collection_count():
+    return len(collections)
+
+def delete_collection_from_db(collection_id): # TODO: migrate this function with a working size updater
+
+    global collections
+    for collection in collections:
+        if collection_id in collections[collection]["collections"]:
+            remove_folder_from_collection(collection_id, collection)
+    del collections[collection_id]
 
     global cur, con
-
-    cur.execute(f"SELECT COUNT(id) FROM collections")
-    count = cur.fetchone()[0]
-
-    return count
-
-def delete_collection_from_db(collection_id):
-    global cur, con
-    cur.execute(f"select id from collections where collections like ?", (f'%{collection_id}%',))
-    collection_ids_to_edit = [x[0] for x in cur]
-    for collection_to_edit in collection_ids_to_edit:
-        remove_folder_from_collection(collection_id, collection_to_edit)        # first remove the folder from all collections
-
     cur.execute(f"DELETE FROM collections WHERE id = ?", (collection_id,)) # then remove the folder entirely
     con.commit()
 
+def get_all_collection_ids() -> list[str]:
+    return list(collections.keys())
 
-def get_all_collection_ids():
-    
-    global cur, con
-
-    cur.execute("SELECT id FROM collections")
-       
-    ids = [x[0] for x in cur]
-
-    return ids
-
-def get_collection_ids_by_account_token(account_token):
-    global cur, con
-    cur.execute(f"SELECT id FROM collections WHERE editors LIKE ?", (f'%{account_token}%',))
-    ids = [x[0] for x in cur]
+def get_collection_ids_by_account_token(account_token: str) -> list[str]:
+    ids = []
+    for collection in collections:
+        if account_token in collections[collection]["editors"]:
+            ids.append(collection)
     return ids
 
 def collection_info_for_display(collection_id):
-    global cur, con
-    
-    cur.execute(f"SELECT name, size, collections, files, editors FROM collections WHERE id = ?", (collection_id,))
-    collection_info = cur.fetchone()
-    collection_name = collection_info[0]
-    collection_file_count = 0 if collection_info[3]=="" else len(collection_info[3].split(","))
-    collection_size = format_bytes(collection_info[1])
-    collection_editors_count = len(collection_info[4].split(","))
-    collection_folder_count = 0 if collection_info[2]=="" else len(collection_info[2].split(","))
     return {
         "id":           collection_id, 
-        "name":         truncate_string(collection_name), 
-        "full_name":    collection_name,
-        "file_count":   collection_file_count, 
-        "size":         collection_size, 
-        "editor_count": collection_editors_count,
-        "folder_count": collection_folder_count
+        "name":         truncate_string(collections[collection_id]["name"]), 
+        "full_name":    collections[collection_id]["name"],
+        "file_count":   len(collections[collection_id]["files"]), 
+        "size":         format_bytes(collections[collection_id]["size"]), 
+        "editor_count": len(collections[collection_id]["editors"]),
+        "folder_count": len(collections[collection_id]["collections"])
         }
 
 def gen_collection_id():
@@ -286,57 +278,40 @@ def gen_collection_id():
         return generated_id
 
 def create_new_collection(user_token, collection_name):
-    global cur, con
-    collection_id = gen_collection_id()
 
+    global collections
+    collection_id = gen_collection_id()
+    collections[collection_id] = {
+        "id":           collection_id,
+        "name":         collection_name,
+        "editors":      [user_token],
+        "size":         0,
+        "collections":  [],
+        "files":        []
+    }
+
+    global cur, con
     cur.execute(f"INSERT INTO collections (id, name, editors, size, collections, files) VALUES (?, ?, ?, ?, ?, ?)", (collection_id, collection_name, user_token, 0, "", ""))
     con.commit()
 
     return collection_id
 
 def is_valid_token(token: str) -> bool:
-    try:
-        # Connect to the SQLite database
-        global cur, con
-        cursor=cur
-
-        # Execute a query to check if the token exists in the 'accounts' table
-        cursor.execute("SELECT EXISTS(SELECT 1 FROM accounts WHERE token = ?)", (token,))
-
-        # Fetch the result
-        result = cursor.fetchone()[0]
-        # Close the cursor and connection
-
-        # Return True if the token exists, else check filedata table
-        if bool(result):
+    if token in accounts:
+        return True
+    for file in file_data:
+        if token == file_data[file]["account_token"]:
             return True
-        else:
-            cursor.execute("SELECT EXISTS(SELECT 1 FROM file_data WHERE account_token = ?)", (token,))
-            result = cursor.fetchone()[0]
-
-            # Return True if the account exists in file data, else check collections
-            if bool(result):
-                return True
-            
-            else:
-                cursor.execute("SELECT EXISTS(SELECT 1 FROM collections WHERE editors LIKE ?)", ('%' + token + '%',))
-                result = cursor.fetchone()[0]
-                return bool(result)
-
-    except sqlite3.Error as e:
-        print("SQLite error:", e)
-        return False
+    for collection in collections:
+        if token in collections[collection]["editors"]:
+            return True
+    return False
 
 def does_user_have_files(token):
-    try:
-        global cur, con
-        # Execute a SELECT query to check if the search string exists in any row of the "token" column
-        cur.execute("SELECT EXISTS(SELECT 1 FROM file_data WHERE account_token = ?)", (token,))
-        result = cur.fetchone()[0]  # Fetch the result of the query
-        return bool(result)
-    except sqlite3.Error as e:
-        print("SQLite error:", e)
-        return False
+    for file in file_data:
+        if file_data[file]["account_token"]==token:
+            return True
+    return False
     
 def user_signup(token, display_name, email, password:str):
 
@@ -383,24 +358,18 @@ def remove_account_from_accounts_table(token):
     con.commit()
 
 def email_already_exists(email):
-
-    global cur, con
-
-    cur.execute("SELECT COUNT(*) FROM accounts WHERE email = ?", (email,))
-
-    result = cur.fetchone()
-    try:
-        return result>0
-    except:
-        return result[0]>0
+    for account in accounts:
+        if accounts[account]["email"]==email:
+            return True
+    return False
 
 def user_login(email: str, password:str):
 
-    global cur, con
-
-    cur.execute("SELECT token, hashed_password FROM accounts WHERE email = ?", (email,))
-    
-    result:list[str] = cur.fetchone()
+    result: list[str] = [None, None]
+    for account in accounts:
+        if accounts[account]["email"]==email:
+            result = [account, accounts[account]["hashed_password"]]
+            break
 
     if result == [None, None]:
         return {False: "Account not found"}
@@ -409,198 +378,127 @@ def user_login(email: str, password:str):
     return {True: result[0]}
 
 def flowinity_user_signup(flowinity_data):
+    global accounts
+    accounts[flowinity_data["token"]] = {
+        "token"         : flowinity_data["token"],
+        "display_name"  : flowinity_data["username"],
+        "email"         : flowinity_data["email"]
+    }
+
     global cur, con
-    
     cur.execute("INSERT INTO accounts(token, display_name, email) VALUES (?, ?, ?)", (flowinity_data["token"], flowinity_data["username"], flowinity_data["email"]))
-    
     con.commit()
 
 def token_exists(token):
     return is_valid_token(token)
 
 def count_files():
-
-    global cur, con
-
-    cur.execute("SELECT COUNT(*) FROM file_data")
-    file_count = cur.fetchone()[0]
-
-    return file_count
+    return len(file_data)
 
 def get_all_files_size():
-
-    global con, cur
-
-    cur.execute(f"SELECT SUM(file_size) FROM file_data")
-    result = format_bytes(cur.fetchone()[0])
-
-    
-    
-
-    return result
+    sum_of_sizes = 0
+    for file in file_data:
+        sum_of_sizes += file_data[file]["file_size"]
+    return format_bytes(sum_of_sizes)
 
 @lru_cache(maxsize=100)
 def get_file_name(file_path):
-    try:
-        global con, cur
-
-        cur.execute(f"SELECT original_file_name FROM file_data WHERE file_directory = ?", (file_path, ))
-        filename = cur.fetchone()[0]
-        
-        
-        
-        return filename
-    except Exception as e:
-        print(f"Error occured when running AngaDriveV2.DBMS.get_file_name\nVar Dump:\nfile_path: {file_path}\nError: {e}")
-        return "Error"
+    return file_data.get(file_path, {}).get("original_file_name", "Error")
 
 def get_collection_info_for_viewer(collection_id):
-    global con, cur
-
-    cur.execute(f"SELECT name, editors, size, files, collections FROM collections WHERE id = ?", (collection_id,))
-    data:list[str] = cur.fetchone()
-    
-    if data==None:
+    if collection_id not in collections:
         return None
-    name = data[0]
-    editors = data[1].split(",")
     return {
         "id"        : collection_id,
-        "name"      : name,
-        "editors"   : editors,
-        "Size"      : format_bytes(data[2]),
-        "Files"     : [] if data[3]=="" else data[3].split(", "),
-        "Folders": [] if data[4]=="" else data[4].split(",")
+        "name"      : collections[collection_id].get("name", "Error"),
+        "editors"   : collections[collection_id].get("editors", []),
+        "Size"      : format_bytes(collections[collection_id]["size"]),
+        "Files"     : collections[collection_id].get("files", []),
+        "Folders"   : collections[collection_id].get("collections", [])
     }
 
 def get_file_info_for_card(file_path:str) -> dict[str,str]:
-    try:
-        global con, cur
+    return {
+        "original_name" : file_data.get(file_path, {}).get("original_file_name", "Error"),                              # like original_name.png
+        "file_path"     : file_path,                                                                                    # like vb78duvhs6s.png
+        "size"          : format_bytes(file_data.get(file_path, {}).get("file_size", 0)),                               # like 75.1 KB
+        "timestamp"     : time.ctime(file_data.get(file_path, {}).get("timestamp", 0)),                                 # like wed 23 jun 2023
+        "truncated_name": truncate_string(file_data.get(file_path, {}).get("original_file_name", "Error"), length=20),  # like origina....
+        "file_link"     : file_link+file_path,                                                                          # like https://file.anga.pro/i/vb78duvhs6s.png
+        "previewable"   : can_be_previewed(file_path),                                                                  # like True
+        "owner_token"   : file_data.get(file_path, {}).get("account_token", "Error")
+    }
 
-        cur.execute("SELECT original_file_name, file_size, timestamp, account_token FROM file_data WHERE file_directory = ?",(file_path,))
+def add_file_to_collection(collection_id, file_path):   # TODO: migrate this function with a working size updater
+    global collections
+    collections[collection_id]["files"].append(file_path)
+    collections[collection_id]["size"] += file_data[file_path]["file_size"]
 
-        file_data = cur.fetchone()
-        
-        
-
-        # ["unchangedfilename.png", "pgfubcid.png", "72.1KB", time.time(), "unchanged...", "http://localhost:8000/i/pgfubcid.png", True]
-
-        return {
-            "original_name" : file_data[0],                               # like original_name.png
-            "file_path"     : file_path,                                  # like vb78duvhs6s.png
-            "size"          : format_bytes(file_data[1]),                 # like 75.1 KB
-            "timestamp"     : time.ctime(file_data[2]),                   # like wed 23 jun 2023
-            "truncated_name": truncate_string(file_data[0], length=20),   # like origina....
-            "file_link"     : file_link+file_path,                        # like https://file.anga.pro/i/vb78duvhs6s.png
-            "previewable"   : can_be_previewed(file_path),                 # like True
-            "owner_token"   : file_data[3]
-        }
-    except Exception as e:
-        print(f"Error occured when running AngaDriveV2.DBMS.get_file_info_for_card\nVar Dump:\nfile_path: {file_path}\nfile_path_type: {type(file_path)}\nError: {e}")
-        return {
-            "original_name" : "Error",
-            "file_path"     : "Error",
-            "size"          : "Error",
-            "timestamp"     : "Error",
-            "truncated_name": "Error",
-            "file_link"     : "Error",
-            "previewable"   : False,
-            "owner_token"   : "Error"
-        }
-
-def add_file_to_collection(collection_id, file_path):
     global con, cur
-
-    cur.execute(f"SELECT size, files FROM collections WHERE id = ?", (collection_id,))
-    size, files = cur.fetchone()
-    size += get_file_size(os.path.join(file_directory,file_path))
-    files = [] if files=="" else files.split(", ")
-    files.append(file_path)
-    files = ", ".join(files)
+    size = collections[collection_id]["size"]
+    files = ", ".join(collections[collection_id]["files"])
     cur.execute(f"UPDATE collections SET size = ? WHERE id = ?", (size, collection_id))
     cur.execute(f"UPDATE collections SET files = ? WHERE id = ?", (files, collection_id))
     con.commit()
-    
 
-def remove_file_from_collection_db(collection_id, file_path):
+def remove_file_from_collection_db(collection_id, file_path):   # TODO: migrate this function with a working size updater
+
+    global collections
+    collections[collection_id]["files"].remove(file_path)
+    collections[collection_id]["size"] -= file_data[file_path]["file_size"]
+
     global con, cur
+    files = ", ".join(collections[collection_id]["files"])
 
-    cur.execute(f"SELECT size, files FROM collections WHERE id = ?", (collection_id,))
-    size, files = cur.fetchone()
-    size -= get_file_size(os.path.join(file_directory, file_path))
-    files = files.split(", ")
-    files.remove(file_path)
-    files = ", ".join(files)
-    cur.execute(f"UPDATE collections SET size = ? WHERE id = ?", (size, collection_id))
-    cur.execute(f"UPDATE collections SET files = ? WHERE id = ?", (files, collection_id))
+    cur.execute(
+        f"UPDATE collections SET size = ? WHERE id = ?", 
+        (collections[collection_id]["size"], collection_id)
+    )
+    cur.execute(
+        f"UPDATE collections SET files = ? WHERE id = ?", 
+        (files, collection_id)
+    )
     con.commit()
-    
 
 def user_has_collections(user_token: str) -> bool:
-    global con, cur
-
-    cur.execute(f"SELECT COUNT(*) FROM collections WHERE editors LIKE ?", (f'%{user_token}%',))
-    count = cur.fetchone()[0]
-
-    
-    return count>0
+    for collection in collections:
+        if user_token in collections[collection]["editors"]:
+            return True
+    return False
 
 def folder_is_in_collection(folder_id: str, collection_id: str) -> bool:
-    global con, cur
+    return folder_id in collections[collection_id]["collections"]
 
-    cur.execute(f"SELECT collections FROM collections WHERE id = ?", (collection_id,))
-    collections = cur.fetchone()
-    if collections==None:
-        collections = []
-    else:
-        collections = collections[0].split(",")
-    
-    return folder_id in collections
-
-def add_folder_to_collection(folder_id: str, collection_id: str):
+def add_folder_to_collection(folder_id: str, collection_id: str):       #TODO: migrate this function with a working size updater
     if folder_is_in_collection(folder_id=folder_id, collection_id=collection_id):
         return
+    
+    global collections
+    collections[collection_id]["collections"].append(folder_id)
+    collections[collection_id]["size"] += collections[folder_id]["size"]
+
     global con, cur
-    cur.execute(f"SELECT size, collections FROM collections WHERE id = ?", (collection_id,))
-    size, collections = cur.fetchone()
-    cur.execute(f"SELECT size FROM collections WHERE id = ?", (folder_id,))
-    folder_size = cur.fetchone()[0]
-    if folder_is_in_collection(folder_id=collection_id, collection_id=folder_id):
-        folder_size-=size
-    size+=folder_size
-    collections = [] if collections=="" else collections.split(",")
-    collections.append(folder_id)
-    collections = ",".join(collections)
-    cur.execute(f"UPDATE collections SET size = ? WHERE id = ?", (size, collection_id))
-    cur.execute(f"UPDATE collections SET collections = ? WHERE id = ?", (collections, collection_id))
+    cur.execute(f"UPDATE collections SET size = ? WHERE id = ?", (collections[collection_id]["size"], collection_id))
+    cur.execute(f"UPDATE collections SET collections = ? WHERE id = ?", (",".join(collections[collection_id]["collections"]), collection_id))
     con.commit()
     
 
-def remove_folder_from_collection(folder_id: str, collection_id: str):
+def remove_folder_from_collection(folder_id: str, collection_id: str):  #TODO: migrate this function with a working size updater
     if not folder_is_in_collection(folder_id=folder_id, collection_id=collection_id):
         return
+    
+    global collections
+    collections[collection_id]["collections"].remove(folder_id)
+    collections[collection_id]["size"] -= collections[folder_id]["size"]
+
     global con, cur
-    cur.execute(f"SELECT size, collections FROM collections WHERE id = ?", (collection_id,))
-    size, collections = cur.fetchone()
-    cur.execute(f"SELECT size FROM collections WHERE id = ?", (folder_id,))
-    folder_size = cur.fetchone()[0]
-    if folder_is_in_collection(folder_id=collection_id, collection_id=folder_id):
-        folder_size-=size
-    size-=folder_size
-    collections: list[str] = collections.split(",")
-    collections.remove(folder_id)
-    collections = ",".join(collections)
-    cur.execute(f"UPDATE collections SET size = ? WHERE id = ?", (size, collection_id))
-    cur.execute(f"UPDATE collections SET collections = ? WHERE id = ?", (collections, collection_id))
+    cur.execute(f"UPDATE collections SET size = ? WHERE id = ?", (collections[collection_id]["size"], collection_id))
+    cur.execute(f"UPDATE collections SET collections = ? WHERE id = ?", (",".join(collections[collection_id]["collections"]), collection_id))
     con.commit()
     
 
 def token_exists_in_accounts_table(token):
-    global con, cur
-    cur.execute("SELECT COUNT(*) FROM accounts WHERE token = ?", (token,))
-    result = cur.fetchone()[0]
-    
-    return result>0
+    return token in accounts
 
 @asynccontextmanager
 async def lifespan(discard=None):
