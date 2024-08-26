@@ -131,6 +131,50 @@ def get_user_count():
 def get_registered_users():
     return len(accounts)
 
+def calculate_collection_size(collection_id, ignore_files=None, ignore_folders=None):
+    first=False
+    if ignore_files==None and ignore_folders==None:
+        first=True
+    if ignore_files==None:
+        ignore_files = set()
+    if ignore_folders==None:
+        ignore_folders = set()
+    size=0
+    for file in collections[collection_id]["files"]:
+        if file not in ignore_files:
+            size += file_data[file]["file_size"]
+            ignore_files.add(file)
+    for folder in collections[collection_id]["collections"]:
+        if folder not in ignore_folders:
+            ignore_folders.add(folder)
+            calculation = calculate_collection_size(folder, ignore_files, ignore_folders)
+            size += calculation["size"]
+            ignore_files.update(calculation["ignore_files"])
+            ignore_folders.update(calculation["ignore_folders"])
+    if first:
+        return size
+    return {"size": size, "ignore_files": ignore_files, "ignore_folders": ignore_folders}
+
+def update_collection_size(collection_id, collections_updated=None):
+    global collections
+    first=False
+    if collections_updated==None:
+        first=True
+        collections_updated = set()
+    collections[collection_id]["size"] = calculate_collection_size(collection_id)
+
+    global con, cur
+    cur.execute(f"UPDATE collections SET size = ? WHERE id = ?", (collections[collection_id]["size"], collection_id))
+    con.commit()
+
+    collections_updated.add(collection_id)
+    for collection in collections:
+        if collection not in collections_updated:
+            if collection_id in collections[collection]["collections"]:
+                collections_updated.update(update_collection_size(collection, collections_updated))
+    if not first:
+        return collections_updated
+
 def fetch_activity_from_last_week():
     return calls_per_day(activity)
 
@@ -185,30 +229,11 @@ def get_all_user_files_for_display(account_token) -> list[dict[str, str]]:
             })
     return list(reversed(rows))       # reversed to put the most recently uploaded files at the top
 
-def remove_file_from_all_collections(file_path): #TODO: migrate this function with a working size updater
-
+def remove_file_from_all_collections(file_path):
     global collections
     for collection in collections:
         if file_path in collections[collection]["files"]:
-            collections[collection]["files"].remove(file_path)
-            collections[collection]["size"] -= file_data[file_path]["file_size"]
-
-    try:
-        global cur, con
-        cur.execute(f"SELECT file_size FROM file_data WHERE file_directory = ?", (file_path,))
-        file_size = cur.fetchone()[0]
-        cur.execute(f"SELECT id, size, files FROM collections WHERE files LIKE ?", (f'%{file_path}%',))
-        rows = cur.fetchall()
-        for row in rows:
-            files:list = row[2].split(", ")
-            files.remove(file_path)
-            files = ", ".join(files)
-            new_size = row[1] - file_size
-            cur.execute(f"UPDATE collections SET files = ? WHERE id = ?", (files, row[0]))
-            cur.execute(f"UPDATE collections SET size = ? WHERE id = ?", (new_size, row[0]))
-        con.commit()
-    except Exception as e:
-        print(f"Error occured when running AngaDriveV2.DBMS.remove_file_from_all_collections\nVar Dump:\nfile_path: {file_path}\nError: {e}")
+            remove_file_from_collection_db(collection, file_path)
 
 def remove_file_from_database(file_directory):
     remove_file_from_all_collections(file_directory)
@@ -235,7 +260,7 @@ def get_sum_of_user_file_sizes(token):
 def get_collection_count():
     return len(collections)
 
-def delete_collection_from_db(collection_id): # TODO: migrate this function with a working size updater
+def delete_collection_from_db(collection_id):
 
     global collections
     for collection in collections:
@@ -244,7 +269,7 @@ def delete_collection_from_db(collection_id): # TODO: migrate this function with
     del collections[collection_id]
 
     global cur, con
-    cur.execute(f"DELETE FROM collections WHERE id = ?", (collection_id,)) # then remove the folder entirely
+    cur.execute(f"DELETE FROM collections WHERE id = ?", (collection_id,))
     con.commit()
 
 def get_all_collection_ids() -> list[str]:
@@ -429,36 +454,29 @@ def get_file_info_for_card(file_path:str) -> dict[str,str]:
         "owner_token"   : file_data.get(file_path, {}).get("account_token", "Error")
     }
 
-def add_file_to_collection(collection_id, file_path):   # TODO: migrate this function with a working size updater
+def add_file_to_collection(collection_id, file_path):
     global collections
     collections[collection_id]["files"].append(file_path)
-    collections[collection_id]["size"] += file_data[file_path]["file_size"]
+    update_collection_size(collection_id)
 
     global con, cur
-    size = collections[collection_id]["size"]
     files = ", ".join(collections[collection_id]["files"])
-    cur.execute(f"UPDATE collections SET size = ? WHERE id = ?", (size, collection_id))
     cur.execute(f"UPDATE collections SET files = ? WHERE id = ?", (files, collection_id))
     con.commit()
 
-def remove_file_from_collection_db(collection_id, file_path):   # TODO: migrate this function with a working size updater
+def remove_file_from_collection_db(collection_id, file_path):
 
     global collections
     collections[collection_id]["files"].remove(file_path)
-    collections[collection_id]["size"] -= file_data[file_path]["file_size"]
-
+    
     global con, cur
     files = ", ".join(collections[collection_id]["files"])
-
-    cur.execute(
-        f"UPDATE collections SET size = ? WHERE id = ?", 
-        (collections[collection_id]["size"], collection_id)
-    )
     cur.execute(
         f"UPDATE collections SET files = ? WHERE id = ?", 
         (files, collection_id)
     )
     con.commit()
+    update_collection_size(collection_id)
 
 def user_has_collections(user_token: str) -> bool:
     for collection in collections:
@@ -469,30 +487,28 @@ def user_has_collections(user_token: str) -> bool:
 def folder_is_in_collection(folder_id: str, collection_id: str) -> bool:
     return folder_id in collections[collection_id]["collections"]
 
-def add_folder_to_collection(folder_id: str, collection_id: str):       #TODO: migrate this function with a working size updater
+def add_folder_to_collection(folder_id: str, collection_id: str):
     if folder_is_in_collection(folder_id=folder_id, collection_id=collection_id):
         return
     
     global collections
     collections[collection_id]["collections"].append(folder_id)
-    collections[collection_id]["size"] += collections[folder_id]["size"]
+    update_collection_size(collection_id)
 
     global con, cur
-    cur.execute(f"UPDATE collections SET size = ? WHERE id = ?", (collections[collection_id]["size"], collection_id))
     cur.execute(f"UPDATE collections SET collections = ? WHERE id = ?", (",".join(collections[collection_id]["collections"]), collection_id))
     con.commit()
     
 
-def remove_folder_from_collection(folder_id: str, collection_id: str):  #TODO: migrate this function with a working size updater
+def remove_folder_from_collection(folder_id: str, collection_id: str):
     if not folder_is_in_collection(folder_id=folder_id, collection_id=collection_id):
         return
     
     global collections
     collections[collection_id]["collections"].remove(folder_id)
-    collections[collection_id]["size"] -= collections[folder_id]["size"]
+    update_collection_size(collection_id)
 
     global con, cur
-    cur.execute(f"UPDATE collections SET size = ? WHERE id = ?", (collections[collection_id]["size"], collection_id))
     cur.execute(f"UPDATE collections SET collections = ? WHERE id = ?", (",".join(collections[collection_id]["collections"]), collection_id))
     con.commit()
     
