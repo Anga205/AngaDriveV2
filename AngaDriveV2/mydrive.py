@@ -20,78 +20,79 @@ def upload_button():
             bg="#000055",
             width="10vh",
             border_radius="1vh",
-            _hover={"bg":"#0000aa"}
-            ),
+            _hover={"bg":"#0000aa"},
+            on_click=rx.clear_selected_files("file_page_upload")
         ),
-        rx.alert_dialog.content(
-            rx.alert_dialog.title(
-                "Upload Files"
-                ),
-            rx.alert_dialog.description(
-                rx.upload(
-                    rx.cond(
-                        rx.selected_files("file_page_upload"),
-                        rx.vstack(
-                            rx.foreach(
-                                rx.selected_files("file_page_upload"),
-                                rx.text
-                            ),                     
-                            style={"min-height":"10vh"},
-                            align="center"
-                        ),
-                        rx.vstack(
-                            rx.spacer(),
-                            rx.text("Drag and drop files here or click to select files"),
-                            rx.spacer(),
-                            style={"min-height":"15vh"}
-                        ),
-                    ),
-                    display='flex',
-                    justify_content= 'center',
-                    align_items= 'center',
-                    padding="1vh",
-                    border="1px dotted #0000ff",
-                    id="file_page_upload"
-                )
-            ),
-            rx.chakra.box(
-                height="1vh"
-            ),
-            rx.chakra.hstack(
-                rx.alert_dialog.cancel(
-                    rx.chakra.button(
-                        "Close",
-                        bg="#440000",
-                        color="WHITE",
-                        _hover={"bg":"#000033"},
-                        on_click=rx.clear_selected_files("file_page_upload")
-                        )
-                    ),
-                rx.spacer(),
+    ),
+    rx.alert_dialog.content(
+        rx.alert_dialog.title(
+            "Upload Files"
+        ),
+        rx.alert_dialog.description(
+            rx.upload(
                 rx.cond(
                     rx.selected_files("file_page_upload"),
-                    rx.alert_dialog.cancel(
-                        rx.chakra.button(
-                            "Upload",
-                            bg="#113322",
-                            color="WHITE",
-                            _hover={"bg":"#224433"},
-                            on_click=State.handle_file_page_upload(rx.upload_files(upload_id="file_page_upload", on_upload_progress=State.upload_progressbar))
-                        )
-                    ),
-                    rx.box(
-                        width="0px", 
-                        height="0px"
+                    rx.vstack(
+                        rx.spacer(),
+                        rx.foreach(
+                            rx.selected_files("file_page_upload"),
+                            rx.text
                         ),
+                        rx.spacer(),
+                        style={"min-height":"10vh"},
+                        align="center"
+                    ),
+                    rx.vstack(
+                        rx.spacer(),
+                        rx.text("Drag and drop files here or click to select files"),
+                        rx.spacer(),
+                        style={"min-height":"15vh"}
+                    ),
                 ),
-                width="100%"
-                ),
-            bg="#111111",
-            color="WHITE"
+                display='flex',
+                justify_content= 'center',
+                align_items= 'center',
+                padding="1vh",
+                border="1px dotted #0000ff",
+                id="file_page_upload"
+            )
+        ),
+        rx.chakra.box(
+            height="1vh"
+        ),
+        rx.chakra.hstack(
+            rx.alert_dialog.cancel(
+                rx.chakra.button(
+                    "Close",
+                    bg="#440000",
+                    color="WHITE",
+                    _hover={"bg":"#000033"},
+                    on_click=rx.clear_selected_files("file_page_upload")
+                )
             ),
-        )
-
-
+            rx.spacer(),
+            rx.cond(
+                rx.selected_files("file_page_upload"),
+                rx.alert_dialog.cancel(
+                    rx.chakra.button(
+                        "Upload",
+                        bg="#113322",
+                        color="WHITE",
+                        _hover={"bg":"#224433"},
+                        on_click=State.handle_file_page_upload(rx.upload_files(upload_id="file_page_upload", on_upload_progress=State.upload_progressbar))
+                    )
+                ),
+                rx.box(
+                    width="0px", 
+                    height="0px"
+                ),
+            ),
+            width="100%"
+        ),
+        bg="#111111",
+        color="WHITE"
+    ),
+)
 
 def desktop_index():
     return site_template(
