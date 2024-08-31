@@ -13,6 +13,8 @@ class ViewCollectionState(State):
     collection_files:list[dict[str,str]] = []
     collection_folders:list[dict[str,str]] = []
     is_collection_owner:bool = False
+    has_both_folders_and_files:bool
+
     def load_collection_viewer(self):
         self.load_any_page()
         self.collection_id = self.router.page.params.get("id",None)
@@ -28,10 +30,12 @@ class ViewCollectionState(State):
         collection_folders = collection_data["Folders"]
         self.collection_files = [get_file_info_for_card(file) for file in collection_files]
         self.collection_folders = [collection_info_for_display(folder) for folder in collection_folders]
+        self.has_both_folders_and_files = bool(self.collection_folders) and bool(self.collection_files)
 
     def remove_file_from_collection(self, file_dict):
         remove_file_from_collection_db(collection_id=self.collection_id, file_path=file_dict["file_path"])
         self.collection_files.remove(file_dict)
+        self.has_both_folders_and_files = bool(self.collection_folders) and bool(self.collection_files)
 
     def delete_file_from_collection(self, file_dict):
         filename = file_dict["file_path"]
@@ -44,6 +48,7 @@ class ViewCollectionState(State):
         except Exception as e:
             print(f"Error occured in execuring AngaDriveV2.view_collection.ViewCollectionState.delete_file_from_collection.os_remove: {file_dict}\nError was: {e}")
         self.collection_files.remove(file_dict)
+        self.has_both_folders_and_files = bool(self.collection_folders) and bool(self.collection_files)
     
     def copy_collection_link(self, collection_dict):
         yield rx.set_clipboard(f"{app_link}/collection/?id={collection_dict['id']}")
@@ -193,7 +198,7 @@ class AddFileDialogState(ViewCollectionState):
     def close_dialog(self):
         self.dialog_open_bool = False
         self.display_add_files_button:bool = False
-        self.collection_has_both_files_and_folders = bool(self.collection_files) and bool(self.collection_folders)
+        self.has_both_folders_and_files = bool(self.collection_folders) and bool(self.collection_files)
         return rx.clear_selected_files("view_collection_upload")
 
     new_user_files_in_collection: dict[str, bool] = {}
@@ -420,7 +425,7 @@ class AddFolderDialogState(ViewCollectionState):
         self.new_collection_name_is_valid = False
         self.dialog_open_bool = False
         self.enable_save_folder_changes_button = False
-        self.collection_has_both_files_and_folders = bool(self.collection_files) and bool(self.collection_folders)
+        self.has_both_folders_and_files = bool(self.collection_folders) and bool(self.collection_files)
 
     input_border_color="BLUE"
     def assess_input(self, new_input: str):
@@ -462,7 +467,7 @@ class AddFolderDialogState(ViewCollectionState):
     def remove_folder_from_collection(self, folder_obj):
         remove_folder_from_collection(folder_id=folder_obj['id'], collection_id=self.collection_id)
         self.collection_folders.remove(folder_obj)
-        self.collection_has_both_files_and_folders = bool(self.collection_files) and bool(self.collection_folders)
+        self.has_both_folders_and_files = bool(self.collection_folders) and bool(self.collection_files)
         return rx.toast.error(f"Removed folder from collection")
 
 def add_folders_accordion():
@@ -625,7 +630,7 @@ def desktop_index():
             width="95%"
         ),
         conditional_render(
-            ViewCollectionState.collection_files & ViewCollectionState.collection_folders,
+            ViewCollectionState.has_both_folders_and_files,
             rx.hstack(
                 rx.chakra.divider(),
                 rx.text(
@@ -637,7 +642,7 @@ def desktop_index():
                 width="100%",
                 padding="20px",
                 color="gray",
-            ),
+            )
         ),
         rx.flex(
             rx.foreach(
@@ -650,7 +655,7 @@ def desktop_index():
                             rx.icon(
                                 "circle-x"
                             ),
-                            color_scheme="red",
+                            color_scheme="tomato",
                             variant="soft",
                             radius="large",
                             on_click=AddFolderDialogState.remove_folder_from_collection(collection_obj)
@@ -660,10 +665,12 @@ def desktop_index():
                 )
             ),
             spacing="2",
-            warp="warp"
+            justify="center",
+            width="100%",
+            wrap="wrap"
         ),
         conditional_render(
-            ViewCollectionState.collection_files & ViewCollectionState.collection_folders,
+            ViewCollectionState.has_both_folders_and_files,
             rx.hstack(
                 rx.chakra.divider(),
                 rx.text(
@@ -684,7 +691,8 @@ def desktop_index():
                     view_collection_file_card
                 ),
                 wrap="wrap",
-                spacing='3'
+                spacing='3',
+                justify="center",
             ),
             padding="20px",
             spacing="0",
@@ -699,6 +707,70 @@ def desktop_index():
     )
 
 
+def tablet_collection_display_accordian(collection_obj):  # collection_obj consists of {"id","name","full_name","file_count","size","editor_count","folder_count"}
+    return rx.accordion.item(
+        header = collection_obj["name"],
+        content= rx.vstack(
+            rx.hstack(
+                rx.vstack(
+                    rx.text("File Count: "),
+                    rx.text("Total Size: "),
+                    rx.text("Editors: "),
+                    align="start"
+                ),
+                rx.vstack(
+                    rx.text(collection_obj["file_count"]),
+                    rx.text(collection_obj["size"]),
+                    rx.text(collection_obj["editor_count"]),
+                    align="start"
+                ),
+            ),
+            rx.hstack(
+                rx.spacer(),
+                rx.link(
+                    rx.button(
+                        rx.icon("eye"),
+                        bg = "#302400",
+                        color="#ffb100",
+                        _hover = {"bg":"#413511","color":"#ffc200"},
+                        variant="soft",
+                        radius="large"
+                    ),
+                    href=f"{app_link}/collection?id={collection_obj['id']}",
+                    target="_blank"
+                ),
+                rx.spacer(),
+                rx.button(
+                    rx.icon("copy"),
+                    on_click= ViewCollectionState.copy_collection_link(collection_obj),
+                    color_scheme="lime",
+                    variant="soft",
+                    radius="large"
+                ),
+                rx.spacer(),
+                rx.button(
+                    rx.icon("circle-x"),
+                    color_scheme="tomato",
+                    on_click=AddFolderDialogState.remove_folder_from_collection(collection_obj),
+                    variant="soft",
+                    radius="large"
+                ),
+                rx.spacer()
+            ),
+            align="center",
+            width="100%",
+            bg="BLACK",
+            padding="10px",
+        ),
+        bg="#120f1e",
+        color="WHITE",
+        value=collection_obj["id"]
+    )
+
+
+
+
+
 def mobile_view():
     return rx.vstack(
         tablet_navbar("collection-viewer"),
@@ -710,8 +782,22 @@ def mobile_view():
         conditional_render(
             ViewCollectionState.is_collection_owner,
             rx.hstack(
+                rx.button(
+                    rx.icon(
+                        "folder-plus",
+                        height="60%",
+                    ),
+                    "Add Folder",
+                    color_scheme="indigo",
+                    radius="large",
+                    on_click=AddFolderDialogState.open_dialog
+                ),
                 rx.spacer(),
                 rx.button(
+                    rx.icon(
+                        tag="file-plus-2",
+                        height="60%"
+                    ),
                     "Add Files",
                     bg="GREEN",
                     color="WHITE",
@@ -723,6 +809,43 @@ def mobile_view():
                 width="95%"
             )
         ),
+        conditional_render(
+            ViewCollectionState.has_both_folders_and_files,
+            rx.hstack(
+                rx.divider(),
+                rx.text("Folders"),
+                rx.divider(),
+                width="100%",
+                align="center",
+                justify="center",
+            )
+        ),
+        conditional_render(
+            ViewCollectionState.collection_folders,
+            rx.accordion.root(
+                rx.foreach(
+                    ViewCollectionState.collection_folders,
+                    tablet_collection_display_accordian
+                ),
+                width="95%",
+                collapsible=True,
+                color_scheme="gray",
+                border_color="gray",
+                border_width="1px",
+                radius='small',
+            )
+        ),
+        conditional_render(
+            ViewCollectionState.has_both_folders_and_files,
+            rx.hstack(
+                rx.divider(),
+                rx.text("Files"),
+                rx.divider(),
+                width="100%",
+                align="center",
+                justify="center",
+            )
+        ),
         rx.flex(
             rx.foreach(
                 ViewCollectionState.collection_files,
@@ -730,13 +853,13 @@ def mobile_view():
             ),
             style={"max-width":"95%"},
             wrap='wrap',
-            align="center",
+            justify="center",
             spacing='2'
         ),
         bg="#0f0f0f",
         style={"min-height":"100vh"},
         align="center",
-        spacing='0'
+        spacing='3'
     )
 
 def index():

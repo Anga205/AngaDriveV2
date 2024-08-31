@@ -248,9 +248,9 @@ def print(*args, end="\n"):
     for i in range(len(args)):
         if type(args[i])==type({}):
             args[i]="\n"+json.dumps(args[i], indent=4)
-        if type(args[i])==type([]):
+        elif type(args[i])==type([]):
             args[i]="\n"+json.dumps(args[i], indent=4)
-        if type(args[i])==type(1):
+        else:
             args[i]=str(args[i])
     args=[f"[{time.ctime(time.time())}]"]+[" ".join(args)]
     builtins.print(*args, end=end)
