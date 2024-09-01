@@ -2,6 +2,7 @@ import reflex as rx
 from AngaDriveV2.State import State
 from AngaDriveV2.shared_components import *
 from AngaDriveV2.common import *
+import threading
 
 class UploadState(State):
     open_upload_dialog:bool = False
@@ -16,10 +17,16 @@ class UploadState(State):
             self.input_color="RED"
     
     def import_file_button(self):
-        is_valid_url = url_exists(self.file_link)
+        file_link = str(self.file_link)
+        user_token = str(self.token)
+        is_valid_url = url_exists(file_link)
         self.close_dialog()
         if is_valid_url:
             yield rx.toast.info("Importing File...")
+            new_file_name = gen_filename(file_link.split("/")[-1])
+            save_file_from_link(file_link, new_file_name, user_token)
+            self.user_files: list[dict[str, str]] = get_all_user_files_for_display(user_token)
+            yield rx.toast.success("File imported successfully")
         else:
             yield rx.toast.error("Invalid file link")
 

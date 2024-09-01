@@ -498,7 +498,6 @@ def add_folder_to_collection(folder_id: str, collection_id: str):
     global con, cur
     cur.execute(f"UPDATE collections SET collections = ? WHERE id = ?", (",".join(collections[collection_id]["collections"]), collection_id))
     con.commit()
-    
 
 def remove_folder_from_collection(folder_id: str, collection_id: str):
     if not folder_is_in_collection(folder_id=folder_id, collection_id=collection_id):
@@ -511,10 +510,22 @@ def remove_folder_from_collection(folder_id: str, collection_id: str):
     global con, cur
     cur.execute(f"UPDATE collections SET collections = ? WHERE id = ?", (",".join(collections[collection_id]["collections"]), collection_id))
     con.commit()
-    
 
 def token_exists_in_accounts_table(token):
     return token in accounts
+
+def save_file_from_link(file_link: str, filename: str, account_token:str):
+    original_file_name = file_link.split("/")[-1].replace("%20", " ")
+    try:
+        response = requests.get(file_link, stream=True)
+        response.raise_for_status()
+        with open(os.path.join(file_directory,filename), 'wb') as outfile:
+            for chunk in response.iter_content(chunk_size=8192):
+                outfile.write(chunk)
+        file_size = os.path.getsize(os.path.join(file_directory,filename))
+        add_file_to_database(original_file_name, filename, account_token, file_size)
+    except Exception as e:
+        print(f"AngaDriveV2.DBMS.save_file_from_link Error saving file: {e}")
 
 @asynccontextmanager
 async def lifespan(discard=None):

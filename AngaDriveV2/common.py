@@ -294,4 +294,5 @@ def url_exists(url: str) -> bool:
     except Exception as e:
         print(f"Error resolving {url}: {e}")
         return False
+    print(f"Error resolving {url}: {rcv.status_code}")
     return False
