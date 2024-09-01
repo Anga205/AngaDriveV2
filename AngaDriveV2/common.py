@@ -267,17 +267,17 @@ def print(*args, end="\n"):
 
 
 def is_valid_http_url(url: str) -> bool:
-
     regex = re.compile(
         r'^(https?):\/\/'  # Only allow http and https
         r'(\w+(\-\w+)*\.)+[a-z]{2,}'  # Domain
         r'(:\d+)?'  # Optional port
-        r'(\/[^\s]*)?$'  # Resource path
+        r'(\/[^\s]*)?'  # Resource path
+        r'(\.[a-zA-Z0-9]+)?$'  # File extension
     )
     
     if re.match(regex, url):
         parsed_url = urlparse(url)
-        return parsed_url.scheme in ['http', 'https'] and bool(parsed_url.netloc)
+        return parsed_url.scheme in ['http', 'https'] and bool(parsed_url.netloc) and bool(parsed_url.path) and bool(parsed_url.path.split('/')[-1])
     
     return False
 
@@ -291,7 +291,7 @@ def url_exists(url: str) -> bool:
 
         if rcv.status_code == 200:
             return True
-    except requests.Timeout:
+    except Exception as e:
+        print(f"Error resolving {url}: {e}")
         return False
-    
     return False

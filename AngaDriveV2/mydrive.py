@@ -14,6 +14,14 @@ class UploadState(State):
             self.input_color="BLUE"
         else:
             self.input_color="RED"
+    
+    def import_file_button(self):
+        is_valid_url = url_exists(self.file_link)
+        self.close_dialog()
+        if is_valid_url:
+            yield rx.toast.info("Importing File...")
+        else:
+            yield rx.toast.error("Invalid file link")
 
     def open_dialog(self):
         self.open_upload_dialog = True
@@ -145,7 +153,8 @@ def upload_button():
                     rx.chakra.button(
                         "Import file",
                         bg="#113322",
-                        is_disabled=(UploadState.input_color=="RED")
+                        is_disabled=(UploadState.input_color=="RED"),
+                        on_click=UploadState.import_file_button
                     ),
                     padding="5px",
                     width="100%",
