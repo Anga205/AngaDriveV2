@@ -9,9 +9,10 @@ from starlette.responses import RedirectResponse, FileResponse
 
 async def get_file(file_path: str):
     AngaDriveV2.DBMS.add_timestamp_to_activity() # add to the homepage graph every time a file is viewed
-    if not os.path.exists(os.path.join(AngaDriveV2.common.file_directory, file_path)):
-        raise HTTPException(status_code=404, detail="File not found")
-    return FileResponse(os.path.join(AngaDriveV2.common.file_directory, file_path))
+    if os.path.exists(os.path.join(AngaDriveV2.common.file_directory, file_path)):
+        return FileResponse(os.path.join(AngaDriveV2.common.file_directory, file_path), status_code=200)
+    raise HTTPException(status_code=404, detail="File not found")
+    
 
 async def get_file_preserve_name(obfuscated_file_name: str, actual_file_name:str):
     file_path = obfuscated_file_name + (("."+actual_file_name.split(".")[-1]) if "." in actual_file_name else "")   # add back file extension if it was there in the original name

@@ -1,4 +1,5 @@
-import datetime, time, os, random, re, psutil, subprocess, json, threading, builtins
+import datetime, time, os, random, re, psutil, subprocess, json, builtins, requests
+from urllib.parse import urlparse
 
 accounts={}
 file_data={}
@@ -263,3 +264,35 @@ def print(*args, end="\n"):
         with open(debug_file, "w") as f:
             f.write(" ".join(args))
             f.write(end)
+
+
+def is_valid_http_url(url: str) -> bool:
+    regex = re.compile(
+        r'^(https?):\/\/'  # Only allow http and https
+        r'(\w+(\-\w+)*\.)+[a-z]{2,}'  # Domain
+        r'(:\d+)?'  # Optional port
+        r'(\/[^\s]*)?'  # Resource path
+        r'(\.[a-zA-Z0-9]+)?$'  # File extension
+    )
+    
+    if re.match(regex, url):
+        parsed_url = urlparse(url)
+        return parsed_url.scheme in ['http', 'https'] and bool(parsed_url.netloc) and bool(parsed_url.path) and bool(parsed_url.path.split('/')[-1])
+    
+    return False
+
+def url_exists(url: str) -> bool:
+    try:
+        rcv = requests.head(
+            url=url,
+            allow_redirects=True,
+            timeout=(5, 10)
+        )
+
+        if rcv.status_code == 200:
+            return True
+    except Exception as e:
+        print(f"Error resolving {url}: {e}")
+        return False
+    print(f"Error resolving {url}: {rcv.status_code}")
+    return False
