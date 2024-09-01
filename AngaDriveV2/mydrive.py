@@ -1,19 +1,30 @@
 import reflex as rx
 from AngaDriveV2.State import State
 from AngaDriveV2.shared_components import *
+from AngaDriveV2.common import *
 
 class UploadState(State):
     open_upload_dialog:bool = False
-    
+    file_link:str
+    input_color:str = "BLUE"
+
+    def set_file_link(self, value):
+        self.file_link = value
+        if is_valid_http_url(value) or value=="":
+            self.input_color="BLUE"
+        else:
+            self.input_color="RED"
+
     def open_dialog(self):
         self.open_upload_dialog = True
 
     def close_dialog(self):
         self.open_upload_dialog = False
+        self.file_link = ""
         return rx.clear_selected_files("file_page_upload")
 
     async def handle_file_page_upload(self, files: list[rx.UploadFile]):
-        yield rx.clear_selected_files("file_page_upload")
+        yield self.close_dialog()
         file_link_list = []
         for file in files:
             upload_data = await file.read()
@@ -29,7 +40,6 @@ class UploadState(State):
                 original_file_name=file.filename
             )
         self.user_files: list[dict[str, str]] = get_all_user_files_for_display(self.token)
-        yield self.close_dialog()
         yield rx.set_clipboard(", \n".join(file_link_list))
         yield rx.toast.success("Files uploaded and copied to clipboard")
 
@@ -42,7 +52,7 @@ def upload_button():
                 height="2vh",
                 custom_attrs={"draggable":"false"},
                 width="auto"
-                ),
+            ),
             "Upload",
             color="WHITE",
             font_size="1.65vh",
@@ -56,36 +66,39 @@ def upload_button():
     ),
     rx.dialog.content(
         rx.dialog.title(
-            "Upload Files"
+            "Upload or Import Files"
         ),
-        rx.dialog.description(
-            rx.upload(
-                rx.cond(
-                    rx.selected_files("file_page_upload"),
-                    rx.vstack(
-                        rx.spacer(),
-                        rx.foreach(
-                            rx.selected_files("file_page_upload"),
-                            rx.text
+        conditional_render(
+            ~UploadState.file_link,
+            rx.dialog.description(
+                rx.upload(
+                    rx.cond(
+                        rx.selected_files("file_page_upload"),
+                        rx.vstack(
+                            rx.spacer(),
+                            rx.foreach(
+                                rx.selected_files("file_page_upload"),
+                                rx.text
+                            ),
+                            rx.spacer(),
+                            style={"min-height":"10vh"},
+                            align="center"
                         ),
-                        rx.spacer(),
-                        style={"min-height":"10vh"},
-                        align="center"
+                        rx.vstack(
+                            rx.spacer(),
+                            rx.text("Drag and drop files here or click to select files"),
+                            rx.spacer(),
+                            style={"min-height":"15vh"}
+                        ),
                     ),
-                    rx.vstack(
-                        rx.spacer(),
-                        rx.text("Drag and drop files here or click to select files"),
-                        rx.spacer(),
-                        style={"min-height":"15vh"}
-                    ),
-                ),
-                display='flex',
-                justify_content= 'center',
-                align_items= 'center',
-                padding="1vh",
-                border_radius="5px",
-                border="1px dotted #0000ff",
-                id="file_page_upload"
+                    display='flex',
+                    justify_content= 'center',
+                    align_items= 'center',
+                    padding="1vh",
+                    border_radius="5px",
+                    border="1px dotted #0000ff",
+                    id="file_page_upload"
+                )
             )
         ),
         rx.box(
@@ -95,17 +108,25 @@ def upload_button():
             rx.selected_files("file_page_upload"),
             empty_component(),
             rx.vstack(
-                rx.hstack(
-                    rx.divider(),
-                    rx.text("OR"),
-                    rx.divider(),
-                    justify="center",
-                    align="center",
-                    width="100%"
+                conditional_render(
+                    ~UploadState.file_link,
+                    rx.hstack(
+                        rx.divider(),
+                        rx.text("OR"),
+                        rx.divider(),
+                        justify="center",
+                        align="center",
+                        width="100%"
+                    )
                 ),
                 rx.chakra.input(
                     placeholder="Enter file link",
-                    width="100%"
+                    width="100%",
+                    on_change=UploadState.set_file_link,
+                    value=UploadState.file_link,
+                    focus_border_color=UploadState.input_color,
+                    border_color=UploadState.input_color,
+                    error_border_color=UploadState.input_color
                 ),
                 rx.box(
                     height="1vh"
@@ -114,27 +135,35 @@ def upload_button():
                 width="100%",
             )
         ),
+        rx.cond(
+            rx.selected_files("file_page_upload"),
+            empty_component(),
+            conditional_render(
+                UploadState.file_link,
+                rx.chakra.hstack(
+                    rx.chakra.spacer(),
+                    rx.chakra.button(
+                        "Import file",
+                        bg="#113322",
+                        is_disabled=(UploadState.input_color=="RED")
+                    ),
+                    padding="5px",
+                    width="100%",
+                )
+            )
+        ),
         rx.chakra.hstack(
-            rx.chakra.button(
-                "Close",
-                bg="#440000",
-                color="WHITE",
-                _hover={"bg":"#000033"},
-                on_click=UploadState.close_dialog
-            ),
-            rx.spacer(),
             conditional_render(
                 rx.selected_files("file_page_upload"),
-                rx.chakra.box(
-                    rx.chakra.button(
-                        "Upload",
-                        bg="#113322",
-                        color="WHITE",
-                        _hover={"bg":"#224433"},
-                        on_click=UploadState.handle_file_page_upload(rx.upload_files(upload_id="file_page_upload", on_upload_progress=State.upload_progressbar))
-                    )
-                ),
+                rx.chakra.button(
+                    "Upload",
+                    bg="#113322",
+                    color="WHITE",
+                    _hover={"bg":"#224433"},
+                    on_click=UploadState.handle_file_page_upload(rx.upload_files(upload_id="file_page_upload", on_upload_progress=State.upload_progressbar))
+                )
             ),
+            justify="end",
             width="100%",
             spacing="10"
         ),
@@ -178,11 +207,13 @@ def desktop_index():
                     ),
                 rx.cond(
                     State.user_files,
-                    rx.chakra.wrap(
+                    rx.flex(
                         rx.foreach(
                             State.user_files,
                             file_card
                         ),
+                        wrap="wrap",
+                        spacing='2',
                     ),
                     rx.chakra.vstack(
                         rx.chakra.spacer(),
