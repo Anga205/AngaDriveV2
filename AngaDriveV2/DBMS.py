@@ -181,19 +181,6 @@ def fetch_activity_from_last_week():
 def does_filename_already_exist(filename_to_check: str) -> bool:
     return filename_to_check in file_data
 
-def gen_filename(filename):
-    generated_name = ""
-    allowed_values = "qwertyuiopasdfghjklzxcvbnm1234567890"
-    generated_name = "".join(random.choices(allowed_values, k=12))
-
-    if len(filename.split("."))>1:
-        generated_name = generated_name + "." + filename.split(".")[-1]
-    
-    if does_filename_already_exist(generated_name):
-        return gen_filename(filename)   #if generated filename already exists in database, then go generate a new one
-    
-    return generated_name #if generated filename doesnt already exist, then return the generated one
-
 def add_file_to_database(original_file_name, file_directory, account_token, file_size):
 
     timestamp = round(time.time())

@@ -1,3 +1,2 @@
-reflex==0.5.9
-requests==2.31.0
 bcrypt==4.1.2
+reflex==0.5.9

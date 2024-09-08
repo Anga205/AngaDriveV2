@@ -1,5 +1,4 @@
-import datetime, time, os, random, re, psutil, subprocess, json, builtins, requests
-from urllib.parse import urlparse
+import datetime, time, os, random, re, psutil, subprocess, json, builtins, requests, shutil
 
 accounts={}
 file_data={}
@@ -51,6 +50,19 @@ def dbify(var):
             return '"'+var+'"'
         else:
             return "'"+("".join([("''" if x=="'" else x) for x in var]))+"'"
+
+def gen_filename(filename):
+    generated_name = ""
+    allowed_values = "qwertyuiopasdfghjklzxcvbnm1234567890"
+    generated_name = "".join(random.choices(allowed_values, k=12))
+
+    if len(filename.split("."))>1:
+        generated_name = generated_name + "." + filename.split(".")[-1]
+    
+    if generated_name in file_data:
+        return gen_filename(filename)   #if generated filename already exists in database, then go generate a new one
+    
+    return generated_name #if generated filename doesnt already exist, then return the generated one
 
 def gen_token():
     a="qwertyuiopasdfghjklzxcvbnm"
@@ -266,7 +278,7 @@ def print(*args, end="\n"):
             f.write(end)
 
 
-def is_valid_http_url(url: str) -> bool:
+def is_valid_http_url(url: str, is_github_repo: bool = False) -> bool:
     regex = re.compile(
         r'^(https?):\/\/'  # Only allow http and https
         r'(\w+(\-\w+)*\.)+[a-z]{2,}'  # Domain
@@ -274,10 +286,18 @@ def is_valid_http_url(url: str) -> bool:
         r'(\/[^\s]*)?'  # Resource path
         r'(\.[a-zA-Z0-9]+)?$'  # File extension
     )
+
+    if is_github_repo:
+        regex = re.compile(
+            r'(^(https?):\/\/)?'  # optional http(s) prefix
+            r'(github\.com\/)'  # "github.com/" prefix
+            r'(\w+)\/'  # Username
+            r'(\w+)$'  # Repository name
+            r'(.git)?' # Optional .git suffix
+        )
     
     if re.match(regex, url):
-        parsed_url = urlparse(url)
-        return parsed_url.scheme in ['http', 'https'] and bool(parsed_url.netloc) and bool(parsed_url.path) and bool(parsed_url.path.split('/')[-1])
+        return True
     
     return False
 
@@ -296,3 +316,46 @@ def url_exists(url: str) -> bool:
         return False
     print(f"Error resolving {url}: {rcv.status_code}")
     return False
+
+def is_valid_github_repo(url: str) -> bool:
+    try:
+        # Send a GET request to the GitHub API to check if the repository exists
+        response = requests.get(url)
+        if response.status_code == 200:
+            return True
+        else:
+            return False
+    except requests.exceptions.RequestException:
+        return False
+
+def git_clone(repo_url: str, dest: str) -> bool:
+    try:
+        # Clone the repository using the git command
+        subprocess.run(['git', 'clone', repo_url, dest], check=True)
+        return True
+    except subprocess.CalledProcessError:
+        return False
+    
+def move_files_to_upload_dir(src_dir):
+    file_info = {}
+    
+    for root, dirs, files in os.walk(src_dir):
+        # Ignore directories that start with .
+        dirs[:] = [d for d in dirs if not d.startswith('.')]
+        
+        for file in files:
+            src_path = os.path.join(root, file)
+            new_filename = gen_filename(file)
+            dest_path = os.path.join(file_directory, new_filename)
+            
+            shutil.move(src_path, dest_path)
+            
+            file_info[new_filename] = {
+                "original_file_name": file,
+                "file_size": get_file_size(dest_path),
+                "file_directory": root.removeprefix(f"{src_dir}")
+            }
+    
+    shutil.rmtree(src_dir)  # Delete the source directory after moving the files
+    
+    return file_info
