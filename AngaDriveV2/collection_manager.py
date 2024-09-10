@@ -95,38 +95,35 @@ class ImportRepoState(CollectionState):
     def verify_repo_url(self):
         is_valid_repo = is_valid_github_repo(self.repo_url)
         if is_valid_repo:
-            print("Repo is valid, cloning")
             clone_folder = uuid.uuid4().hex
             if git_clone(self.repo_url, clone_folder):
-                print("Repo cloned successfully")
                 files: dict[str, dict[str, str]] = move_files_to_upload_dir(clone_folder)
-                print("Files moved to upload dir")
                 folder_map:dict[str, str] = {"":create_new_collection(self.token, self.repo_url.split("/")[-1])}
                 for file in files:
-                    if files[file]["file_directory"] not in folder_map:
-                        folder_map[files[file]["file_directory"]] = create_new_collection(self.token, files[file]["file_directory"].split("/")[-1], hidden=True)
-                        parent_directory = "/".join(files[file]["file_directory"].split("/")[:-1])
-                        try:
-                            add_folder_to_collection(
-                                folder_map[files[file]["file_directory"]], 
-                                folder_map[parent_directory]
-                            )
-                            print(end=f"Added folder {files[file]['file_directory']} to collection {parent_directory}\n")
-                        except Exception as e:
-                            print(f"Failed to add folder {files[file]['file_directory']} to collection {parent_directory}. Error: {str(e)}")
                     add_file_to_database(
                         account_token=self.token,
                         file_directory=file,
                         file_size=files[file]["file_size"],
                         original_file_name=files[file]["original_file_name"]
                     )
-                    print(end=f"Added file {files[file]['original_file_name']} to database\n")
+                    def add_directory_to_map(directory):
+                        nonlocal folder_map
+                        if directory not in folder_map:
+                            folder_map[directory] = create_new_collection(self.token, directory.split("/")[-1], hidden=True)
+                            parent_directory = "/".join(directory.split("/")[:-1])
+                            if parent_directory not in folder_map:
+                                add_directory_to_map(parent_directory)
+                            add_folder_to_collection(
+                                folder_map[directory], 
+                                folder_map[parent_directory]
+                            )
+                            print(end=f"Added folder {directory} to collection {parent_directory}\n")
+                    add_directory_to_map(files[file]["file_directory"])
                     add_file_to_collection(
                         collection_id=folder_map[files[file]["file_directory"]],
                         file_path=file
                     )
-                    print(end=f"Added file {files[file]['original_file_name']} to collection {files[file]['file_directory']}\n")
-                    # TODO: add ability to recursively delete all collections
+                print(f"Imported {len(files)} files and {len(folder_map)} folders from {self.repo_url}")
                 yield self.close_dialog()
                 yield rx.toast.success("Repo cloned successfully")
             else:
