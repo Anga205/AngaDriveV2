@@ -187,7 +187,7 @@ class State(rx.State):
     
     def download_file(self, file_obj):
         add_timestamp_to_activity()
-        return rx.download("/"+os.path.join("..",file_directory,file_obj["file_path"]), filename=file_obj["original_name"])
+        return rx.redirect(server_config['file_visible_api']+"/download/"+file_obj["file_path"], external=True, replace=True)
 
     def logout(self):
         self.token = gen_token()

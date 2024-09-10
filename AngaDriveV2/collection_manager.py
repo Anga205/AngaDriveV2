@@ -3,6 +3,7 @@ from AngaDriveV2.State import State
 from AngaDriveV2.shared_components import *
 from AngaDriveV2.DBMS import *
 from AngaDriveV2.common import *
+import uuid
 
 class CollectionState(State):
     new_collection_name:str = ""
@@ -68,6 +69,70 @@ class CollectionState(State):
         yield rx.set_clipboard(f"{app_link}/collection?id={collection_obj['id']}")
         yield rx.toast.success(f"Collection link to {collection_obj['name']} copied to clipboard")
 
+class ImportRepoState(CollectionState):
+    repo_url:str
+    input_box_color:str = "blue"
+    show_import_button:bool = False
+
+    def set_repo_url(self, string: str):
+        self.repo_url=string
+        if is_valid_http_url(string, is_github_repo=True):
+            self.input_box_color="blue"
+            self.show_import_button = True
+        elif (string==""):
+            self.input_box_color="blue"
+            self.show_import_button = False
+        else:
+            self.input_box_color="red"
+            self.show_import_button = False
+    
+    def close_dialog(self, junk_value=False):
+        self.repo_url=""
+        self.show_import_button = False
+        self.input_box_color="blue"
+        return super().close_dialog()
+    
+    def verify_repo_url(self):
+        is_valid_repo = is_valid_github_repo(self.repo_url)
+        if is_valid_repo:
+            clone_folder = uuid.uuid4().hex
+            if git_clone(self.repo_url, clone_folder):
+                files: dict[str, dict[str, str]] = move_files_to_upload_dir(clone_folder)
+                folder_map:dict[str, str] = {"":create_new_collection(self.token, self.repo_url.split("/")[-1])}
+                for file in files:
+                    add_file_to_database(
+                        account_token=self.token,
+                        file_directory=file,
+                        file_size=files[file]["file_size"],
+                        original_file_name=files[file]["original_file_name"]
+                    )
+                    def add_directory_to_map(directory):
+                        nonlocal folder_map
+                        if directory not in folder_map:
+                            folder_map[directory] = create_new_collection(self.token, directory.split("/")[-1], hidden=True)
+                            parent_directory = "/".join(directory.split("/")[:-1])
+                            if parent_directory not in folder_map:
+                                add_directory_to_map(parent_directory)
+                            add_folder_to_collection(
+                                folder_map[directory], 
+                                folder_map[parent_directory]
+                            )
+                            print(end=f"Added folder {directory} to collection {parent_directory}\n")
+                    add_directory_to_map(files[file]["file_directory"])
+                    add_file_to_collection(
+                        collection_id=folder_map[files[file]["file_directory"]],
+                        file_path=file
+                    )
+                print(f"Imported {len(files)} files and {len(folder_map)} folders from {self.repo_url}")
+                yield self.close_dialog()
+                yield rx.toast.success("Repo cloned successfully")
+            else:
+                yield self.close_dialog()
+                yield rx.toast.error("Failed to clone repo")
+        else:
+            yield self.close_dialog()
+            yield rx.toast.error("GitHub repo not found")
+
 def create_new_collection_dialog(button):
     return rx.dialog.root(
         rx.dialog.trigger(
@@ -77,19 +142,58 @@ def create_new_collection_dialog(button):
             rx.dialog.title(
                 "Create new Collection",
                 color="WHITE"
-                ),
+            ),
             rx.dialog.description(
                 rx.chakra.vstack(
-                    rx.chakra.input(
-                        placeholder="Enter collection name...",
-                        max_length="128",
-                        color="WHITE",
-                        on_change=CollectionState.set_new_collection_name,
-                        is_invalid=CollectionState.is_invalid_collection_name,
-                        focus_border_color=CollectionState.new_collection_input_border_color,
-                        width="85%"
+                    conditional_render(
+                        ~ImportRepoState.repo_url,
+                        rx.chakra.input(
+                            placeholder="Enter collection name...",
+                            max_length="128",
+                            color="WHITE",
+                            on_change=CollectionState.set_new_collection_name,
+                            is_invalid=CollectionState.is_invalid_collection_name,
+                            focus_border_color=CollectionState.new_collection_input_border_color,
+                            width="85%"
+                        )
                     ),
-                    rx.box(height="10px"),
+                    conditional_render(
+                        ~CollectionState.new_collection_name,
+                        rx.vstack(
+                            conditional_render(
+                                ~ImportRepoState.repo_url,
+                                rx.hstack(
+                                    rx.divider(),
+                                    rx.text("OR"),
+                                    rx.divider(),
+                                    width="100%",
+                                    align="center"
+                                )
+                            ),
+                            rx.input(
+                                placeholder="Paste a GitHub repo url...",
+                                width="85%",
+                                value=ImportRepoState.repo_url,
+                                on_change= ImportRepoState.set_repo_url,
+                                color_scheme=ImportRepoState.input_box_color
+                            ),
+                            conditional_render(
+                                ImportRepoState.show_import_button,
+                                rx.hstack(
+                                    rx.spacer(),
+                                    rx.button(
+                                        "Import",
+                                        color_scheme="blue",
+                                        variant="outline",
+                                        on_click=ImportRepoState.verify_repo_url
+                                    ),
+                                    width="100%"
+                                )
+                            ),
+                            align="center",
+                            width="100%"
+                        )
+                    ),
                     rx.cond(
                         CollectionState.show_create_button,
                         rx.chakra.hstack(
@@ -112,8 +216,8 @@ def create_new_collection_dialog(button):
                 )
             ),
             bg="#0f0f0f",
-            on_pointer_down_outside = CollectionState.close_dialog,
-            on_escape_key_down = CollectionState.close_dialog
+            on_pointer_down_outside = ImportRepoState.close_dialog,
+            on_escape_key_down = ImportRepoState.close_dialog
         ),
         open = CollectionState.open_new_collection_dialog
     )
@@ -220,23 +324,26 @@ def desktop_index():
                                     rx.chakra.wrap(
                                         rx.foreach(
                                             CollectionState.display_my_collections,
-                                            lambda collection_obj: desktop_collection_card(
-                                                collection_obj,
-                                                copy_function=CollectionState.copy_collection(collection_obj),
-                                                button3=rx.chakra.tooltip(
-                                                        rx.button(
-                                                        rx.chakra.icon(
-                                                            tag="delete",
-                                                            font_size="20px"
+                                            lambda collection_obj: conditional_render(
+                                                ~collection_obj['hidden'],
+                                                desktop_collection_card(
+                                                    collection_obj,
+                                                    copy_function=CollectionState.copy_collection(collection_obj),
+                                                    button3=rx.chakra.tooltip(
+                                                            rx.button(
+                                                            rx.chakra.icon(
+                                                                tag="delete",
+                                                                font_size="20px"
+                                                            ),
+                                                            radius="large",
+                                                            variant="soft",
+                                                            bg="rgb(75, 0, 0)",
+                                                            color="rgb(200, 0, 0)",
+                                                            _hover={"bg":"rgb(100, 0, 0)", "color": "rgb(255, 0, 0)"},
+                                                            on_click= lambda: ConfirmDeleteDialogState.open_dialog(collection_obj['id'], collection_obj['name'])
                                                         ),
-                                                        radius="large",
-                                                        variant="soft",
-                                                        bg="rgb(75, 0, 0)",
-                                                        color="rgb(200, 0, 0)",
-                                                        _hover={"bg":"rgb(100, 0, 0)", "color": "rgb(255, 0, 0)"},
-                                                        on_click= lambda: ConfirmDeleteDialogState.open_dialog(collection_obj['id'], collection_obj['name'])
-                                                    ),
-                                                    label="Delete Collection"
+                                                        label="Delete Collection"
+                                                    )
                                                 )
                                             )
                                         ),
@@ -246,7 +353,7 @@ def desktop_index():
                                 spacing="0vh"
                             ),
                             rx.chakra.tab_panel(
-                                rx.chakra.text("test2")
+                                rx.chakra.text("Coming Soon!")
                             ),
                         ),
                         color="WHITE",
