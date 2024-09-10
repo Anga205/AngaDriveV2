@@ -1,4 +1,4 @@
-import datetime, time, os, random, re, psutil, subprocess, json, builtins, requests, shutil
+import datetime, time, os, random, re, psutil, subprocess, json, builtins, requests, shutil, threading
 
 accounts={}
 file_data={}
@@ -266,7 +266,7 @@ def print(*args, end="\n"):
         else:
             args[i]=str(args[i])
     args=[f"[{time.ctime(time.time())}]"]+[" ".join(args)]
-    builtins.print(*args, end=end)
+    threading.Thread(target= lambda: builtins.print(*args, end=end)).start()
 
     if os.path.exists(debug_file):
         with open(debug_file, "a") as f:
@@ -291,8 +291,8 @@ def is_valid_http_url(url: str, is_github_repo: bool = False) -> bool:
         regex = re.compile(
             r'(^(https?):\/\/)?'  # optional http(s) prefix
             r'(github\.com\/)'  # "github.com/" prefix
-            r'(\w+)\/'  # Username
-            r'(\w+)$'  # Repository name
+            r'([\w-]+)\/'  # Username
+            r'([\w-]+)$'  # Repository name
             r'(.git)?' # Optional .git suffix
         )
     

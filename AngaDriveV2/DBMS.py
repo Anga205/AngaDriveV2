@@ -24,7 +24,7 @@ def load_database():
             "file_size":             row[3],
             "timestamp":             row[4]
         }
-    cur.execute("SELECT id, name, editors, size, collections, files FROM collections")
+    cur.execute("SELECT id, name, editors, size, collections, files, hidden FROM collections")
     for row in cur:
         collections[row[0]] = {
             "id":           row[0],
@@ -32,7 +32,8 @@ def load_database():
             "editors":      [] if row[2]=="" else row[2].split(","),
             "size":         row[3],
             "collections":  [] if row[4]=="" else row[4].split(","),
-            "files":        [] if row[5]=="" else row[5].split(", ")
+            "files":        [] if row[5]=="" else row[5].split(", "),
+            "hidden":       bool(row[6])
         }
     cur.execute("SELECT timestamps FROM activity")
     for row in cur:
@@ -74,7 +75,8 @@ def create_database():
                     editors TEXT,
                     size INTEGER,
                     collections TEXT,
-                    files TEXT
+                    files TEXT,
+                    hidden BOOLEAN DEFAULT 0
             )
                     ''')
         con.commit()
@@ -85,6 +87,12 @@ def create_database():
         print("Database found.... connecting to it now")
         con = sqlite3.connect(database_directory)
         cur = con.cursor()
+        cur.execute("PRAGMA table_info(collections)")
+        columns = [column[1] for column in cur.fetchall()]
+        if "hidden" not in columns:
+            print("Updating database to contain hidden column in collections table")
+            cur.execute("ALTER TABLE collections ADD COLUMN hidden BOOLEAN DEFAULT 0")
+            con.commit()
         return con, cur
 
 con, cur = create_database()
@@ -277,7 +285,8 @@ def collection_info_for_display(collection_id):
         "file_count":   len(collections[collection_id]["files"]), 
         "size":         format_bytes(collections[collection_id]["size"]), 
         "editor_count": len(collections[collection_id]["editors"]),
-        "folder_count": len(collections[collection_id]["collections"])
+        "folder_count": len(collections[collection_id]["collections"]),
+        "hidden":       collections[collection_id]["hidden"]
         }
 
 def gen_collection_id():
@@ -289,7 +298,7 @@ def gen_collection_id():
     else:
         return generated_id
 
-def create_new_collection(user_token, collection_name):
+def create_new_collection(user_token, collection_name, hidden=False):
 
     global collections
     collection_id = gen_collection_id()
@@ -299,11 +308,12 @@ def create_new_collection(user_token, collection_name):
         "editors":      [user_token],
         "size":         0,
         "collections":  [],
-        "files":        []
+        "files":        [],
+        "hidden":       hidden
     }
 
     global cur, con
-    cur.execute(f"INSERT INTO collections (id, name, editors, size, collections, files) VALUES (?, ?, ?, ?, ?, ?)", (collection_id, collection_name, user_token, 0, "", ""))
+    cur.execute(f"INSERT INTO collections (id, name, editors, size, collections, files, hidden) VALUES (?, ?, ?, ?, ?, ?, ?)", (collection_id, collection_name, user_token, 0, "", "", int(hidden)))
     con.commit()
 
     return collection_id
@@ -426,7 +436,8 @@ def get_collection_info_for_viewer(collection_id):
         "editors"   : collections[collection_id].get("editors", []),
         "Size"      : format_bytes(collections[collection_id]["size"]),
         "Files"     : collections[collection_id].get("files", []),
-        "Folders"   : collections[collection_id].get("collections", [])
+        "Folders"   : collections[collection_id].get("collections", []),
+        "Hidden"    : collections[collection_id].get("hidden", False)
     }
 
 def get_file_info_for_card(file_path:str) -> dict[str,str]:

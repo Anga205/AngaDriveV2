@@ -98,14 +98,35 @@ class ImportRepoState(CollectionState):
             print("Repo is valid, cloning")
             clone_folder = uuid.uuid4().hex
             if git_clone(self.repo_url, clone_folder):
-                files = move_files_to_upload_dir(clone_folder)
+                print("Repo cloned successfully")
+                files: dict[str, dict[str, str]] = move_files_to_upload_dir(clone_folder)
+                print("Files moved to upload dir")
+                folder_map:dict[str, str] = {"":create_new_collection(self.token, self.repo_url.split("/")[-1])}
                 for file in files:
+                    if files[file]["file_directory"] not in folder_map:
+                        folder_map[files[file]["file_directory"]] = create_new_collection(self.token, files[file]["file_directory"].split("/")[-1], hidden=True)
+                        parent_directory = "/".join(files[file]["file_directory"].split("/")[:-1])
+                        try:
+                            add_folder_to_collection(
+                                folder_map[files[file]["file_directory"]], 
+                                folder_map[parent_directory]
+                            )
+                            print(end=f"Added folder {files[file]['file_directory']} to collection {parent_directory}\n")
+                        except Exception as e:
+                            print(f"Failed to add folder {files[file]['file_directory']} to collection {parent_directory}. Error: {str(e)}")
                     add_file_to_database(
                         account_token=self.token,
                         file_directory=file,
                         file_size=files[file]["file_size"],
                         original_file_name=files[file]["original_file_name"]
-                    )                                                           # TODO: add files to collection
+                    )
+                    print(end=f"Added file {files[file]['original_file_name']} to database\n")
+                    add_file_to_collection(
+                        collection_id=folder_map[files[file]["file_directory"]],
+                        file_path=file
+                    )
+                    print(end=f"Added file {files[file]['original_file_name']} to collection {files[file]['file_directory']}\n")
+                    # TODO: add ability to recursively delete all collections
                 yield self.close_dialog()
                 yield rx.toast.success("Repo cloned successfully")
             else:
@@ -306,23 +327,26 @@ def desktop_index():
                                     rx.chakra.wrap(
                                         rx.foreach(
                                             CollectionState.display_my_collections,
-                                            lambda collection_obj: desktop_collection_card(
-                                                collection_obj,
-                                                copy_function=CollectionState.copy_collection(collection_obj),
-                                                button3=rx.chakra.tooltip(
-                                                        rx.button(
-                                                        rx.chakra.icon(
-                                                            tag="delete",
-                                                            font_size="20px"
+                                            lambda collection_obj: conditional_render(
+                                                ~collection_obj['hidden'],
+                                                desktop_collection_card(
+                                                    collection_obj,
+                                                    copy_function=CollectionState.copy_collection(collection_obj),
+                                                    button3=rx.chakra.tooltip(
+                                                            rx.button(
+                                                            rx.chakra.icon(
+                                                                tag="delete",
+                                                                font_size="20px"
+                                                            ),
+                                                            radius="large",
+                                                            variant="soft",
+                                                            bg="rgb(75, 0, 0)",
+                                                            color="rgb(200, 0, 0)",
+                                                            _hover={"bg":"rgb(100, 0, 0)", "color": "rgb(255, 0, 0)"},
+                                                            on_click= lambda: ConfirmDeleteDialogState.open_dialog(collection_obj['id'], collection_obj['name'])
                                                         ),
-                                                        radius="large",
-                                                        variant="soft",
-                                                        bg="rgb(75, 0, 0)",
-                                                        color="rgb(200, 0, 0)",
-                                                        _hover={"bg":"rgb(100, 0, 0)", "color": "rgb(255, 0, 0)"},
-                                                        on_click= lambda: ConfirmDeleteDialogState.open_dialog(collection_obj['id'], collection_obj['name'])
-                                                    ),
-                                                    label="Delete Collection"
+                                                        label="Delete Collection"
+                                                    )
                                                 )
                                             )
                                         ),
