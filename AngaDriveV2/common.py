@@ -22,13 +22,15 @@ except FileNotFoundError:
     if server_config["api_url"]=="http://localhost:8000":
         server_config['file_visible_api'] = f"{server_config['api_url']}"
         server_config["deploy_url"] = "http://localhost:3000"
+        server_config["cache_url"] = f"http://0.0.0.0:8000/"
     else:
         server_config['deploy_url'] = input("Enter Deploy url: (or press enter to use http://localhost:3000): ").strip() or "http://localhost:3000"
         server_config['file_visible_api'] = input(f"Enter file visible api (or press enter to use {server_config['api_url']}): ") or f"{server_config['api_url']}"
+        server_config["cache_url"] = input(f"Enter cache url (or press enter to use http://0.0.0.0:8000/): ") or f"http://0.0.0.0:8000/"
     if not os.path.exists(app_data_dir):
         os.makedirs(app_data_dir)
     with open(server_config_directory, "w") as f:
-        json.dump(server_config, f)
+        f.write(json.dumps(server_config, indent=4))
     
 
 app_link = server_config['deploy_url']

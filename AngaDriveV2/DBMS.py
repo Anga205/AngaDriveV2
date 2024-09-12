@@ -15,14 +15,15 @@ def load_database():
         }
         if row[3]!=None:
             accounts[row[0]]["hashed_password"]=row[3]
-    cur.execute("SELECT original_file_name, file_directory, account_token, file_size, timestamp FROM file_data")
+    cur.execute("SELECT original_file_name, file_directory, account_token, file_size, timestamp, cached FROM file_data")
     for row in cur:
         file_data[row[1]] = {
             "original_file_name":    row[0],
             "file_directory":        row[1],
             "account_token":         row[2],
             "file_size":             row[3],
-            "timestamp":             row[4]
+            "timestamp":             row[4],
+            "cached":                bool(row[5])
         }
     cur.execute("SELECT id, name, editors, size, collections, files, hidden FROM collections")
     for row in cur:
@@ -58,7 +59,8 @@ def create_database():
                     file_directory TEXT PRIMARY KEY,
                     account_token TEXT,
                     file_size INTEGER,
-                    timestamp INTEGER
+                    timestamp INTEGER,
+                    cached BOOLEAN DEFAULT 0
             )
                     ''')
 
@@ -92,6 +94,12 @@ def create_database():
         if "hidden" not in columns:
             print("Updating database to contain hidden column in collections table")
             cur.execute("ALTER TABLE collections ADD COLUMN hidden BOOLEAN DEFAULT 0")
+            con.commit()
+        cur.execute("PRAGMA table_info(file_data)")
+        columns = [column[1] for column in cur.fetchall()]
+        if "cached" not in columns:
+            print("Updating database to contain cached column in file_data table")
+            cur.execute("ALTER TABLE file_data ADD COLUMN cached BOOLEAN DEFAULT 0")
             con.commit()
         return con, cur
 

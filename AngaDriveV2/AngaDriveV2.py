@@ -6,17 +6,24 @@ import os, AngaDriveV2.DBMS, AngaDriveV2.common
 from fastapi import HTTPException, Response
 from fastapi.responses import FileResponse
 from starlette.responses import RedirectResponse, FileResponse
+from fastapi.requests import Request
 
-async def get_file(file_path: str):
+async def get_file(file_path: str, request: Request):
     AngaDriveV2.DBMS.add_timestamp_to_activity() # add to the homepage graph every time a file is viewed
     if os.path.exists(os.path.join(AngaDriveV2.common.file_directory, file_path)):
-        return FileResponse(os.path.join(AngaDriveV2.common.file_directory, file_path), status_code=200)
+        if request.base_url==AngaDriveV2.common.server_config["cache_url"]:
+            if not AngaDriveV2.common.file_data["file_path"]["cached"]:
+                raise HTTPException(status_code=405, detail="URL not allowed")
+            else:
+                return FileResponse(os.path.join(AngaDriveV2.common.file_directory, file_path), status_code=200)
+        else:
+            return FileResponse(os.path.join(AngaDriveV2.common.file_directory, file_path), status_code=200)
     raise HTTPException(status_code=404, detail="File not found")
     
 
-async def get_file_preserve_name(obfuscated_file_name: str, actual_file_name:str):
+async def get_file_preserve_name(obfuscated_file_name: str, actual_file_name:str, request: Request):
     file_path = obfuscated_file_name + (("."+actual_file_name.split(".")[-1]) if "." in actual_file_name else "")   # add back file extension if it was there in the original name
-    return await get_file(file_path)
+    return await get_file(file_path, request)
 
 async def redirect():
     return RedirectResponse(url = AngaDriveV2.common.app_link)

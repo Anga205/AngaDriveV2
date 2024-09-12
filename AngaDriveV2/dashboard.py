@@ -858,17 +858,15 @@ def settings_widget_desktop(**kwargs):
             )
     return rx.vstack(
         rx.hstack(
-            coming_soon_dialog(
-                trigger=settings_button(
-                    "Caching",
-                    "database-zap",
-                    [
-                        "Caching is currently Enabled, this may result in slower file deletion. (Upto 2 hours)",
-                        "Caching is currently Disabled, this may result in slightly slower page-load times.",
-                    ],
-                    condition=State.enable_caching,
-                    on_click=SettingsState.open_coming_soon
-                )
+            settings_button(
+                "Caching",
+                "database-zap",
+                [
+                    "Caching is currently Enabled, this may result in slower file deletion. (Upto 2 hours)",
+                    "Caching is currently Disabled, this may result in slightly slower page-load times.",
+                ],
+                condition=State.enable_caching,
+                on_click=SettingsState.swap_caching
             ),
             settings_button(
                 "File Previews",
