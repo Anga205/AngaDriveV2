@@ -141,7 +141,8 @@ class State(rx.State):
                 account_token=self.token,
                 file_directory=filename,
                 file_size=get_file_size(outfile),
-                original_file_name=file.filename
+                original_file_name=file.filename,
+                cached=self.enable_caching
             )
         self.user_files: list[dict[str, str]] = get_all_user_files_for_display(self.token)
         yield rx.redirect("/my_drive")
@@ -178,6 +179,7 @@ class State(rx.State):
         yield rx.toast.success("File link copied to clipboard")
     
     def copy_file_path(self, file_obj):
+        print(file_obj)
         yield rx.set_clipboard(file_link+file_obj["file_path"])
         yield rx.toast.success("File path copied to clipboard")
 

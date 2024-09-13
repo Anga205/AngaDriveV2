@@ -582,19 +582,30 @@ def file_editor_menu(file_obj, **kwargs):
         **kwargs,
     ),
 
+class FileCardState(State):
+    def switch_caching(self, file_obj):
+        switch_cache_status(file_obj["file_path"])
+        for file in self.user_files:
+            if file["file_path"] == file_obj["file_path"]:
+                file["cached"] = not file["cached"]
+                break
 
-file_card_context_menu_wrapper = (
-        lambda component, file_obj:
-        rx.context_menu.root(
+def file_card_context_menu_wrapper(component, file_obj):
+    return rx.context_menu.root(
             rx.context_menu.trigger(
                 component
             ),
             rx.context_menu.content(
+                rx.cond(
+                    file_obj["cached"],
+                    rx.context_menu.item("Caching: Enabled", on_click = lambda: FileCardState.switch_caching(file_obj)),
+                    rx.context_menu.item("Caching: Disabled", on_click = lambda: FileCardState.switch_caching(file_obj)),
+                ),
+                rx.context_menu.separator(),
                 rx.context_menu.item("Copy shortened path", on_click=lambda: State.copy_file_path(file_obj)),
                 rx.context_menu.item("Copy download link", on_click=lambda: State.copy_download_link(file_obj)),
             )
         )
-    )
 
 def file_card(file_obj):
     return file_card_context_menu_wrapper(
@@ -603,7 +614,7 @@ def file_card(file_obj):
             file_obj,
             border_radius="1vh 1vh 0vh 0vh"
         ),
-        file_details(
+        file_details(    
             file_obj,
             border_radius="0vh 0vh 0vh 0vh"
         ),

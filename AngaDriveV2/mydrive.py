@@ -52,7 +52,8 @@ class UploadState(State):
                 account_token=self.token,
                 file_directory=filename,
                 file_size=get_file_size(outfile),
-                original_file_name=file.filename
+                original_file_name=file.filename,
+                cached=self.enable_caching
             )
         self.user_files: list[dict[str, str]] = get_all_user_files_for_display(self.token)
         yield rx.set_clipboard(", \n".join(file_link_list))
