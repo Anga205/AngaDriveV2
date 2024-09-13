@@ -62,19 +62,19 @@ class UploadState(State):
 def upload_button():
     return rx.dialog.root(
     rx.dialog.trigger(
-        rx.chakra.button(
-            rx.chakra.image(
-                src="/upload.png",
-                height="2vh",
-                custom_attrs={"draggable":"false"},
-                width="auto"
+        rx.button(
+            rx.icon(
+                tag="folder-up",
+                size=30,
+                stroke_width=2,
             ),
             "Upload",
             color="WHITE",
             font_size="1.65vh",
+            font_weight="bold",
             height="4vh",
             bg="#000055",
-            width="10vh",
+            width="11vh",
             border_radius="1vh",
             _hover={"bg":"#0000aa"},
             on_click=UploadState.open_dialog
