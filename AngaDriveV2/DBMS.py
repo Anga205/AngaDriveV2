@@ -197,7 +197,7 @@ def fetch_activity_from_last_week():
 def does_filename_already_exist(filename_to_check: str) -> bool:
     return filename_to_check in file_data
 
-def add_file_to_database(original_file_name, file_directory, account_token, file_size):
+def add_file_to_database(original_file_name, file_directory, account_token, file_size, cached=False):
 
     timestamp = round(time.time())
 
@@ -207,11 +207,12 @@ def add_file_to_database(original_file_name, file_directory, account_token, file
         "file_directory": file_directory,
         "account_token": account_token,
         "file_size": file_size,
-        "timestamp": timestamp
+        "timestamp": timestamp,
+        "cached": cached
     }
     
     global cur, con
-    cur.execute(f"INSERT INTO file_data (original_file_name, file_directory, account_token, file_size, timestamp) VALUES (?, ?, ?, ?, ?)", (original_file_name, file_directory, account_token, file_size, timestamp))
+    cur.execute(f"INSERT INTO file_data (original_file_name, file_directory, account_token, file_size, timestamp, cached) VALUES (?, ?, ?, ?, ?, ?)", (original_file_name, file_directory, account_token, file_size, timestamp, int(cached)))
     con.commit()
 
 def get_all_user_files_for_display(account_token) -> list[dict[str, str]]:
@@ -228,7 +229,8 @@ def get_all_user_files_for_display(account_token) -> list[dict[str, str]]:
                 "truncated_name": truncate_string(file_data[file]["original_file_name"], length=20),     # like origina....
                 "file_link"     : file_link+file_data[file]["file_directory"],                       # like https://file.anga.pro/i/vb78duvhs6s.png
                 "previewable"   : can_be_previewed(file_data[file]["file_directory"]),               # like True
-                "owner_token"   : account_token
+                "owner_token"   : account_token,
+                "cached"        : file_data[file]["cached"]
             })
     return list(reversed(rows))       # reversed to put the most recently uploaded files at the top
 
@@ -532,6 +534,14 @@ def save_file_from_link(file_link: str, filename: str, account_token:str):
         add_file_to_database(original_file_name, filename, account_token, file_size)
     except Exception as e:
         print(f"AngaDriveV2.DBMS.save_file_from_link Error saving file: {e}")
+
+def switch_cache_status(file_path:str):
+    global file_data
+    file_data[file_path]["cached"] = not file_data[file_path]["cached"]
+
+    global con, cur
+    cur.execute(f"UPDATE file_data SET cached = ? WHERE file_directory = ?", (int(file_data[file_path]["cached"]), file_path))
+    con.commit()
 
 @asynccontextmanager
 async def lifespan(discard=None):
