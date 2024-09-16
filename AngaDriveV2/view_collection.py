@@ -3,6 +3,7 @@ from AngaDriveV2.shared_components import *
 from AngaDriveV2.State import State
 from AngaDriveV2.DBMS import *
 import copy
+import reflex_chakra as rx_chakra
 
 
 class ViewCollectionState(State):
@@ -56,16 +57,16 @@ class ViewCollectionState(State):
 
 
 def view_collection_file_editor_menu(file_obj, **kwargs):
-    return rx.chakra.hstack(
+    return rx_chakra.hstack(
         conditional_render(
             condition=ViewCollectionState.is_collection_owner,
-            true_component=rx.chakra.spacer()
+            true_component=rx_chakra.spacer()
         ),
         conditional_render(
             condition=ViewCollectionState.is_collection_owner,
-            true_component=rx.chakra.tooltip(
-                rx.chakra.button(
-                    rx.chakra.icon(
+            true_component=rx_chakra.tooltip(
+                rx_chakra.button(
+                    rx_chakra.icon(
                         tag="small_close"
                     ),
                     color="#ee0000",
@@ -79,10 +80,10 @@ def view_collection_file_editor_menu(file_obj, **kwargs):
                 label = "Remove from collection"
             )
         ),
-        rx.chakra.spacer(),
-        rx.chakra.tooltip(
-            rx.chakra.button(
-                rx.chakra.icon(
+        rx_chakra.spacer(),
+        rx_chakra.tooltip(
+            rx_chakra.button(
+                rx_chakra.icon(
                     tag="copy"
                 ),
                 color="#00a799",
@@ -95,10 +96,10 @@ def view_collection_file_editor_menu(file_obj, **kwargs):
             ),
             label="Copy Link"
         ),
-        rx.chakra.spacer(),
-        rx.chakra.tooltip(
-            rx.chakra.button(
-                rx.chakra.icon(
+        rx_chakra.spacer(),
+        rx_chakra.tooltip(
+            rx_chakra.button(
+                rx_chakra.icon(
                     tag="download"
                 ),
                 color="#12a1fb",
@@ -111,9 +112,9 @@ def view_collection_file_editor_menu(file_obj, **kwargs):
             ),
             label="Download File"
         ),
-        rx.chakra.spacer(),
-        rx.chakra.tooltip(
-            rx.chakra.button(
+        rx_chakra.spacer(),
+        rx_chakra.tooltip(
+            rx_chakra.button(
                 rx.icon(
                     "eye",
                     width="100%",
@@ -129,7 +130,7 @@ def view_collection_file_editor_menu(file_obj, **kwargs):
             ),
             label="View file"
         ),
-        rx.chakra.spacer(),
+        rx_chakra.spacer(),
         justify_content="center",
         align_items="center",
         height="42px",
@@ -245,7 +246,7 @@ class AddFileDialogState(ViewCollectionState):
         self.close_dialog()
 
 def file_hovercard(file_obj):
-    return rx.chakra.vstack(
+    return rx_chakra.vstack(
         file_name_header(
             file_obj,
             border_radius="1vh 1vh 0vh 0vh"
@@ -290,21 +291,21 @@ def add_file_to_collection_dialog(trigger, **kwargs):
                     rx.upload(
                         rx.cond(
                             rx.selected_files("view_collection_upload"),
-                            rx.chakra.vstack(
-                                rx.chakra.box(
+                            rx_chakra.vstack(
+                                rx_chakra.box(
                                     height="5vh"
                                 ),
                                 rx.foreach(
                                     rx.selected_files("view_collection_upload"),
-                                    rx.chakra.text
+                                    rx_chakra.text
                                 ),
-                                rx.chakra.box(
+                                rx_chakra.box(
                                     height="5vh"
                                 )
                             ),
-                            rx.chakra.vstack(
+                            rx_chakra.vstack(
                                 rx.spacer(),
-                                rx.chakra.text("Drag and drop files here or click to select files"),
+                                rx_chakra.text("Drag and drop files here or click to select files"),
                                 rx.spacer(),
                                 height="15vh"
                             ),
@@ -354,10 +355,10 @@ def add_file_to_collection_dialog(trigger, **kwargs):
 
 def add_files_accordion():
     return rx.vstack(
-        rx.chakra.hstack(
-            rx.chakra.divider(),
-            rx.chakra.text("OR", color="GRAY"),
-            rx.chakra.divider(),
+        rx_chakra.hstack(
+            rx_chakra.divider(),
+            rx_chakra.text("OR", color="GRAY"),
+            rx_chakra.divider(),
             width="100%",
             border_color="GRAY"
         ),
@@ -394,7 +395,7 @@ def add_files_accordion():
                 ),
                 width="100%"
             ),
-            rx.chakra.box(
+            rx_chakra.box(
                 width="0px",
                 height="0px"
             )
@@ -472,10 +473,10 @@ class AddFolderDialogState(ViewCollectionState):
 
 def add_folders_accordion():
     return rx.vstack(
-        rx.chakra.hstack(
-            rx.chakra.divider(),
-            rx.chakra.text("OR"),
-            rx.chakra.divider(),
+        rx_chakra.hstack(
+            rx_chakra.divider(),
+            rx_chakra.text("OR"),
+            rx_chakra.divider(),
             color="GRAY",
             border_color="GRAY",
             width="100%"
@@ -540,7 +541,7 @@ def add_folder_dialog(trigger, **kwargs):
             ),
             rx.dialog.description(
                 rx.vstack(
-                    rx.chakra.input(
+                    rx_chakra.input(
                         bg="#0f0f0f",
                         color="GRAY",
                         placeholder="Collection name",
@@ -579,28 +580,28 @@ def add_folder_dialog(trigger, **kwargs):
 
 
 def desktop_index():
-    return rx.chakra.vstack(
+    return rx_chakra.vstack(
         shared_navbar(),
-        rx.chakra.hstack(
-            rx.chakra.spacer(),
+        rx_chakra.hstack(
+            rx_chakra.spacer(),
             rx.cond(
                 ViewCollectionState.is_collection_owner,
-                rx.chakra.editable(
-                    rx.chakra.editable_preview(),
-                    rx.chakra.editable_input(),
+                rx_chakra.editable(
+                    rx_chakra.editable_preview(),
+                    rx_chakra.editable_input(),
                     placeholder=ViewCollectionState.collection_name,
                     color="WHITE",
                     font_size="3vh",
                     style={"font-weight":"bold"},
                 ),
-                rx.chakra.text(
+                rx_chakra.text(
                     ViewCollectionState.collection_name,
                     color="WHITE",
                     font_size="3vh",
                     as_ = "b"
                 ),
             ),
-            rx.chakra.spacer(),
+            rx_chakra.spacer(),
             conditional_render(
                 ViewCollectionState.is_collection_owner,
                 rx.hstack(
@@ -632,11 +633,11 @@ def desktop_index():
         conditional_render(
             ViewCollectionState.has_both_folders_and_files,
             rx.hstack(
-                rx.chakra.divider(),
+                rx_chakra.divider(),
                 rx.text(
                     "Folders",
                 ),
-                rx.chakra.divider(),
+                rx_chakra.divider(),
                 border_color="gray",
                 align="center",
                 width="100%",
@@ -650,7 +651,7 @@ def desktop_index():
                 lambda collection_obj: desktop_collection_card(
                     collection_obj, 
                     copy_function=ViewCollectionState.copy_collection_link(collection_obj),
-                    button3=rx.chakra.tooltip(
+                    button3=rx_chakra.tooltip(
                         rx.button(
                             rx.icon(
                                 "circle-x"
@@ -672,11 +673,11 @@ def desktop_index():
         conditional_render(
             ViewCollectionState.has_both_folders_and_files,
             rx.hstack(
-                rx.chakra.divider(),
+                rx_chakra.divider(),
                 rx.text(
                     "Files",
                 ),
-                rx.chakra.divider(),
+                rx_chakra.divider(),
                 border_color="gray",
                 align="center",
                 color="gray",
@@ -697,7 +698,7 @@ def desktop_index():
             padding="20px",
             spacing="0",
         ),
-        rx.chakra.box(
+        rx_chakra.box(
             height="20px"
         ),
         spacing="5px",

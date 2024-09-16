@@ -2,7 +2,6 @@ import reflex as rx
 from AngaDriveV2.State import State
 from AngaDriveV2.shared_components import *
 from AngaDriveV2.common import *
-import threading
 
 class UploadState(State):
     open_upload_dialog:bool = False
@@ -135,7 +134,7 @@ def upload_button():
                         width="100%"
                     )
                 ),
-                rx.chakra.input(
+                rx_chakra.input(
                     placeholder="Enter file link",
                     width="100%",
                     on_change=UploadState.set_file_link,
@@ -156,9 +155,9 @@ def upload_button():
             empty_component(),
             conditional_render(
                 UploadState.file_link,
-                rx.chakra.hstack(
-                    rx.chakra.spacer(),
-                    rx.chakra.button(
+                rx_chakra.hstack(
+                    rx_chakra.spacer(),
+                    rx_chakra.button(
                         "Import file",
                         bg="#113322",
                         is_disabled=(UploadState.input_color=="RED"),
@@ -169,10 +168,10 @@ def upload_button():
                 )
             )
         ),
-        rx.chakra.hstack(
+        rx_chakra.hstack(
             conditional_render(
                 rx.selected_files("file_page_upload"),
-                rx.chakra.button(
+                rx_chakra.button(
                     "Upload",
                     bg="#113322",
                     color="WHITE",
@@ -195,21 +194,21 @@ def upload_button():
 def desktop_index():
     return site_template(
         "Files",
-        rx.chakra.vstack(
-            rx.chakra.hstack(
-                rx.chakra.vstack(
-                    rx.chakra.heading(
+        rx_chakra.vstack(
+            rx_chakra.hstack(
+                rx_chakra.vstack(
+                    rx_chakra.heading(
                         "My Files",
                         color="WHITE",
                         font_size="3.5vh"
                     ),
-                    rx.chakra.spacer(),
+                    rx_chakra.spacer(),
                     spacing="0vh",
                     height="100%"
                 ),
-                rx.chakra.spacer(),
-                rx.chakra.vstack(
-                    rx.chakra.spacer(),
+                rx_chakra.spacer(),
+                rx_chakra.vstack(
+                    rx_chakra.spacer(),
                     upload_button(),
                     spacing="0vh",
                     height="100%"
@@ -217,8 +216,8 @@ def desktop_index():
                 width="98%",
                 height="8vh"
             ),
-            rx.chakra.hstack(
-                rx.chakra.box(
+            rx_chakra.hstack(
+                rx_chakra.box(
                     width="5vh", 
                     height="0vh"
                     ),
@@ -232,11 +231,11 @@ def desktop_index():
                         wrap="wrap",
                         spacing='2',
                     ),
-                    rx.chakra.vstack(
-                        rx.chakra.spacer(),
-                        rx.chakra.alert(
-                            rx.chakra.alert_icon(),
-                            rx.chakra.alert(
+                    rx_chakra.vstack(
+                        rx_chakra.spacer(),
+                        rx_chakra.alert(
+                            rx_chakra.alert_icon(),
+                            rx_chakra.alert(
                                 "Drag and drop files here, of click the 'Upload' button on the top right", 
                                 bg="#000033", 
                                 color="WHITE"
@@ -246,7 +245,7 @@ def desktop_index():
                             border_color="#0000aa",
                             border_width="0.2vh"
                         ),
-                        rx.chakra.spacer(),
+                        rx_chakra.spacer(),
                         height="50vh",
                     )
                 ),

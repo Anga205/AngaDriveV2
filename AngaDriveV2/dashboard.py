@@ -4,19 +4,20 @@ from AngaDriveV2.State import State
 from AngaDriveV2.shared_components import *
 from AngaDriveV2.login_dialog import *
 import platform
+import reflex_chakra as rx_chakra
 
 def static_data_box(**kwargs) -> rx.Component:
-    return rx.chakra.vstack(
+    return rx_chakra.vstack(
         rx.desktop_only(
-            rx.chakra.hstack(
+            rx_chakra.hstack(
                 card(
                     heading="RAM Usage",
                     content=rx.cond(
                         State.ram_percent,
-                        rx.chakra.circular_progress(
-                            rx.chakra.circular_progress_label(
-                                rx.chakra.vstack(
-                                    rx.chakra.text(
+                        rx_chakra.circular_progress(
+                            rx_chakra.circular_progress_label(
+                                rx_chakra.vstack(
+                                    rx_chakra.text(
                                         State.used_ram, 
                                         color="WHITE", 
                                         font_size="1vh"
@@ -25,7 +26,7 @@ def static_data_box(**kwargs) -> rx.Component:
                                         color_scheme="cyan",
                                         width="50%"
                                     ),
-                                    rx.chakra.text(
+                                    rx_chakra.text(
                                         State.total_ram, 
                                         color="WHITE", 
                                         font_size="1vh"
@@ -38,8 +39,8 @@ def static_data_box(**kwargs) -> rx.Component:
                             size="9vh",
                             height="100%",
                         ),
-                        rx.chakra.circular_progress(
-                            rx.chakra.circular_progress_label("Loading....", color="WHITE", font_size="1vh"),
+                        rx_chakra.circular_progress(
+                            rx_chakra.circular_progress_label("Loading....", color="WHITE", font_size="1vh"),
                             color="BLUE",
                             is_indeterminate=True,
                             size="9vh",
@@ -54,14 +55,14 @@ def static_data_box(**kwargs) -> rx.Component:
                     heading="CPU Usage",
                     content=rx.cond(
                         State.ram_percent,
-                        rx.chakra.circular_progress(
-                            rx.chakra.circular_progress_label(
-                                rx.chakra.text(
-                                    rx.chakra.span(
+                        rx_chakra.circular_progress(
+                            rx_chakra.circular_progress_label(
+                                rx_chakra.text(
+                                    rx_chakra.span(
                                         State.cpu_usage,
                                         font_size="2vh"
                                     ),
-                                    rx.chakra.span(
+                                    rx_chakra.span(
                                         "%",
                                         font_size="1vh"
                                     )
@@ -71,8 +72,8 @@ def static_data_box(**kwargs) -> rx.Component:
                             color="BLUE",
                             size="9vh",
                         ),
-                        rx.chakra.circular_progress(
-                            rx.chakra.circular_progress_label("Loading....", color="WHITE", font_size="1vh"),
+                        rx_chakra.circular_progress(
+                            rx_chakra.circular_progress_label("Loading....", color="WHITE", font_size="1vh"),
                             color="BLUE",
                             is_indeterminate=True,
                             size="9vh",
@@ -82,12 +83,12 @@ def static_data_box(**kwargs) -> rx.Component:
                     overflow="auto",
                     width="30%"
                 ),
-                rx.chakra.vstack(
+                rx_chakra.vstack(
                     rx.cond(
                         State.temperature_available,
-                        rx.chakra.box(
-                            rx.chakra.text(
-                                rx.chakra.span("Temperature: ", color="BLUE", font_size="2.5vh", as_="b"),
+                        rx_chakra.box(
+                            rx_chakra.text(
+                                rx_chakra.span("Temperature: ", color="BLUE", font_size="2.5vh", as_="b"),
                                 State.temperature,
                                 color="WHITE",
                                 font_size="2.5vh",
@@ -101,8 +102,8 @@ def static_data_box(**kwargs) -> rx.Component:
                             padding="1.5vh",
                             align="center"
                         ),
-                        rx.chakra.box(
-                            rx.chakra.text(
+                        rx_chakra.box(
+                            rx_chakra.text(
                                 "Temperature Unavailable",
                                 color="RED",
                                 as_="b",
@@ -118,18 +119,18 @@ def static_data_box(**kwargs) -> rx.Component:
                             align="center"
                         ),
                     ),
-                    rx.chakra.box(
+                    rx_chakra.box(
                         rx.cond(
                             State.uptime,
-                            rx.chakra.text(
-                                rx.chakra.span("Uptime: ", color="BLUE", font_size="2.5vh", as_="b"),
+                            rx_chakra.text(
+                                rx_chakra.span("Uptime: ", color="BLUE", font_size="2.5vh", as_="b"),
                                 State.uptime,
                                 color="WHITE",
                                 font_size="2.5vh",
                                 overflow="auto",
                                 text_align="center"
                             ),
-                            rx.chakra.text(
+                            rx_chakra.text(
                                 "Loading...",
                                 color="WHITE",
                                 font_size="2.5vh",
@@ -152,13 +153,13 @@ def static_data_box(**kwargs) -> rx.Component:
             ),
             width="100%"
         ),
-        rx.chakra.hstack(
+        rx_chakra.hstack(
             site_data_card(
                 "Pulses",
                 State.pulses,
                 width = "100%",
             ),
-            rx.chakra.tooltip(
+            rx_chakra.tooltip(
                 site_data_card(
                     "Users", 
                     State.user_count,
@@ -175,7 +176,7 @@ def static_data_box(**kwargs) -> rx.Component:
             width="100%",
             spacing="0.75vh",
         ),
-        rx.chakra.flex(
+        rx_chakra.flex(
             rx.tooltip(
                 site_data_card(
                     "Space Used", 
@@ -184,7 +185,7 @@ def static_data_box(**kwargs) -> rx.Component:
                 ),
                 content=f"Your Storage: {State.user_storage_amount}",
             ),
-            rx.chakra.box(width="1vh"),
+            rx_chakra.box(width="1vh"),
             rx.tooltip(
                 site_data_card(
                     "Files hosted", 
@@ -198,7 +199,7 @@ def static_data_box(**kwargs) -> rx.Component:
             width="100%",
         ),
         rx.mobile_and_tablet(
-            rx.chakra.hstack(
+            rx_chakra.hstack(
                 site_data_card(
                     heading="Host",
                     content=f"{platform.node()} {platform.machine()}",
@@ -256,10 +257,10 @@ def static_data_box(**kwargs) -> rx.Component:
     )
 
 def login_button_group() -> rx.Component:
-    return rx.chakra.vstack(
-        rx.chakra.hstack(
+    return rx_chakra.vstack(
+        rx_chakra.hstack(
             login_dialog(
-                rx.chakra.button(
+                rx_chakra.button(
                     "Sign Up",
                     height="100%",
                     width="100%",
@@ -274,7 +275,7 @@ def login_button_group() -> rx.Component:
                 width="110%"
             ),
             login_dialog(
-                rx.chakra.button(
+                rx_chakra.button(
                     "Login",
                     height="100%",
                     width="100%",
@@ -363,13 +364,13 @@ def confirm_account_delete_dialog(button, **kwargs):
                 color="WHITE"
                 ),
             rx.dialog.description(
-                rx.chakra.vstack(
-                    rx.chakra.password(
+                rx_chakra.vstack(
+                    rx_chakra.password(
                         placeholder="Enter password",
                         width="100%",
                         color="WHITE"
                     ),
-                    rx.chakra.hstack(
+                    rx_chakra.hstack(
                         rx.cond(
                             AccountEditorState.show_account_deletion_file_switch,
                             rx.tooltip(
@@ -384,8 +385,8 @@ def confirm_account_delete_dialog(button, **kwargs):
                             ),
                             rx.box(width="0px",height="0px")
                         ),
-                        rx.chakra.spacer(),
-                        rx.chakra.button(
+                        rx_chakra.spacer(),
+                        rx_chakra.button(
                             "Delete",
                             color_scheme="red",
                             is_disabled=True,
@@ -403,9 +404,9 @@ def confirm_account_delete_dialog(button, **kwargs):
     )
 
 def feature_card(image_path, heading, description, **kwargs):
-    return rx.chakra.vstack(
+    return rx_chakra.vstack(
         rx.desktop_only(
-            rx.chakra.image(
+            rx_chakra.image(
                 src=image_path,
                 custom_attrs={"draggable":"false"},
                 height="100%",
@@ -414,21 +415,21 @@ def feature_card(image_path, heading, description, **kwargs):
             height="50%"
         ),
         rx.mobile_and_tablet(
-            rx.chakra.image(
+            rx_chakra.image(
                 src=image_path,
                 custom_attrs={"draggable":"false"},
                 height="auto",
                 width="90%",
             )
         ),
-        rx.chakra.heading(
+        rx_chakra.heading(
             heading,
             font_size="2.2vh"
         ),
-        rx.chakra.divider(
+        rx_chakra.divider(
             border_color="GRAY"
         ),
-        rx.chakra.text(
+        rx_chakra.text(
             description,
             font_size="1.5vh"
         ),
@@ -445,16 +446,16 @@ def feature_card(image_path, heading, description, **kwargs):
 
 
 def whats_new_widget():
-    return rx.chakra.vstack(
-        rx.chakra.heading(
+    return rx_chakra.vstack(
+        rx_chakra.heading(
             "What's New with V2?",
             color="WHITE",
             font_size="3.5vh"
             ),
-        rx.chakra.divider(
+        rx_chakra.divider(
             border_color="GRAY"
             ),
-        rx.chakra.hstack(
+        rx_chakra.hstack(
             feature_card(
                 "/incognito.png",
                 "Anonymous Uploads",
@@ -474,7 +475,7 @@ def whats_new_widget():
             width="100%",
             height="45%"
         ),
-        rx.chakra.hstack(
+        rx_chakra.hstack(
             feature_card(
                 "file_collection.png",
                 "Galleries",
@@ -644,13 +645,13 @@ def settings_widget_desktop(**kwargs):
 
 def import_files(**kwargs):
     return rx.vstack(
-        rx.chakra.heading(
+        rx_chakra.heading(
             "Import/Export files",
             color="WHITE",
             font_size="2vh",
             height="5vh"
         ),
-        rx.chakra.divider(
+        rx_chakra.divider(
             border_color="GRAY"
         ),
         rx.tabs.root(
@@ -677,7 +678,7 @@ def import_files(**kwargs):
             rx.tabs.content(
                 rx.vstack(
                     rx.spacer(),
-                    rx.chakra.input(
+                    rx_chakra.input(
                         placeholder="Enter github repo URL",
                         width="100%",
                         font_size="1.5vh",
@@ -705,7 +706,7 @@ def import_files(**kwargs):
             rx.tabs.content(
                 rx.vstack(
                     rx.spacer(),
-                    rx.chakra.input(
+                    rx_chakra.input(
                         placeholder="Enter file link",
                         width="100%",
                         font_size="1.5vh",
@@ -733,7 +734,7 @@ def import_files(**kwargs):
             rx.tabs.content(
                 rx.vstack(
                     rx.spacer(),
-                    rx.chakra.password(
+                    rx_chakra.password(
                         placeholder="Enter password",
                         width="100%",
                         font_size="1.5vh",
@@ -779,36 +780,36 @@ def import_files(**kwargs):
     )
 
 def bulk_actions_widget(**kwargs):
-    return rx.chakra.vstack(
-        rx.chakra.heading(
+    return rx_chakra.vstack(
+        rx_chakra.heading(
             "Bulk Actions",
             font_size="2.2vh",
         ),
-        rx.chakra.vstack(
-            rx.chakra.accordion(
-                rx.chakra.accordion_item(
-                    rx.chakra.accordion_button(
+        rx_chakra.vstack(
+            rx_chakra.accordion(
+                rx_chakra.accordion_item(
+                    rx_chakra.accordion_button(
                         "File Actions",
-                        rx.chakra.accordion_icon(),
+                        rx_chakra.accordion_icon(),
                         font_size="2vh",
                     ),
-                    rx.chakra.accordion_panel(
-                        rx.chakra.vstack(
-                            rx.chakra.button(
+                    rx_chakra.accordion_panel(
+                        rx_chakra.vstack(
+                            rx_chakra.button(
                                 "Delete my files",
                                 width="100%",
                                 font_size="1.7vh",
                                 height="33%",
                                 border_radius="0.3vh"
                             ),
-                            rx.chakra.button(
+                            rx_chakra.button(
                                 "Transfer my files",
                                 width="100%",
                                 font_size="1.7vh",
                                 height="33%",
                                 border_radius="0.3vh"
                             ),
-                            rx.chakra.button(
+                            rx_chakra.button(
                                 "Change existing file settings",
                                 width="100%",
                                 font_size="1.7vh",
@@ -820,29 +821,29 @@ def bulk_actions_widget(**kwargs):
                         )
                     ),
                 ),
-                rx.chakra.accordion_item(
-                    rx.chakra.accordion_button(
+                rx_chakra.accordion_item(
+                    rx_chakra.accordion_button(
                         "Collection Actions",
-                        rx.chakra.accordion_icon(),
+                        rx_chakra.accordion_icon(),
                         font_size="2vh",
                     ),
-                    rx.chakra.accordion_panel(
-                        rx.chakra.vstack(
-                            rx.chakra.button(
+                    rx_chakra.accordion_panel(
+                        rx_chakra.vstack(
+                            rx_chakra.button(
                                 "Delete my Collections",
                                 width="100%",
                                 font_size="1.7vh",
                                 height="33%",
                                 border_radius="0.3vh"
                             ),
-                            rx.chakra.button(
+                            rx_chakra.button(
                                 "Transfer my Collections",
                                 width="100%",
                                 font_size="1.7vh",
                                 height="33%",
                                 border_radius="0.3vh"
                             ),
-                            rx.chakra.button(
+                            rx_chakra.button(
                                 "Change existing Collection settings",
                                 width="100%",
                                 font_size="1.7vh",
@@ -854,22 +855,22 @@ def bulk_actions_widget(**kwargs):
                         )
                     ),
                 ),
-                rx.chakra.accordion_item(
-                    rx.chakra.accordion_button(
+                rx_chakra.accordion_item(
+                    rx_chakra.accordion_button(
                         "Account Actions",
-                        rx.chakra.accordion_icon(),
+                        rx_chakra.accordion_icon(),
                         font_size="2vh",
                     ),
-                    rx.chakra.accordion_panel(
-                        rx.chakra.vstack(
-                            rx.chakra.button(
+                    rx_chakra.accordion_panel(
+                        rx_chakra.vstack(
+                            rx_chakra.button(
                                 "Change password",
                                 width="100%",
                                 font_size="1.7vh",
                                 height="33%",
                                 border_radius="0.3vh"
                             ),
-                            rx.chakra.button(
+                            rx_chakra.button(
                                 "Change account settings",
                                 width="100%",
                                 font_size="1.7vh",
@@ -900,25 +901,25 @@ def bulk_actions_widget(**kwargs):
     )
 
 def contact_me_widget(**kwargs):
-    return rx.chakra.vstack(
-        rx.chakra.heading(
+    return rx_chakra.vstack(
+        rx_chakra.heading(
             "Message the Developer", 
             font_size="2.2vh"
         ),
-        rx.chakra.divider(
+        rx_chakra.divider(
             border_color="GRAY"
         ),
-        rx.chakra.vstack(
-            rx.chakra.text_area(
+        rx_chakra.vstack(
+            rx_chakra.text_area(
                 placeholder="You can send me issues, feature requests, or just say hi! but if ur expecting a response then remember to leave your email or anything else i can use to get back to you later",
                 height="92%",
                 font_size="1.5vh",
                 width="100%",
                 bg="BLACK"
             ),
-            rx.chakra.hstack(
-                rx.chakra.spacer(),
-                rx.chakra.button(
+            rx_chakra.hstack(
+                rx_chakra.spacer(),
+                rx_chakra.button(
                     "Send",
                     font_size="1.6vh",
                     height="100%",
@@ -943,12 +944,12 @@ def desktop_index():
 
     return site_template(
         "Home",
-        rx.chakra.hstack(
-            rx.chakra.box(
+        rx_chakra.hstack(
+            rx_chakra.box(
                 width="0vh",
                 height="0vh"
             ),
-            rx.chakra.vstack(
+            rx_chakra.vstack(
                 settings_widget_desktop(
                     width="100%",
                     height="20%"
@@ -961,8 +962,8 @@ def desktop_index():
                 spacing="0.75vh",
                 width="50%"
             ),
-            rx.chakra.vstack(
-                rx.chakra.hstack(
+            rx_chakra.vstack(
+                rx_chakra.hstack(
                     bulk_actions_widget(
                         height="100%",
                         width="50%"
@@ -983,7 +984,7 @@ def desktop_index():
                 width="50%",
                 spacing="0.75vh"
             ),
-            rx.chakra.box(
+            rx_chakra.box(
                 height="0vh",
                 width="0vh"
             ),

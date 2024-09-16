@@ -2,6 +2,7 @@ import reflex as rx
 from AngaDriveV2.common import *
 from AngaDriveV2.State import State
 from AngaDriveV2.DBMS import *
+import reflex_chakra as rx_chakra
 
 class LoginState(State):
     open_login_dialog_var:bool = False
@@ -64,8 +65,8 @@ def security_tooltip(text):
                 rx.text("- this site might be using https, depending on if i manage to figure out cloudflare SSL"),
                 rx.text("- do people even read these?"),
                 rx.text("- its 1am when im typing this"),
-                rx.chakra.vstack(
-                    rx.chakra.text("all of these on its own doesnt really mean anything, but rest assured i do try to use best practices to keep your data safe, if you are a programmer trying to understand this website, most of the encryption related stuff is in common.py, all the best!"),
+                rx_chakra.vstack(
+                    rx_chakra.text("all of these on its own doesnt really mean anything, but rest assured i do try to use best practices to keep your data safe, if you are a programmer trying to understand this website, most of the encryption related stuff is in common.py, all the best!"),
                     spacing="0px",
                     font_size="10px",
                     text_align="start",
@@ -189,14 +190,14 @@ class SignUpButtonState(SignUpPopupState):
             self.close_dialog(None)
 
 def signup_form():
-    return rx.chakra.vstack(
-        rx.chakra.box(
+    return rx_chakra.vstack(
+        rx_chakra.box(
             height="2vh"
         ),
         rx.tooltip(
-            rx.chakra.hstack(
-                rx.chakra.spacer(),
-                rx.chakra.input(
+            rx_chakra.hstack(
+                rx_chakra.spacer(),
+                rx_chakra.input(
                     placeholder="Display name",
                     width="85%",
                     color="WHITE",
@@ -206,12 +207,12 @@ def signup_form():
                     error_border_color="#880000",
                     focus_border_color=SignUpPopupState.signup_display_name_focus_color
                 ),
-                rx.chakra.spacer(),
+                rx_chakra.spacer(),
                 width="100%",
             ),
             content="Users will be able to see your display name in your collections"
         ),
-        rx.chakra.input(
+        rx_chakra.input(
             placeholder = "E-mail",
             width="85%",
             color="WHITE",
@@ -220,7 +221,7 @@ def signup_form():
             on_change = SignUpPopupState.set_signup_email,
             error_border_color="#880000",
         ),
-        rx.chakra.password(
+        rx_chakra.password(
             placeholder="Create a password",
             width="85%",
             color="WHITE",
@@ -230,7 +231,7 @@ def signup_form():
             error_border_color="#880000",
             focus_border_color=SignUpPopupState.signup_password_focus_color
         ),
-        rx.chakra.password(
+        rx_chakra.password(
             placeholder="Re-type password",
             width="85%",
             color="WHITE",
@@ -240,18 +241,18 @@ def signup_form():
             error_border_color="#880000",
             focus_border_color=SignUpButtonState.signup_retyped_password_focus_color
         ),
-        rx.chakra.text(
-            rx.chakra.span("Disclaimer: ", font_weight="bold", as_="b"),
-            rx.chakra.span("Although AngaDrive uses "),
+        rx_chakra.text(
+            rx_chakra.span("Disclaimer: ", font_weight="bold", as_="b"),
+            rx_chakra.span("Although AngaDrive uses "),
             security_tooltip(
-                rx.chakra.span("standard security practices", as_="u")
+                rx_chakra.span("standard security practices", as_="u")
             ),
-            rx.chakra.span(" to assure security, if I were you, I wouldnt use the same password for everything, especially not for a website maintained by a teenager."),
+            rx_chakra.span(" to assure security, if I were you, I wouldnt use the same password for everything, especially not for a website maintained by a teenager."),
             color="RED"
         ),
-        rx.chakra.hstack(
-            rx.chakra.spacer(),
-            rx.chakra.button(
+        rx_chakra.hstack(
+            rx_chakra.spacer(),
+            rx_chakra.button(
                 "Sign Up",
                 color_scheme="facebook",
                 is_disabled=SignUpPopupState.disable_signup_button,
@@ -282,8 +283,8 @@ class LoginSwitchState(LoginState):
 def data_transfer_on_login_switch():
     switch = rx.hover_card.root(
         rx.hover_card.trigger( 
-            rx.chakra.box(
-                rx.chakra.switch(
+            rx_chakra.box(
+                rx_chakra.switch(
                     is_checked=LoginSwitchState.login_switch_state,
                     on_change=LoginSwitchState.switch
                 )
@@ -296,7 +297,7 @@ def data_transfer_on_login_switch():
     return rx.cond(
         LoginSwitchState.should_it_load_switch,
         switch,
-        rx.chakra.box(
+        rx_chakra.box(
             height="0px",
             width="0px",
             on_mount=LoginSwitchState.update_login_switch
@@ -322,11 +323,11 @@ class LoginButtonState(LoginSwitchState):
             self.update_account_data_components()
 
 def login_form():
-    return rx.chakra.vstack(
-        rx.chakra.box(
+    return rx_chakra.vstack(
+        rx_chakra.box(
             height="2vh"
         ),
-        rx.chakra.input(
+        rx_chakra.input(
             placeholder="E-mail ID",
             width="85%",
             color="WHITE",
@@ -335,7 +336,7 @@ def login_form():
             error_border_color="#880000",
             is_invalid=LoginState.is_invalid_login_email_id
         ),
-        rx.chakra.password(
+        rx_chakra.password(
             placeholder="Password",
             width="85%",
             color="WHITE",
@@ -345,11 +346,11 @@ def login_form():
             is_invalid=LoginState.is_invalid_login_password,
             focus_border_color=LoginState.login_password_focus_color
         ),
-        rx.chakra.hstack(
+        rx_chakra.hstack(
             data_transfer_on_login_switch(),
-            rx.chakra.spacer(),
-            rx.chakra.vstack(
-                rx.chakra.button(
+            rx_chakra.spacer(),
+            rx_chakra.vstack(
+                rx_chakra.button(
                     "Login",
                     color_scheme="facebook",
                     is_disabled=LoginState.disable_login_button,

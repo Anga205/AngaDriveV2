@@ -1,7 +1,6 @@
-import reflex
 from AngaDriveV2.State import State
-
-rx = reflex.chakra
+import reflex_chakra
+rx = reflex_chakra
 
 def index():
     return rx.vstack(

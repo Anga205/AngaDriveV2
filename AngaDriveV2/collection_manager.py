@@ -4,6 +4,7 @@ from AngaDriveV2.shared_components import *
 from AngaDriveV2.DBMS import *
 from AngaDriveV2.common import *
 import uuid
+import reflex_chakra as rx_chakra
 
 class CollectionState(State):
     new_collection_name:str = ""
@@ -144,10 +145,10 @@ def create_new_collection_dialog(button):
                 color="WHITE"
             ),
             rx.dialog.description(
-                rx.chakra.vstack(
+                rx_chakra.vstack(
                     conditional_render(
                         ~ImportRepoState.repo_url,
-                        rx.chakra.input(
+                        rx_chakra.input(
                             placeholder="Enter collection name...",
                             max_length="128",
                             color="WHITE",
@@ -196,9 +197,9 @@ def create_new_collection_dialog(button):
                     ),
                     rx.cond(
                         CollectionState.show_create_button,
-                        rx.chakra.hstack(
-                            rx.chakra.spacer(),
-                            rx.chakra.button(
+                        rx_chakra.hstack(
+                            rx_chakra.spacer(),
+                            rx_chakra.button(
                                 "Create",
                                 color_scheme="facebook",
                                 border_radius="10px",
@@ -251,26 +252,26 @@ def confirm_delete_collection_dialog(button):
                 color="WHITE"
                 ),
             rx.dialog.description(
-                rx.chakra.vstack(
-                    rx.chakra.text(
-                        rx.chakra.span("Are you SURE you want to delete "),
-                        rx.chakra.span("'", font_weight="bold"),
-                        rx.chakra.span(ConfirmDeleteDialogState.collection_name_to_be_deleted, font_weight="bold"),
-                        rx.chakra.span("' ", font_weight="bold"),
-                        rx.chakra.span("permanently?"),
+                rx_chakra.vstack(
+                    rx_chakra.text(
+                        rx_chakra.span("Are you SURE you want to delete "),
+                        rx_chakra.span("'", font_weight="bold"),
+                        rx_chakra.span(ConfirmDeleteDialogState.collection_name_to_be_deleted, font_weight="bold"),
+                        rx_chakra.span("' ", font_weight="bold"),
+                        rx_chakra.span("permanently?"),
                         align_items="start",
                         color="WHITE"
                     ),
-                    rx.chakra.text(
+                    rx_chakra.text(
                         "Warning: this action cannot be undone.",
                         align_items="start",
                         color="RED",
                     ),
-                    rx.chakra.box(width="0px", height="10px"),
-                    rx.chakra.hstack(
-                        rx.chakra.spacer(),
+                    rx_chakra.box(width="0px", height="10px"),
+                    rx_chakra.hstack(
+                        rx_chakra.spacer(),
                         rx.dialog.close(
-                            rx.chakra.button(
+                            rx_chakra.button(
                                 "Delete",
                                 color_scheme="red",
                                 on_click = ConfirmDeleteDialogState.delete_collection
@@ -308,20 +309,20 @@ def desktop_index():
     return site_template(
         "Collections",
         context_menu_wrapper(
-            rx.chakra.vstack(
-                rx.chakra.hstack(
-                    rx.chakra.tabs(
-                        rx.chakra.tab_list(
-                            rx.chakra.tab("My Collections"),
-                            rx.chakra.tab("Shared with me"),
+            rx_chakra.vstack(
+                rx_chakra.hstack(
+                    rx_chakra.tabs(
+                        rx_chakra.tab_list(
+                            rx_chakra.tab("My Collections"),
+                            rx_chakra.tab("Shared with me"),
                         ),
-                        rx.chakra.tab_panels(
-                            rx.chakra.tab_panel(
-                                rx.chakra.box(
+                        rx_chakra.tab_panels(
+                            rx_chakra.tab_panel(
+                                rx_chakra.box(
                                     height="2vh"
                                     ),
                                 confirm_delete_collection_dialog(
-                                    rx.chakra.wrap(
+                                    rx_chakra.wrap(
                                         rx.foreach(
                                             CollectionState.display_my_collections,
                                             lambda collection_obj: conditional_render(
@@ -329,9 +330,9 @@ def desktop_index():
                                                 desktop_collection_card(
                                                     collection_obj,
                                                     copy_function=CollectionState.copy_collection(collection_obj),
-                                                    button3=rx.chakra.tooltip(
+                                                    button3=rx_chakra.tooltip(
                                                             rx.button(
-                                                            rx.chakra.icon(
+                                                            rx_chakra.icon(
                                                                 tag="delete",
                                                                 font_size="20px"
                                                             ),
@@ -352,8 +353,8 @@ def desktop_index():
                                 ),
                                 spacing="0vh"
                             ),
-                            rx.chakra.tab_panel(
-                                rx.chakra.text("Coming Soon!")
+                            rx_chakra.tab_panel(
+                                rx_chakra.text("Coming Soon!")
                             ),
                         ),
                         color="WHITE",
