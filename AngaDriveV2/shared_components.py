@@ -43,24 +43,25 @@ class SystemHealthState(State):
         self.close_system_health_no_params()
 
 def shared_navbar() -> rx.Component:
-    return rx_chakra.vstack(
-        rx_chakra.hstack(
-            rx_chakra.box(
+    return rx.vstack(
+        rx.hstack(
+            rx.box(
                 width="0.5vh"
-                ),
-            rx_chakra.image(
+            ),
+            rx.image(
                 src="/logo.png", 
                 height="5vh", 
                 custom_attrs={"draggable":"false"},
                 width="auto",
-                on_click=rx.redirect("/")
-                ),
-            rx_chakra.heading(
+                on_click=rx.redirect("/"),
+                _hover={"opacity":"0.5"}
+            ),
+            rx.heading(
                 "DriveV2", 
                 font_size="2.5vh",
                 on_click=rx.redirect("/")
-                ),
-            rx_chakra.spacer(),
+            ),
+            rx.spacer(),
             rx.popover.root(
                 rx.popover.trigger(
                     rx.icon(
@@ -94,7 +95,7 @@ def shared_navbar() -> rx.Component:
                     bg="BLACK",
                 )
             ),
-            rx_chakra.box(
+            rx.box(
                 width="0.5vh"
             ),
             color="white",
@@ -102,8 +103,10 @@ def shared_navbar() -> rx.Component:
             bg = "black",
             spacing = "1vh",
             width="100%",
+            align="center",
+            justify="center"
         ),
-        rx_chakra.progress(
+        rx.progress(
             value = State.upload_progress,
             width = "100%",
             bg="BLACK"
@@ -300,27 +303,25 @@ def shared_sidebar(opened_page, **kwargs):
     button_colors = {name:button_bg for name in buttons}
     button_colors[opened_page] = selected_button_bg
 
-    def sidebar_button(image, text, redirect_to = "/404"):
+    def sidebar_button(icon_tag, text, redirect_to = "/404"):
         button_on_hover = {"bg": "#101010"}
 
-        return rx_chakra.button(
+        return rx.button(
                 rx.icon(
-                    tag=image,
+                    tag=icon_tag,
                     height="60%",
                     width="auto"
                 ),
-                rx_chakra.box(
-                    width="1vh"
-                ),
-                rx_chakra.text(
+                rx.text(
                     text
                 ),
-                rx_chakra.spacer(),
+                rx.spacer(),
                 width="100%",
                 height="5vh",
                 spacing="0vh",
                 font_size="1.65vh",
                 border_radius="0vh",
+                font_weight="bold",
                 on_click=rx.redirect(redirect_to),
                 bg=button_colors[text],
                 color="WHITE",
@@ -328,8 +329,8 @@ def shared_sidebar(opened_page, **kwargs):
             )
 
 
-    return rx_chakra.vstack(
-        rx_chakra.box(
+    return rx.vstack(
+        rx.box(
             width="0vh",
             height="2vh"
         ),
@@ -397,10 +398,10 @@ def upload_container(component):
 
 def site_template(page_opened, components=rx.spacer()):
     return upload_container(
-        rx_chakra.hstack(
+        rx.hstack(
             shared_sidebar(opened_page=page_opened),
-            rx_chakra.box(width="12%"),
-            rx_chakra.vstack(
+            rx.box(width="12%"),
+            rx.vstack(
                 shared_navbar(),
                 components,
                 spacing="0.75vh",
