@@ -679,20 +679,22 @@ def tablet_drawer(button, current_page):
     rx.drawer.portal(
         rx.drawer.content(
             rx.flex(
-                rx_chakra.hstack(
-                    rx_chakra.image(
+                rx.hstack(
+                    rx.image(
                         src="/logo.png", 
                         height="5vh", 
                         custom_attrs={"draggable":"false"},
                         width="auto",
                     ),
-                    rx_chakra.heading(
+                    rx.heading(
                         "DriveV2", 
                         color="WHITE",
                         font_size="2.5vh",
                     ),
+                    align="center",
+                    justify="center"
                 ),
-                rx_chakra.box(height="1vh"),
+                empty_component(height="1vh"),
                 rx_chakra.button(
                     rx.icon(
                         tag="home",
