@@ -439,7 +439,7 @@ def file_name_header(file_obj, **kwargs):
     )
 
 def file_details(file_obj, **kwargs):
-    return rx_chakra.vstack(
+    return rx.vstack(
         rx.box(
             rx.cond(
                 file_obj["previewable"] & State.enable_previews,
@@ -513,11 +513,11 @@ def file_details(file_obj, **kwargs):
     )
 
 def file_editor_menu(file_obj, **kwargs):
-    return rx_chakra.hstack(
-        rx_chakra.tooltip(
-            rx_chakra.button(
-                rx_chakra.icon(
-                    tag="delete"
+    return rx.hstack(
+        rx.tooltip(
+            rx.button(
+                rx.icon(
+                    tag="trash-2",
                 ),
                 color="#ee0000",
                 bg = "#260000",
@@ -527,11 +527,11 @@ def file_editor_menu(file_obj, **kwargs):
                 width="15%",
                 on_click=State.delete_file(file_obj)
             ),
-            label = "Delete"
+            content = "Delete"
         ),
-        rx_chakra.tooltip(
-            rx_chakra.button(
-                rx_chakra.icon(
+        rx.tooltip(
+            rx.button(
+                rx.icon(
                     tag="copy"
                 ),
                 color="#00a799",
@@ -542,12 +542,12 @@ def file_editor_menu(file_obj, **kwargs):
                 width="15%",
                 on_click = lambda: State.copy_file_link(file_obj),
             ),
-            label="Copy Link"
+            content="Copy Link"
         ),
-        rx_chakra.tooltip(
-            rx_chakra.button(
-                rx_chakra.icon(
-                    tag="download"
+        rx.tooltip(
+            rx.button(
+                rx.icon(
+                    tag="arrow-down-to-line"
                 ),
                 color="#12a1fb",
                 bg = "#11222f",
@@ -557,11 +557,11 @@ def file_editor_menu(file_obj, **kwargs):
                 width="15%",
                 on_click = State.download_file(file_obj),
             ),
-            label="Download File"
+            content="Download File"
         ),
-        rx_chakra.tooltip(
+        rx.tooltip(
             rx.link(
-                rx_chakra.button(
+                rx.button(
                     rx.icon(
                         "eye",
                     ),
@@ -573,9 +573,9 @@ def file_editor_menu(file_obj, **kwargs):
                 ),
                 href=file_obj["file_link"],
                 target="_blank",
-                width="17%"
+                width="15%"
             ),
-            label="View file"
+            content="View file"
         ),
         justify_content="center",
         align_items="center",
@@ -613,7 +613,7 @@ def file_card_context_menu_wrapper(component, file_obj):
 
 def file_card(file_obj):
     return file_card_context_menu_wrapper(
-    rx_chakra.vstack(
+    rx.vstack(
         file_name_header(
             file_obj,
             border_radius="1vh 1vh 0vh 0vh"
@@ -637,11 +637,7 @@ def conditional_render(condition, true_component):
     return rx.cond(
         condition,
         true_component,
-        rx_chakra.box(
-            display="none",
-            width="0px",
-            height="0px"
-        )
+        empty_component()
     )
 
 def view_under_construction():
@@ -657,6 +653,7 @@ def empty_component(width="0px", height="0px"):
     return rx.box(
         width=width,
         height=height,
+        display="none" if (width=="0px" and height=="0px") else "inline"
     )
 
 
@@ -785,7 +782,9 @@ def tablet_navbar(current_page):            # has a height of 50px
     return rx.box(
     rx.vstack(
         rx.hstack(
-            empty_component(),
+            empty_component(
+                width="5px"
+            ),
             tablet_drawer(
                 rx.icon(
                     tag="menu",
@@ -877,10 +876,11 @@ def tablet_navbar(current_page):            # has a height of 50px
             spacing="2",
             align="center",
             bg="BLACK",
+            justify="center",
             height="4.9vh",
             width="100%",
         ),
-        rx_chakra.progress(
+        rx.progress(
             value = State.upload_progress,
             width="100%",
             bg="BLACK",
@@ -890,9 +890,13 @@ def tablet_navbar(current_page):            # has a height of 50px
         position="fixed",
         height="5vh",
         width="100%",
+        align="center",
+        justify="center"
     ),
     height="5vh",
-    width="100%"
+    width="100%",
+    align="center",
+    justify="center"
 )
 
 def mobile_file_card(file_obj):
