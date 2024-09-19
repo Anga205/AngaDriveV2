@@ -26,7 +26,7 @@ except FileNotFoundError:
     else:
         server_config['deploy_url'] = input("Enter Deploy url: (or press enter to use http://localhost:3000): ").strip() or "http://localhost:3000"
         server_config['file_visible_api'] = input(f"Enter file visible api (or press enter to use {server_config['api_url']}): ") or f"{server_config['api_url']}"
-        server_config["cache_url"] = input(f"Enter cache url (or press enter to use http://0.0.0.0:8000/): ") or f"http://0.0.0.0:8000/"
+        server_config["cache_url"] = input(f"Enter cache url (or press enter to use http://0.0.0.0:8000): ") or f"http://0.0.0.0:8000"
     if not os.path.exists(app_data_dir):
         os.makedirs(app_data_dir)
     with open(server_config_directory, "w") as f:
@@ -36,7 +36,9 @@ except FileNotFoundError:
 app_link = server_config['deploy_url']
 
 file_link = f"{server_config['file_visible_api']}/i/"
+cache_link = f"{server_config['cache_url']}/i/"
 download_link = f"{server_config['file_visible_api']}/download/"
+cached_download_link = f"{server_config['cache_url']}/download/"
 
 truncate_string = lambda string, length=19: string if len(string)<=length else string[0:length]+"..."
 

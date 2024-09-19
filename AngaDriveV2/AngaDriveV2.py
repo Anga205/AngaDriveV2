@@ -11,7 +11,7 @@ from fastapi.requests import Request
 async def get_file(file_path: str, request: Request):
     AngaDriveV2.DBMS.add_timestamp_to_activity() # add to the homepage graph every time a file is viewed
     if os.path.exists(os.path.join(AngaDriveV2.common.file_directory, file_path)):
-        if request.base_url==AngaDriveV2.common.server_config["cache_url"]:
+        if request.base_url==f'{AngaDriveV2.common.server_config["cache_url"]}/':
             if not AngaDriveV2.common.file_data[file_path]["cached"]:
                 raise HTTPException(status_code=405, detail="URL not allowed")
             else:

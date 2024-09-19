@@ -76,8 +76,8 @@ def shared_navbar() -> rx.Component:
                         rx.heading(
                             "Drive Settings"
                         ),
-                        rx_chakra.divider(
-                            border_color="#bbbbbb",
+                        rx.divider(
+                            color_scheme="gray",
                         ),
                         rx.hstack(
                             rx.text(
@@ -213,7 +213,7 @@ def sidebar_login_widget():
         rx.hstack(
             login_dialog(
                 rx.button(
-                    rx_chakra.text("Login"),
+                    "Login",
                     style={"font-weight":"bold"},
                     color_scheme="blue",
                     variant="soft",
@@ -418,17 +418,18 @@ def site_template(page_opened, components=rx.spacer()):
 
 
 def file_name_header(file_obj, **kwargs):
-    return rx_chakra.hstack(
-        rx_chakra.spacer(),
-        rx_chakra.tooltip(
+    return rx.hstack(
+        rx.tooltip(
             rx.text(
                 file_obj["truncated_name"], # truncated original file name like sample.png
                 font_size="20px",
-                color="WHITE"
+                color="WHITE",
+                font_weight="bold",
             ),
-            label=file_obj["original_name"]
+            content=file_obj["original_name"]
         ),
-        rx_chakra.spacer(),
+        align="center",
+        justify="center",
         bg="#1c1c1c",
         border_color="#1c1c1c",
         border_width="1px",
@@ -466,9 +467,8 @@ def file_details(file_obj, **kwargs):
             width="100%",
             color="WHITE"
         ),
-        rx_chakra.hstack(
-            rx_chakra.spacer(),
-            rx_chakra.vstack(
+        rx.hstack(
+            rx.vstack(
                 rx.text(
                     "Uploaded Name:"
                 ),
@@ -482,7 +482,7 @@ def file_details(file_obj, **kwargs):
                 justify="start",
                 align_items="start",
             ),
-            rx_chakra.vstack(
+            rx.vstack(
                 rx.text(
                     file_obj["file_path"] # file directory like 9487br483.png
                 ),
@@ -496,7 +496,8 @@ def file_details(file_obj, **kwargs):
                 justify="start",
                 align_items="start",
             ),
-            rx_chakra.spacer(),
+            align="center",
+            justify="center",
             font_size="11px",
             width="100%",
             color="GRAY",
