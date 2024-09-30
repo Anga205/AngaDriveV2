@@ -39,21 +39,27 @@ def user_data_card(heading = "Sample heading", content="Sample content", **kwarg
     )
 
 def tpu_signup_button(**kwargs):
-    return rx_chakra.button(
-        rx_chakra.hstack(
-            rx_chakra.image(
+    return rx.button(
+        rx.hstack(
+            rx.image(
                 src="/flowinity.svg",
                 custom_attrs={"draggable":"false"},
                 height="2vh",
                 width="auto",
-                ),
-            rx_chakra.text("Flowinity Oauth"),
+            ),
+            rx.html("Flowinity&nbsp;Oauth"),
             font_size="1.75vh",
-            height="100%"
+            style={"font-weight":"bold"},
+            height="100%",
+            overflow="auto",
+            align="center",
+            justify="center"
         ),
         bg="rgb(20, 10, 30)",
         color="WHITE",
         on_click=rx.redirect(f"https://privateuploader.com/oauth/{client_secret}"),
-        _hover={"bg":"#0f0f1f","color":"#1111cc"},
+        _hover={"bg":"#0f0f1f","opacity":"0.7"},
+        align="center",
+        justify="center",
         **kwargs
     )
