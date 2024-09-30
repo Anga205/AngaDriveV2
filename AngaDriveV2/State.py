@@ -175,21 +175,24 @@ class State(rx.State):
             file_path = os.path.join(file_obj["file_path"].split(".")[0], file_obj["original_name"])
         else:
             file_path = os.path.join(file_obj["file_path"], file_obj["original_name"])
-        yield rx.set_clipboard(file_link+file_path.replace(" ","%20"))
+        valid_file_link = cache_link if file_obj["cached"] else file_link
+        yield rx.set_clipboard(valid_file_link+file_path.replace(" ","%20"))
         yield rx.toast.success("File link copied to clipboard")
     
     def copy_file_path(self, file_obj):
-        print(file_obj)
-        yield rx.set_clipboard(file_link+file_obj["file_path"])
+        valid_file_link = cache_link if file_obj["cached"] else file_link
+        yield rx.set_clipboard(valid_file_link+file_obj["file_path"])
         yield rx.toast.success("File path copied to clipboard")
 
     def copy_download_link(self, file_obj):
-        yield rx.set_clipboard(download_link+file_obj["file_path"])
+        valid_download_link = cached_download_link if file_obj["cached"] else download_link
+        yield rx.set_clipboard(valid_download_link+file_obj["file_path"])
         yield rx.toast.success("Download link copied to clipboard")
     
     def download_file(self, file_obj):
         add_timestamp_to_activity()
-        return rx.redirect(server_config['file_visible_api']+"/download/"+file_obj["file_path"], external=True, replace=True)
+        valid_download_link = cached_download_link if file_obj["cached"] else download_link
+        return rx.redirect(valid_download_link+file_obj["file_path"], external=True, replace=True)
 
     def logout(self):
         self.token = gen_token()

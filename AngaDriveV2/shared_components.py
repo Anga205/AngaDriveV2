@@ -43,24 +43,25 @@ class SystemHealthState(State):
         self.close_system_health_no_params()
 
 def shared_navbar() -> rx.Component:
-    return rx_chakra.vstack(
-        rx_chakra.hstack(
-            rx_chakra.box(
+    return rx.vstack(
+        rx.hstack(
+            rx.box(
                 width="0.5vh"
-                ),
-            rx_chakra.image(
+            ),
+            rx.image(
                 src="/logo.png", 
                 height="5vh", 
                 custom_attrs={"draggable":"false"},
                 width="auto",
-                on_click=rx.redirect("/")
-                ),
-            rx_chakra.heading(
+                on_click=rx.redirect("/"),
+                _hover={"opacity":"0.5"}
+            ),
+            rx.heading(
                 "DriveV2", 
                 font_size="2.5vh",
                 on_click=rx.redirect("/")
-                ),
-            rx_chakra.spacer(),
+            ),
+            rx.spacer(),
             rx.popover.root(
                 rx.popover.trigger(
                     rx.icon(
@@ -75,8 +76,8 @@ def shared_navbar() -> rx.Component:
                         rx.heading(
                             "Drive Settings"
                         ),
-                        rx_chakra.divider(
-                            border_color="#bbbbbb",
+                        rx.divider(
+                            color_scheme="gray",
                         ),
                         rx.hstack(
                             rx.text(
@@ -94,7 +95,7 @@ def shared_navbar() -> rx.Component:
                     bg="BLACK",
                 )
             ),
-            rx_chakra.box(
+            rx.box(
                 width="0.5vh"
             ),
             color="white",
@@ -102,8 +103,10 @@ def shared_navbar() -> rx.Component:
             bg = "black",
             spacing = "1vh",
             width="100%",
+            align="center",
+            justify="center"
         ),
-        rx_chakra.progress(
+        rx.progress(
             value = State.upload_progress,
             width = "100%",
             bg="BLACK"
@@ -210,7 +213,7 @@ def sidebar_login_widget():
         rx.hstack(
             login_dialog(
                 rx.button(
-                    rx_chakra.text("Login"),
+                    "Login",
                     style={"font-weight":"bold"},
                     color_scheme="blue",
                     variant="soft",
@@ -300,27 +303,25 @@ def shared_sidebar(opened_page, **kwargs):
     button_colors = {name:button_bg for name in buttons}
     button_colors[opened_page] = selected_button_bg
 
-    def sidebar_button(image, text, redirect_to = "/404"):
+    def sidebar_button(icon_tag, text, redirect_to = "/404"):
         button_on_hover = {"bg": "#101010"}
 
-        return rx_chakra.button(
+        return rx.button(
                 rx.icon(
-                    tag=image,
+                    tag=icon_tag,
                     height="60%",
                     width="auto"
                 ),
-                rx_chakra.box(
-                    width="1vh"
-                ),
-                rx_chakra.text(
+                rx.text(
                     text
                 ),
-                rx_chakra.spacer(),
+                rx.spacer(),
                 width="100%",
                 height="5vh",
                 spacing="0vh",
                 font_size="1.65vh",
                 border_radius="0vh",
+                font_weight="bold",
                 on_click=rx.redirect(redirect_to),
                 bg=button_colors[text],
                 color="WHITE",
@@ -328,8 +329,8 @@ def shared_sidebar(opened_page, **kwargs):
             )
 
 
-    return rx_chakra.vstack(
-        rx_chakra.box(
+    return rx.vstack(
+        rx.box(
             width="0vh",
             height="2vh"
         ),
@@ -397,10 +398,10 @@ def upload_container(component):
 
 def site_template(page_opened, components=rx.spacer()):
     return upload_container(
-        rx_chakra.hstack(
+        rx.hstack(
             shared_sidebar(opened_page=page_opened),
-            rx_chakra.box(width="12%"),
-            rx_chakra.vstack(
+            rx.box(width="12%"),
+            rx.vstack(
                 shared_navbar(),
                 components,
                 spacing="0.75vh",
@@ -417,17 +418,18 @@ def site_template(page_opened, components=rx.spacer()):
 
 
 def file_name_header(file_obj, **kwargs):
-    return rx_chakra.hstack(
-        rx_chakra.spacer(),
-        rx_chakra.tooltip(
+    return rx.hstack(
+        rx.tooltip(
             rx.text(
                 file_obj["truncated_name"], # truncated original file name like sample.png
                 font_size="20px",
-                color="WHITE"
+                color="WHITE",
+                font_weight="bold",
             ),
-            label=file_obj["original_name"]
+            content=file_obj["original_name"]
         ),
-        rx_chakra.spacer(),
+        align="center",
+        justify="center",
         bg="#1c1c1c",
         border_color="#1c1c1c",
         border_width="1px",
@@ -437,7 +439,7 @@ def file_name_header(file_obj, **kwargs):
     )
 
 def file_details(file_obj, **kwargs):
-    return rx_chakra.vstack(
+    return rx.vstack(
         rx.box(
             rx.cond(
                 file_obj["previewable"] & State.enable_previews,
@@ -465,9 +467,8 @@ def file_details(file_obj, **kwargs):
             width="100%",
             color="WHITE"
         ),
-        rx_chakra.hstack(
-            rx_chakra.spacer(),
-            rx_chakra.vstack(
+        rx.hstack(
+            rx.vstack(
                 rx.text(
                     "Uploaded Name:"
                 ),
@@ -481,7 +482,7 @@ def file_details(file_obj, **kwargs):
                 justify="start",
                 align_items="start",
             ),
-            rx_chakra.vstack(
+            rx.vstack(
                 rx.text(
                     file_obj["file_path"] # file directory like 9487br483.png
                 ),
@@ -495,7 +496,8 @@ def file_details(file_obj, **kwargs):
                 justify="start",
                 align_items="start",
             ),
-            rx_chakra.spacer(),
+            align="center",
+            justify="center",
             font_size="11px",
             width="100%",
             color="GRAY",
@@ -511,11 +513,11 @@ def file_details(file_obj, **kwargs):
     )
 
 def file_editor_menu(file_obj, **kwargs):
-    return rx_chakra.hstack(
-        rx_chakra.tooltip(
-            rx_chakra.button(
-                rx_chakra.icon(
-                    tag="delete"
+    return rx.hstack(
+        rx.tooltip(
+            rx.button(
+                rx.icon(
+                    tag="trash-2",
                 ),
                 color="#ee0000",
                 bg = "#260000",
@@ -525,11 +527,11 @@ def file_editor_menu(file_obj, **kwargs):
                 width="15%",
                 on_click=State.delete_file(file_obj)
             ),
-            label = "Delete"
+            content = "Delete"
         ),
-        rx_chakra.tooltip(
-            rx_chakra.button(
-                rx_chakra.icon(
+        rx.tooltip(
+            rx.button(
+                rx.icon(
                     tag="copy"
                 ),
                 color="#00a799",
@@ -540,12 +542,12 @@ def file_editor_menu(file_obj, **kwargs):
                 width="15%",
                 on_click = lambda: State.copy_file_link(file_obj),
             ),
-            label="Copy Link"
+            content="Copy Link"
         ),
-        rx_chakra.tooltip(
-            rx_chakra.button(
-                rx_chakra.icon(
-                    tag="download"
+        rx.tooltip(
+            rx.button(
+                rx.icon(
+                    tag="arrow-down-to-line"
                 ),
                 color="#12a1fb",
                 bg = "#11222f",
@@ -555,11 +557,11 @@ def file_editor_menu(file_obj, **kwargs):
                 width="15%",
                 on_click = State.download_file(file_obj),
             ),
-            label="Download File"
+            content="Download File"
         ),
-        rx_chakra.tooltip(
+        rx.tooltip(
             rx.link(
-                rx_chakra.button(
+                rx.button(
                     rx.icon(
                         "eye",
                     ),
@@ -571,9 +573,9 @@ def file_editor_menu(file_obj, **kwargs):
                 ),
                 href=file_obj["file_link"],
                 target="_blank",
-                width="17%"
+                width="15%"
             ),
-            label="View file"
+            content="View file"
         ),
         justify_content="center",
         align_items="center",
@@ -611,7 +613,7 @@ def file_card_context_menu_wrapper(component, file_obj):
 
 def file_card(file_obj):
     return file_card_context_menu_wrapper(
-    rx_chakra.vstack(
+    rx.vstack(
         file_name_header(
             file_obj,
             border_radius="1vh 1vh 0vh 0vh"
@@ -635,11 +637,7 @@ def conditional_render(condition, true_component):
     return rx.cond(
         condition,
         true_component,
-        rx_chakra.box(
-            display="none",
-            width="0px",
-            height="0px"
-        )
+        empty_component()
     )
 
 def view_under_construction():
@@ -655,6 +653,7 @@ def empty_component(width="0px", height="0px"):
     return rx.box(
         width=width,
         height=height,
+        display="none" if (width=="0px" and height=="0px") else "inline"
     )
 
 
@@ -680,20 +679,22 @@ def tablet_drawer(button, current_page):
     rx.drawer.portal(
         rx.drawer.content(
             rx.flex(
-                rx_chakra.hstack(
-                    rx_chakra.image(
+                rx.hstack(
+                    rx.image(
                         src="/logo.png", 
                         height="5vh", 
                         custom_attrs={"draggable":"false"},
                         width="auto",
                     ),
-                    rx_chakra.heading(
+                    rx.heading(
                         "DriveV2", 
                         color="WHITE",
                         font_size="2.5vh",
                     ),
+                    align="center",
+                    justify="center"
                 ),
-                rx_chakra.box(height="1vh"),
+                empty_component(height="1vh"),
                 rx_chakra.button(
                     rx.icon(
                         tag="home",
@@ -783,7 +784,9 @@ def tablet_navbar(current_page):            # has a height of 50px
     return rx.box(
     rx.vstack(
         rx.hstack(
-            empty_component(),
+            empty_component(
+                width="5px"
+            ),
             tablet_drawer(
                 rx.icon(
                     tag="menu",
@@ -875,10 +878,11 @@ def tablet_navbar(current_page):            # has a height of 50px
             spacing="2",
             align="center",
             bg="BLACK",
+            justify="center",
             height="4.9vh",
             width="100%",
         ),
-        rx_chakra.progress(
+        rx.progress(
             value = State.upload_progress,
             width="100%",
             bg="BLACK",
@@ -888,9 +892,13 @@ def tablet_navbar(current_page):            # has a height of 50px
         position="fixed",
         height="5vh",
         width="100%",
+        align="center",
+        justify="center"
     ),
     height="5vh",
-    width="100%"
+    width="100%",
+    align="center",
+    justify="center"
 )
 
 def mobile_file_card(file_obj):
