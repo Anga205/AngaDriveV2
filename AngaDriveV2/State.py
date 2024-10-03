@@ -175,7 +175,7 @@ class State(rx.State):
             file_path = os.path.join(file_obj["file_path"].split(".")[0], file_obj["original_name"])
         else:
             file_path = os.path.join(file_obj["file_path"], file_obj["original_name"])
-        valid_file_link = cache_link if file_obj["cached"] else file_link
+        valid_file_link = cache_link if file_obj.get("cached") else file_link
         yield rx.set_clipboard(valid_file_link+file_path.replace(" ","%20"))
         yield rx.toast.success("File link copied to clipboard")
     
