@@ -180,19 +180,19 @@ class State(rx.State):
         yield rx.toast.success("File link copied to clipboard")
     
     def copy_file_path(self, file_obj):
-        valid_file_link = cache_link if file_obj["cached"] else file_link
+        valid_file_link = cache_link if file_obj.get("cached") else file_link
         yield rx.set_clipboard(valid_file_link+file_obj["file_path"])
         yield rx.toast.success("File path copied to clipboard")
 
     def copy_download_link(self, file_obj):
-        valid_download_link = cached_download_link if file_obj["cached"] else download_link
+        valid_download_link = cached_download_link if file_obj.get("cached") else download_link
         yield rx.set_clipboard(valid_download_link+file_obj["file_path"])
         yield rx.toast.success("Download link copied to clipboard")
     
     def download_file(self, file_obj):
         add_timestamp_to_activity()
-        valid_download_link = cached_download_link if file_obj["cached"] else download_link
-        return rx.redirect(valid_download_link+file_obj["file_path"], external=True, replace=True)
+        valid_download_link = cached_download_link if file_obj.get("cached") else download_link
+        return rx.redirect(valid_download_link+file_obj.get("file_path"), external=True, replace=True)
 
     def logout(self):
         self.token = gen_token()
