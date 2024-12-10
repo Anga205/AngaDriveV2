@@ -17,4 +17,4 @@ if [ ! -d "venv" ]; then
     deactivate
 fi
 source venv/bin/activate
-reflex run
+reflex run --env prod

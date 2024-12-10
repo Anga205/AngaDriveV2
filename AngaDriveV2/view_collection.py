@@ -662,7 +662,8 @@ def desktop_index():
                             on_click=AddFolderDialogState.remove_folder_from_collection(collection_obj)
                         ),
                         label="Remove folder from collection"
-                    )
+                    ),
+                    button3_condition=ViewCollectionState.is_collection_owner
                 )
             ),
             spacing="2",

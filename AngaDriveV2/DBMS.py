@@ -296,7 +296,8 @@ def collection_info_for_display(collection_id):
         "size":         format_bytes(collections[collection_id]["size"]), 
         "editor_count": len(collections[collection_id]["editors"]),
         "folder_count": len(collections[collection_id]["collections"]),
-        "hidden":       collections[collection_id]["hidden"]
+        "hidden":       collections[collection_id]["hidden"],
+        "editors":      collections[collection_id]["editors"]
         }
 
 def gen_collection_id():

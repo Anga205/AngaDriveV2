@@ -920,7 +920,7 @@ def mobile_file_card(file_obj):
     spacing='0'
 )
 
-def desktop_collection_card(collection_obj, copy_function=rx.set_clipboard("ERROR"), button3=None):
+def desktop_collection_card(collection_obj, copy_function=rx.set_clipboard("ERROR"), button3=None, button3_condition=True):
     def sample_button():
         return rx.button(
             rx.icon("vault"),
@@ -985,8 +985,13 @@ def desktop_collection_card(collection_obj, copy_function=rx.set_clipboard("ERRO
                 ),
                 label="Copy link"
             ),
-            rx.spacer(),
-            button3,
+            conditional_render(
+                button3_condition,
+                rx.hstack(
+                    rx.spacer(),
+                    button3
+                )
+            ),
             align="center",
             width="90%"
         ),
