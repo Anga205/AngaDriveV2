@@ -42,7 +42,7 @@ class SystemHealthState(State):
     def close_system_health(self, junk=False):
         self.close_system_health_no_params()
 
-def shared_navbar() -> rx.Component:
+def shared_navbar(**kwargs) -> rx.Component:
     return rx.vstack(
         rx.hstack(
             rx.box(
@@ -114,7 +114,8 @@ def shared_navbar() -> rx.Component:
         bg="BLACK",
         height="5vh",
         width="100%",
-        spacing="0vh"
+        spacing="0vh",
+        **kwargs
     )
 
 class AccountManagerState(State):
@@ -402,6 +403,9 @@ def site_template(page_opened, components=rx.spacer()):
             shared_sidebar(opened_page=page_opened),
             rx.box(width="12%"),
             rx.vstack(
+                shared_navbar(
+                    position="fixed"
+                ),
                 shared_navbar(),
                 components,
                 spacing="0.75vh",

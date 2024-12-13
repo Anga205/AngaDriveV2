@@ -749,15 +749,20 @@ def tablet_collection_display_accordian(collection_obj):  # collection_obj consi
                     variant="soft",
                     radius="large"
                 ),
-                rx.spacer(),
-                rx.button(
-                    rx.icon("circle-x"),
-                    color_scheme="tomato",
-                    on_click=AddFolderDialogState.remove_folder_from_collection(collection_obj),
-                    variant="soft",
-                    radius="large"
+                conditional_render(
+                    ViewCollectionState.is_collection_owner,
+                    rx.spacer()
                 ),
-                rx.spacer()
+                conditional_render(
+                    ViewCollectionState.is_collection_owner,
+                    rx.button(
+                        rx.icon("circle-x"),
+                        color_scheme="tomato",
+                        on_click=AddFolderDialogState.remove_folder_from_collection(collection_obj),
+                        variant="soft",
+                        radius="large"
+                    )
+                )
             ),
             align="center",
             width="100%",

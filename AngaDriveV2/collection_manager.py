@@ -348,10 +348,11 @@ def desktop_index():
                                                 )
                                             )
                                         ),
-                                        width="100%"
+                                        width="100%",
                                     )
                                 ),
-                                spacing="0vh"
+                                spacing="0vh",
+                                bg="#0f0f0f"
                             ),
                             rx_chakra.tab_panel(
                                 rx_chakra.text("Coming Soon!")
