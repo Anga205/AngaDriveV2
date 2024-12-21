@@ -43,7 +43,7 @@ class CollectionState(State):
     def open_dialog(self):
         self.open_new_collection_dialog = True
     
-    def close_dialog(self, junk_value=False):
+    def close_dialog(self):
         self.new_collection_name=""
         self.show_create_button = False
         self.open_new_collection_dialog = False
@@ -61,12 +61,12 @@ class CollectionState(State):
         self.load_any_page()
         self.update_collections()
     
-    def delete_collection(self, collection_id):
+    def delete_collection(self, collection_id: str):
         delete_collection_from_db(collection_id)
         self.collection_ids.remove(collection_id)
         self.display_my_collections = [x for x in self.display_my_collections if x['id'] != collection_id]
 
-    def copy_collection(self, collection_obj):
+    def copy_collection(self, collection_obj: dict):
         yield rx.set_clipboard(f"{app_link}/collection?id={collection_obj['id']}")
         yield rx.toast.success(f"Collection link to {collection_obj['name']} copied to clipboard")
 
@@ -87,7 +87,7 @@ class ImportRepoState(CollectionState):
             self.input_box_color="red"
             self.show_import_button = False
     
-    def close_dialog(self, junk_value=False):
+    def close_dialog(self):
         self.repo_url=""
         self.show_import_button = False
         self.input_box_color="blue"
@@ -228,11 +228,11 @@ class ConfirmDeleteDialogState(CollectionState):
 
     collection_id_to_be_deleted:str
     collection_name_to_be_deleted:str
-    def open_dialog(self, collection_id, collection_name):
+    def open_dialog(self, collection_id:str, collection_name:str):
         self.open_dialog_bool = True
         self.collection_id_to_be_deleted = collection_id
         self.collection_name_to_be_deleted = collection_name
-    def close_dialog(self, discard):
+    def close_dialog(self):
         self.open_dialog_bool = False
     def delete_collection(self):
         collection_id = self.collection_id_to_be_deleted

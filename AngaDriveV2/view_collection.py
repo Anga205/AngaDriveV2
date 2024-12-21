@@ -33,12 +33,12 @@ class ViewCollectionState(State):
         self.collection_folders = [collection_info_for_display(folder) for folder in collection_folders]
         self.has_both_folders_and_files = bool(self.collection_folders) and bool(self.collection_files)
 
-    def remove_file_from_collection(self, file_dict):
+    def remove_file_from_collection(self, file_dict: dict[str,str]):
         remove_file_from_collection_db(collection_id=self.collection_id, file_path=file_dict["file_path"])
         self.collection_files.remove(file_dict)
         self.has_both_folders_and_files = bool(self.collection_folders) and bool(self.collection_files)
 
-    def delete_file_from_collection(self, file_dict):
+    def delete_file_from_collection(self, file_dict: dict[str,str]):
         filename = file_dict["file_path"]
         try:
             os.remove(os.path.join(file_directory,filename))
@@ -51,7 +51,7 @@ class ViewCollectionState(State):
         self.collection_files.remove(file_dict)
         self.has_both_folders_and_files = bool(self.collection_folders) and bool(self.collection_files)
     
-    def copy_collection_link(self, collection_dict):
+    def copy_collection_link(self, collection_dict: dict[str,str]):
         yield rx.set_clipboard(f"{app_link}/collection/?id={collection_dict['id']}")
         yield rx.toast.success(f"Copied link to {collection_dict['full_name']}")
 
@@ -126,7 +126,7 @@ def view_collection_file_editor_menu(file_obj, **kwargs):
                 border_radius="2vh",
                 height="30px",
                 width="17%",
-                on_click=rx.redirect(file_obj["file_link"], external=True)
+                on_click=rx.redirect(file_obj["file_link"], is_external=True)
             ),
             label="View file"
         ),
@@ -345,9 +345,9 @@ def add_file_to_collection_dialog(trigger, **kwargs):
                     )
                 )
             ),
-            on_interact_outside=lambda x: AddFileDialogState.close_dialog(),
-            on_escape_key_down=lambda x: AddFileDialogState.close_dialog(),
-            on_pointer_down_outside=lambda x: AddFileDialogState.close_dialog(),
+            on_interact_outside=AddFileDialogState.close_dialog,
+            on_escape_key_down=AddFileDialogState.close_dialog,
+            on_pointer_down_outside=AddFileDialogState.close_dialog,
             bg="#0f0f0f"
         ),
         open=AddFileDialogState.dialog_open_bool
@@ -446,7 +446,7 @@ class AddFolderDialogState(ViewCollectionState):
             self.close_dialog()
 
     enable_save_folder_changes_button:bool = False
-    def update_checkbox(self, folder_id):
+    def update_checkbox(self, folder_id: str):
         self.user_updated_folders_in_collection[folder_id] = not self.user_updated_folders_in_collection[folder_id]
         if self.user_folders_in_collection != self.user_updated_folders_in_collection:
             self.enable_save_folder_changes_button = True
@@ -465,7 +465,7 @@ class AddFolderDialogState(ViewCollectionState):
                 self.collection_folders.remove(collection_info_for_display(i))
         self.close_dialog()
     
-    def remove_folder_from_collection(self, folder_obj):
+    def remove_folder_from_collection(self, folder_obj: dict[str,str]):
         remove_folder_from_collection(folder_id=folder_obj['id'], collection_id=self.collection_id)
         self.collection_folders.remove(folder_obj)
         self.has_both_folders_and_files = bool(self.collection_folders) and bool(self.collection_files)
@@ -570,9 +570,9 @@ def add_folder_dialog(trigger, **kwargs):
                     ),
                 ),
             ),
-            on_interact_outside=lambda x: AddFolderDialogState.close_dialog(),
-            on_escape_key_down=lambda x: AddFolderDialogState.close_dialog(),
-            on_pointer_down_outside=lambda x: AddFolderDialogState.close_dialog(),
+            on_interact_outside=AddFolderDialogState.close_dialog,
+            on_escape_key_down=AddFolderDialogState.close_dialog,
+            on_pointer_down_outside=AddFolderDialogState.close_dialog,
             bg="#0f0f0f"
         ),
         open=AddFolderDialogState.dialog_open_bool

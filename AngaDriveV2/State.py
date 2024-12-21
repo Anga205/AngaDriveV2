@@ -17,7 +17,7 @@ class State(rx.State):
     temperature_available:bool
 
     token:str = rx.LocalStorage(name="token")
-    is_logged_in = rx.LocalStorage(name="logged_in")
+    is_logged_in: str = rx.LocalStorage(name="logged_in")
     username:str = "{username}"
     email:str = "{email_id}"
 
@@ -148,12 +148,12 @@ class State(rx.State):
         yield rx.redirect("/my_drive")
         yield rx.toast.success("Files successfully uploaded")
     
-    def upload_progressbar(self, prog):
+    def upload_progressbar(self, prog: dict):
         self.upload_progress = prog["progress"]*100
         if prog["progress"] == 1:
             self.upload_progress=0
     
-    def delete_file(self, file_obj):
+    def delete_file(self, file_obj: dict[str, str]):
         try:
             if file_obj not in self.user_files:
                 return rx.toast.error("File not found")
@@ -179,20 +179,20 @@ class State(rx.State):
         yield rx.set_clipboard(valid_file_link+file_path.replace(" ","%20"))
         yield rx.toast.success("File link copied to clipboard")
     
-    def copy_file_path(self, file_obj):
+    def copy_file_path(self, file_obj: dict[str, str]):
         valid_file_link = cache_link if file_obj.get("cached") else file_link
         yield rx.set_clipboard(valid_file_link+file_obj["file_path"])
         yield rx.toast.success("File path copied to clipboard")
 
-    def copy_download_link(self, file_obj):
+    def copy_download_link(self, file_obj: dict[str, str]):
         valid_download_link = cached_download_link if file_obj.get("cached") else download_link
         yield rx.set_clipboard(valid_download_link+file_obj["file_path"])
         yield rx.toast.success("Download link copied to clipboard")
     
-    def download_file(self, file_obj):
+    def download_file(self, file_obj: dict[str, str]):
         add_timestamp_to_activity()
         valid_download_link = cached_download_link if file_obj.get("cached") else download_link
-        return rx.redirect(valid_download_link+file_obj.get("file_path"), external=True, replace=True)
+        return rx.redirect(valid_download_link+file_obj.get("file_path"), is_external=True, replace=True)
 
     def logout(self):
         self.token = gen_token()

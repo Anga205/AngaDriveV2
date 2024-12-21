@@ -11,8 +11,8 @@ class SystemHealthState(State):
     show_system_health:bool = False
 
     _n_tasks:int = 0
-    @rx.background
-    async def tick_health(self, date):
+    @rx.event(background=True)
+    async def tick_health(self, date: str):
         async with self:
             if self._n_tasks>0:
                 return
@@ -39,7 +39,7 @@ class SystemHealthState(State):
         self.show_system_health = False
         self.load_system_health_checker = False
 
-    def close_system_health(self, junk=False):
+    def close_system_health(self):
         self.close_system_health_no_params()
 
 def shared_navbar(**kwargs) -> rx.Component:
@@ -101,7 +101,7 @@ def shared_navbar(**kwargs) -> rx.Component:
             color="white",
             height="4.9vh",
             bg = "black",
-            spacing = "1vh",
+            spacing = "1",
             width="100%",
             align="center",
             justify="center"
@@ -114,7 +114,7 @@ def shared_navbar(**kwargs) -> rx.Component:
         bg="BLACK",
         height="5vh",
         width="100%",
-        spacing="0vh",
+        spacing="0",
         **kwargs
     )
 
@@ -201,8 +201,8 @@ def account_manager_wrapper(component, **kwargs):
                 width="100%"
             ),
             bg="#0f0f0f",
-            on_escape_key_down=lambda _: AccountManagerState.close_dialog(),
-            on_pointer_down_outside=lambda _: AccountManagerState.close_dialog(),
+            on_escape_key_down=AccountManagerState.close_dialog,
+            on_pointer_down_outside=AccountManagerState.close_dialog,
         ),
         open=AccountManagerState.dialog_bool,
     )
@@ -243,7 +243,7 @@ def sidebar_login_widget():
                 ),
                 width="49%"
             ),
-            spacing="0px",
+            spacing="0",
             width="100%"
         ),
         tpu_signup_button(
@@ -251,7 +251,8 @@ def sidebar_login_widget():
             height="4vh",
             border_radius="0.5vh",
         ),
-        spacing="5px",
+        spacing="1",
+        padding="5px",
         width="100%",
     )
 
@@ -283,12 +284,12 @@ def sidebar_account_widget():
                 ),
                 width="100%",
                 height="40px",
-                spacing="0vh",
+                spacing="0",
                 font_size="1.65vh",
                 border_radius="0vh",
                 color="WHITE",
                 align="center",
-                padding="5px",
+                padding="5",
                 _hover={"color":"#e0e0e0","bg":"#1f1f1f"},
                 on_click=AccountManagerState.open_dialog
             )
@@ -319,7 +320,7 @@ def shared_sidebar(opened_page, **kwargs):
                 rx.spacer(),
                 width="100%",
                 height="5vh",
-                spacing="0vh",
+                spacing="0",
                 font_size="1.65vh",
                 border_radius="0vh",
                 font_weight="bold",
@@ -368,11 +369,11 @@ def shared_sidebar(opened_page, **kwargs):
                 sidebar_login_widget(),
             ),
             width="100%",
-            padding="5px"
+            padding="5"
         ),
         height="100%",
         width="12%",
-        spacing="0vh",
+        spacing="0",
         position="fixed",
         bg="BLACK",
         **kwargs
@@ -389,8 +390,8 @@ def upload_container(component):
         component,
         on_drop=upload_handler_spec,
         width="100%",
-        spacing="0vh",
-        padding="0px",
+        spacing="0",
+        padding="0",
         border="solid 0px #000000",
         id="upload1",
         no_click=True,
@@ -408,13 +409,13 @@ def site_template(page_opened, components=rx.spacer()):
                 ),
                 shared_navbar(),
                 components,
-                spacing="0.75vh",
+                spacing="1",
                 height="100vh",
                 width="88%",
                 bg="#0f0f0f"
             ),  
             bg="#0f0f0f",
-            spacing="0vh",
+            spacing="0",
             height="100vh",
             width="100%"
         )
@@ -482,7 +483,7 @@ def file_details(file_obj, **kwargs):
                 rx.text(
                     "File Size:"
                 ),
-                spacing="0px",
+                spacing="0",
                 justify="start",
                 align_items="start",
             ),
@@ -496,7 +497,7 @@ def file_details(file_obj, **kwargs):
                 rx.text(
                     file_obj["size"] # file size like 32KB
                 ),
-                spacing="0px",
+                spacing="0",
                 justify="start",
                 align_items="start",
             ),
@@ -507,9 +508,9 @@ def file_details(file_obj, **kwargs):
             color="GRAY",
         ),
         rx.box(
-            height="5px"
+            height="5"
         ),
-        spacing="0.75vh",
+        spacing="1",
         border_color="#1c1c1c",
         border_width="0.2vh",
         width="100%",
@@ -533,6 +534,7 @@ def file_editor_menu(file_obj, **kwargs):
             ),
             content = "Delete"
         ),
+        rx.spacer(),
         rx.tooltip(
             rx.button(
                 rx.icon(
@@ -548,6 +550,7 @@ def file_editor_menu(file_obj, **kwargs):
             ),
             content="Copy Link"
         ),
+        rx.spacer(),
         rx.tooltip(
             rx.button(
                 rx.icon(
@@ -563,6 +566,7 @@ def file_editor_menu(file_obj, **kwargs):
             ),
             content="Download File"
         ),
+        rx.spacer(),
         rx.tooltip(
             rx.link(
                 rx.button(
@@ -574,6 +578,7 @@ def file_editor_menu(file_obj, **kwargs):
                     _hover = {"bg":"#413511","color":"#ffc200"},
                     border_radius="2vh",
                     height="30px",
+                    width="100%"
                 ),
                 href=file_obj["file_link"],
                 target="_blank",
@@ -584,14 +589,13 @@ def file_editor_menu(file_obj, **kwargs):
         justify_content="center",
         align_items="center",
         height="42px",
-        spacing="20px",
-        width="100%",
+        width="75%",
         border_color="#1c1c1c",
         **kwargs,
     ),
 
 class FileCardState(State):
-    def switch_caching(self, file_obj):
+    def switch_caching(self, file_obj: dict):
         switch_cache_status(file_obj["file_path"])
         for file in self.user_files:
             if file["file_path"] == file_obj["file_path"]:
@@ -632,7 +636,7 @@ def file_card(file_obj):
             border_radius= "0vh 0vh 1vh 1vh"
         ),
         width="290px",
-        spacing="0px"
+        spacing="0"
     ),
     file_obj
 )
@@ -653,11 +657,11 @@ def view_under_construction():
         width="100%"
     )
 
-def empty_component(width="0px", height="0px"):
+def empty_component(width="0", height="0"):
     return rx.box(
         width=width,
         height=height,
-        display="none" if (width=="0px" and height=="0px") else "inline"
+        display="none" if (width=="0" and height=="0") else "inline"
     )
 
 
@@ -672,7 +676,7 @@ class TabletNavbarState(SystemHealthState):
         self.show_system_health_for_tablet = False
         self.load_system_health_checker = False
     
-    def close_system_health_for_tablet(self, discard_var=None):
+    def close_system_health_for_tablet(self):
         self.close_system_health_no_params_for_tablet()
 
 
@@ -789,7 +793,7 @@ def tablet_navbar(current_page):            # has a height of 50px
     rx.vstack(
         rx.hstack(
             empty_component(
-                width="5px"
+                width="5"
             ),
             tablet_drawer(
                 rx.icon(
@@ -862,7 +866,7 @@ def tablet_navbar(current_page):            # has a height of 50px
                         ),
                         color="WHITE",
                         bg="BLACK",
-                        border_width="0px",
+                        border_width="0",
                         border_radius="0.5vh",
                         border_color="BLACK",
                     ),
@@ -1003,5 +1007,5 @@ def desktop_collection_card(collection_obj, copy_function=rx.set_clipboard("ERRO
         padding="20px",
         bg="#1c1c1c",
         width="250px",
-        border_radius="5px"
+        border_radius="5"
     )

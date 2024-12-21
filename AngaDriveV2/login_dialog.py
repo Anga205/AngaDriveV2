@@ -161,7 +161,7 @@ class SignUpPopupState(LoginState):
             self.signup_retyped_password_focus_color:str = self.signup_password_focus_color
         self.enable_signup_button()
     
-    def close_dialog(self, empty_var):
+    def close_dialog(self):
         self.login_email_id = ""
         self.login_password = ""
         self.is_invalid_login_email_id:bool = False
@@ -273,7 +273,7 @@ class LoginSwitchState(LoginState):
         self.should_it_load_switch = does_user_have_files(self.token)
         self.login_switch_state = self.should_it_load_switch
 
-    def switch(self, new_switch_state):
+    def switch(self, new_switch_state: bool):
         self.login_switch_state = new_switch_state
         if new_switch_state == True:
             self.hover_card_text = "Transfer files after login"

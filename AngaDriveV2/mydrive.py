@@ -8,7 +8,7 @@ class UploadState(State):
     file_link:str
     input_color:str = "BLUE"
 
-    def set_file_link(self, value):
+    def set_file_link(self, value:str):
         self.file_link = value
         if is_valid_http_url(value) or value=="":
             self.input_color="BLUE"
@@ -185,8 +185,8 @@ def upload_button():
         ),
         bg="#111111",
         color="WHITE",
-        on_escape_key_down=lambda x: UploadState.close_dialog(),
-        on_pointer_down_outside=lambda x: UploadState.close_dialog()
+        on_escape_key_down=UploadState.close_dialog,
+        on_pointer_down_outside=UploadState.close_dialog
     ),
     open=UploadState.open_upload_dialog
 )
@@ -229,6 +229,7 @@ def desktop_index():
                             file_card
                         ),
                         wrap="wrap",
+                        padding="5px",
                         spacing='2',
                     ),
                     rx_chakra.vstack(

@@ -290,7 +290,7 @@ def login_button_group() -> rx.Component:
                 width="90%"
             ),
             height="100%",
-            spacing="0vh",
+            spacing="0",
             width="100%"
         ),
         tpu_signup_button(
@@ -300,7 +300,7 @@ def login_button_group() -> rx.Component:
             border_radius="0vh 0vh 1vh 1vh"
         ),
         height="100%",
-        spacing="0vh",
+        spacing="0",
         width="40%",
     )
 
@@ -321,13 +321,13 @@ class AccountEditorState(State):
         self.show_account_deletion_file_switch = user_files_bool
         self.account_deletion_file_switch = user_files_bool
 
-    def close_account_deletion_dialog(self, discard_var=None):
+    def close_account_deletion_dialog(self):
         self.account_deletion_password:str = ""
         self.account_deletion_dialog = False
     
-    def switch_account_deletion_file_switch(self, new_value):
+    def switch_account_deletion_file_switch(self, new_value:bool):
         self.account_deletion_file_switch = new_value
-        if new_value==True:
+        if new_value:
             self.switch_tooltip_text = "Your files will be deleted"
         else:
             self.switch_tooltip_text = "Your files will not be deleted"
@@ -518,7 +518,7 @@ class SettingsState(State):
     def open_coming_soon(self):
         self.show_coming_soon = True
     
-    def close_coming_soon(self, discard=False):
+    def close_coming_soon(self):
         self.show_coming_soon = False
 
 def coming_soon_dialog(trigger, **kwargs):
@@ -564,8 +564,8 @@ def settings_widget_desktop(**kwargs):
                         justify="center",
                         overflow="auto",
                         height="100%",
-                        spacing="0vh",
-                        padding="0vh",
+                        spacing="0",
+                        padding="0",
                         width="100%",
                         align="center"
                     ),
@@ -622,7 +622,7 @@ def settings_widget_desktop(**kwargs):
                     on_click=SettingsState.open_coming_soon
                 )
             ),
-            spacing="1vh",
+            spacing="1",
             overflow="hidden",
             width="100%",
             height="80%"
@@ -673,7 +673,7 @@ def import_files(**kwargs):
                 ),
                 height="13vh",
                 font_size="1.3vh",
-                spacing="0vh"
+                spacing="0"
             ),
             rx.tabs.content(
                 rx.vstack(
@@ -697,7 +697,7 @@ def import_files(**kwargs):
                         width="100%"
                     ),
                     rx.spacer(),
-                    spacing="1vh",
+                    spacing="1",
                     height="100%",
                     padding="10px"
                 ),
@@ -725,7 +725,7 @@ def import_files(**kwargs):
                         width="100%"
                     ),
                     rx.spacer(),
-                    spacing="1vh",
+                    spacing="1",
                     height="100%",
                     padding="10px"
                 ),
@@ -753,7 +753,7 @@ def import_files(**kwargs):
                         width="100%"
                     ),
                     rx.spacer(),
-                    spacing="1vh",
+                    spacing="1",
                     style={"height":"100%"},
                     height="100%",
                     padding="10px"
@@ -768,14 +768,14 @@ def import_files(**kwargs):
             border_radius="1vh",
             on_click=SettingsState.open_coming_soon,
             height="100%",
-            spacing="1vh"
+            spacing="1"
         ),
         overflow="auto",
         bg="rgb(67, 108, 49, 0.1)",
         border_radius="1vh",
         align="center",
         padding="1vh",
-        spacing="1vh",
+        spacing="1",
         **kwargs
     )
 
@@ -883,7 +883,7 @@ def bulk_actions_widget(**kwargs):
                     ),
                 ),
                 default_index=[0],
-                spacing="0vh",
+                spacing="0",
                 width="100%",
                 height="100%"
             ),
@@ -894,7 +894,7 @@ def bulk_actions_widget(**kwargs):
         padding="1vh",
         border_radius="1vh",
         bg="rgb(120, 122, 151, 0.1)",
-        spacing="1vh",
+        spacing="1",
         on_click=SettingsState.open_coming_soon,
         overflow="auto",
         **kwargs
@@ -933,7 +933,7 @@ def contact_me_widget(**kwargs):
         ),
         border_radius="1vh",
         padding="1vh",
-        spacing="1vh",
+        spacing="1",
         bg="rgb(184, 109, 119, 0.1)",
         overflow="auto",
         **kwargs
@@ -974,7 +974,7 @@ def desktop_index():
                     ),
                     height="78%",
                     width="100%",
-                    spacing="1vh"
+                    spacing="1"
                 ),
                 import_files(
                     width="100%",
