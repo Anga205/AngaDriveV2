@@ -453,6 +453,7 @@ def file_details(file_obj, **kwargs):
                     fallback=rx.text("failed to load"),
                     opacity="0.7",
                     custom_attrs={"draggable":"false"},
+                    loading="lazy",
                     style={"max-height":"65%","max-width":"100%"}
                 ),
                 rx.icon(
