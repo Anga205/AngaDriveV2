@@ -461,7 +461,10 @@ def tablet_index():
                 rx.accordion.root(
                     rx.foreach(
                         CollectionState.display_my_collections,
-                        tablet_collection_display_accordian
+                        lambda collection_obj: conditional_render(
+                            ~collection_obj['hidden'],
+                            tablet_collection_display_accordian(collection_obj)
+                        )
                     ),
                     width="100%",
                     collapsible=True,
