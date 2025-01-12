@@ -458,9 +458,10 @@ def get_file_info_for_card(file_path:str) -> dict[str,str]:
         "size"          : format_bytes(file_data.get(file_path, {}).get("file_size", 0)),                               # like 75.1 KB
         "timestamp"     : time.ctime(file_data.get(file_path, {}).get("timestamp", 0)),                                 # like wed 23 jun 2023
         "truncated_name": truncate_string(file_data.get(file_path, {}).get("original_file_name", "Error"), length=20),  # like origina....
-        "file_link"     : file_link+file_path,                                                                          # like https://file.anga.pro/i/vb78duvhs6s.png
+        "file_link"     : (cache_link if file_data.get(file_path, {}).get("cached", False) else file_link)+file_path,   # like https://file.anga.pro/i/vb78duvhs6s.png its complex because of caching
         "previewable"   : can_be_previewed(file_path),                                                                  # like True
-        "owner_token"   : file_data.get(file_path, {}).get("account_token", "Error")
+        "owner_token"   : file_data.get(file_path, {}).get("account_token", "Error"),                                   # its the user token
+        "cached"        : file_data.get(file_path, {}).get("cached", False)                                             # like True
     }
 
 def add_file_to_collection(collection_id, file_path):

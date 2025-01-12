@@ -403,9 +403,6 @@ def site_template(page_opened, components=rx.spacer()):
             shared_sidebar(opened_page=page_opened),
             rx.box(width="12%"),
             rx.vstack(
-                shared_navbar(
-                    position="fixed"
-                ),
                 shared_navbar(),
                 components,
                 spacing="0.75vh",
@@ -451,6 +448,7 @@ def file_details(file_obj, **kwargs):
                     data=file_obj["file_link"],
                     fallback=rx.text("failed to load"),
                     opacity="0.7",
+                    loading="lazy",
                     custom_attrs={"draggable":"false"},
                     style={"max-height":"65%","max-width":"100%"}
                 ),
