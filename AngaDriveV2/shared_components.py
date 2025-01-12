@@ -972,7 +972,6 @@ def desktop_collection_card(collection_obj, copy_function=rx.set_clipboard("ERRO
                         variant="soft"
                     ),
                     href=f"{app_link}/collection/?id={collection_obj['id']}",
-                    target="_blank"
                 ),
                 label="View Collection"
             ),

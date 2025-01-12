@@ -738,8 +738,7 @@ def tablet_collection_display_accordian(collection_obj):  # collection_obj consi
                         variant="soft",
                         radius="large"
                     ),
-                    href=f"{app_link}/collection?id={collection_obj['id']}",
-                    target="_blank"
+                    href=f"{app_link}/collection?id={collection_obj['id']}"
                 ),
                 rx.spacer(),
                 rx.button(
