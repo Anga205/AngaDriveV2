@@ -119,6 +119,9 @@ class State(rx.State):
     def load_files_page(self):
         self.load_any_page()
         self.user_files: list[dict[str, str]] = get_all_user_files_for_display(self.token)
+        if len(self.user_files) > 25:
+            for i in range(7, len(self.user_files)):
+                self.user_files[i]["previewable"] = False
 
 
     async def page_not_found_redirect_back_to_home_page(self):
