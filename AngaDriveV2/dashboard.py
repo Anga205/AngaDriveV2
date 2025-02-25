@@ -963,26 +963,15 @@ def desktop_index():
                 width="50%"
             ),
             rx_chakra.vstack(
-                rx_chakra.hstack(
-                    bulk_actions_widget(
-                        height="100%",
-                        width="50%"
-                    ),
-                    contact_me_widget(
-                        height="100%",
-                        width="50%"
-                    ),
-                    height="78%",
-                    width="100%",
-                    spacing="1vh"
+                rx.heading(
+                    "More features coming soon!",
                 ),
-                import_files(
-                    width="100%",
-                    height="22%"
-                ),
-                height="100%",
+                align_items="center",
+                justify="center",
+                bg="rgb(255,0,255,0.08)",
+                border_radius="1vh",
                 width="50%",
-                spacing="0.75vh"
+                height="100%"
             ),
             rx_chakra.box(
                 height="0vh",

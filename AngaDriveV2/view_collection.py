@@ -126,7 +126,7 @@ def view_collection_file_editor_menu(file_obj, **kwargs):
                 border_radius="2vh",
                 height="30px",
                 width="17%",
-                on_click=rx.redirect(file_obj["file_link"], external=True)
+                on_click=rx.redirect(file_obj["file_link_with_name"], external=True)
             ),
             label="View file"
         ),

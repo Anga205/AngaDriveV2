@@ -573,7 +573,7 @@ def file_editor_menu(file_obj, **kwargs):
                     border_radius="2vh",
                     height="30px",
                 ),
-                href=file_obj["file_link"],
+                href=file_obj["file_link_with_name"],
                 target="_blank",
                 width="15%"
             ),

@@ -181,7 +181,7 @@ class State(rx.State):
         valid_file_link = cache_link if file_obj.get("cached") else file_link
         yield rx.set_clipboard(valid_file_link+file_path.replace(" ","%20"))
         yield rx.toast.success("File link copied to clipboard")
-    
+        
     def copy_file_path(self, file_obj):
         valid_file_link = cache_link if file_obj.get("cached") else file_link
         yield rx.set_clipboard(valid_file_link+file_obj["file_path"])

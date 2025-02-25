@@ -222,15 +222,16 @@ def get_all_user_files_for_display(account_token) -> list[dict[str, str]]:
     for file in file_data:
         if file_data[file]["account_token"]==account_token:
             rows.append({
-                "original_name" : file_data[file]["original_file_name"],                                 # like original_name.png
-                "file_path"     : file_data[file]["file_directory"],                                 # like vb78duvhs6s.png
-                "size"          : format_bytes(file_data[file]["file_size"]),                   # like 75.1 KB
-                "timestamp"     : time.ctime(file_data[file]["timestamp"]),                     # like wed 23 june 2023
-                "truncated_name": truncate_string(file_data[file]["original_file_name"], length=20),     # like origina....
-                "file_link"     : file_link+file_data[file]["file_directory"],                       # like https://file.anga.pro/i/vb78duvhs6s.png
-                "previewable"   : can_be_previewed(file_data[file]["file_directory"]),               # like True
-                "owner_token"   : account_token,
-                "cached"        : file_data[file]["cached"]
+                "original_name"         : file_data[file]["original_file_name"],                                 # like original_name.png
+                "file_path"             : file_data[file]["file_directory"],                                 # like vb78duvhs6s.png
+                "size"                  : format_bytes(file_data[file]["file_size"]),                   # like 75.1 KB
+                "timestamp"             : time.ctime(file_data[file]["timestamp"]),                     # like wed 23 june 2023
+                "truncated_name"        : truncate_string(file_data[file]["original_file_name"], length=20),     # like origina....
+                "file_link"             : file_link+file_data[file]["file_directory"],                       # like https://file.anga.pro/i/vb78duvhs6s.png
+                "file_link_with_name"   : file_link+"/".join([file_data[file]["file_directory"].split(".")[0], file_data[file]["original_file_name"]]).replace(" ","%20"), # like https://file.anga.pro/i/vb78duvhs6s/original_name.png
+                "previewable"           : can_be_previewed(file_data[file]["file_directory"]),               # like True
+                "owner_token"           : account_token,
+                "cached"                : file_data[file]["cached"]
             })
     return list(reversed(rows))       # reversed to put the most recently uploaded files at the top
 
@@ -461,6 +462,7 @@ def get_file_info_for_card(file_path:str) -> dict[str,str]:
         "file_link"     : (cache_link if file_data.get(file_path, {}).get("cached", False) else file_link)+file_path,   # like https://file.anga.pro/i/vb78duvhs6s.png its complex because of caching
         "previewable"   : can_be_previewed(file_path),                                                                  # like True
         "owner_token"   : file_data.get(file_path, {}).get("account_token", "Error"),                                   # its the user token
+        "file_link_with_name": (cache_link if file_data.get(file_path, {}).get("cached", False) else file_link)+"/".join([file_data.get(file_path, "Error_Retreiving_file_path")["file_directory"].split(".")[0], file_data.get(file_path, "Error_Retreiving_file_path")["original_file_name"]]).replace(" ","%20"), # like https://file.anga.pro/i/vb78duvhs6s/original_name.png
         "cached"        : file_data.get(file_path, {}).get("cached", False)                                             # like True
     }
 
@@ -539,10 +541,10 @@ def save_file_from_link(file_link: str, filename: str, account_token:str):
 
 def switch_cache_status(file_path:str):
     global file_data
-    file_data[file_path]["cached"] = not file_data[file_path]["cached"]
+    file_data.get(file_path, "Error_Retreiving_file_path")["cached"] = not file_data.get(file_path, "Error_Retreiving_file_path")["cached"]
 
     global con, cur
-    cur.execute(f"UPDATE file_data SET cached = ? WHERE file_directory = ?", (int(file_data[file_path]["cached"]), file_path))
+    cur.execute(f"UPDATE file_data SET cached = ? WHERE file_directory = ?", (int(file_data.get(file_path, "Error_Retreiving_file_path")["cached"]), file_path))
     con.commit()
 
 @asynccontextmanager
